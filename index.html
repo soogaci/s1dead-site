@@ -1,215 +1,519 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
   <title>@s1deed</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://kit.fontawesome.com/a2d9d5c9a7.js" crossorigin="anonymous"></script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
   <style>
     :root{
-      --accent: 155 81 255;
+      --accent: 155 81 255;        /* будет меняться от трека */
+      --accent2: 80 220 255;       /* доп оттенок */
       --glass: rgba(255,255,255,.10);
-      --glassBorder: rgba(255,255,255,.18);
-      --txt: rgba(255,255,255,.92);
-      --muted: rgba(255,255,255,.65);
+      --border: rgba(255,255,255,.16);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.70);
+      --shadow: 0 22px 70px rgba(0,0,0,.45);
     }
 
-    *{box-sizing:border-box}
-    html,body{height:100%}
+    *{ box-sizing:border-box; margin:0; padding:0; }
+    html,body{ height:100%; }
     body{
-      margin:0;
-      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      color: var(--txt);
-      background:
-        radial-gradient(1200px 600px at 20% 10%, rgba(var(--accent)/.35), transparent 60%),
-        radial-gradient(900px 500px at 80% 90%, rgba(120 70 255/.25), transparent 60%),
-        linear-gradient(180deg, #0b0b12, #0a0a0f);
+      font-family: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
+      color: var(--text);
       overflow:hidden;
+      background: #07070b;
       padding-top: env(safe-area-inset-top);
       padding-bottom: env(safe-area-inset-bottom);
     }
 
+    /* BACKGROUND = avatar blurred + dynamic accent glow */
     .bg{
       position:fixed; inset:0;
       background:url("avatar.jpg") center/cover no-repeat;
-      filter: blur(22px) saturate(130%) brightness(.7);
-      transform: scale(1.1);
-      z-index:-2;
+      filter: blur(26px) saturate(135%) brightness(.72);
+      transform: scale(1.12);
+      z-index:-4;
     }
-    .noise{
+    .glow{
+      position:fixed; inset:-80px;
+      z-index:-3;
+      pointer-events:none;
+      background:
+        radial-gradient(900px 650px at 18% 10%, rgba(var(--accent), .38), transparent 62%),
+        radial-gradient(800px 600px at 82% 18%, rgba(var(--accent2), .20), transparent 65%),
+        radial-gradient(900px 700px at 50% 92%, rgba(var(--accent), .18), transparent 70%);
+      filter: blur(10px);
+      transition: background .35s ease;
+    }
+    .grain{
       position:fixed; inset:0;
-      background:url("https://grainy-gradients.vercel.app/noise.svg");
-      opacity:.08; pointer-events:none; z-index:-1;
+      z-index:-2;
+      pointer-events:none;
+      opacity:.08;
+      background-image:url("https://grainy-gradients.vercel.app/noise.svg");
     }
 
+    /* liquid glass feel */
     .glass{
-      background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.04));
-      border:1px solid var(--glassBorder);
-      backdrop-filter: blur(22px) saturate(150%);
-      box-shadow: 0 30px 80px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.25);
+      background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.06));
+      border: 1px solid var(--border);
+      backdrop-filter: blur(22px) saturate(160%);
+      -webkit-backdrop-filter: blur(22px) saturate(160%);
+      box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,.20);
     }
 
+    /* SPOTIFY CARD */
     .spotify{
       position:absolute;
-      top:14px; left:50%; transform:translateX(-50%);
-      min-width: 420px;
-      max-width: min(720px, 96vw);
+      top:14px;
+      left:50%;
+      transform:translateX(-50%);
+      width:min(720px, 96vw);
       padding:14px 16px;
-      border-radius:20px;
-      display:flex; gap:12px; align-items:center;
-    }
-    .dot{width:8px;height:8px;border-radius:50%;background:#34c759}
-    .spotCover{width:56px;height:56px;border-radius:14px;object-fit:cover; box-shadow:0 10px 30px rgba(0,0,0,.35)}
-    .spotTxt{min-width:0}
-    .spotTitle{font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-    .spotArtist{color:var(--muted); font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-    .openSpotify{margin-left:auto; opacity:.9}
-
-    .center{
-      position:absolute; left:50%; top:50%;
-      transform:translate(-50%,-50%);
-      display:flex; flex-direction:column; align-items:center; gap:10px;
-      text-align:center;
-    }
-    .avatarCard{
-      width:min(420px, 86vw);
-      border-radius:26px;
+      border-radius:22px;
+      display:flex;
+      align-items:center;
+      gap:12px;
       overflow:hidden;
     }
-    .avatar{
-      width:100%; height:auto; display:block;
+    .spotify::before{
+      content:"";
+      position:absolute;
+      inset:-120px;
+      background: radial-gradient(520px 240px at 10% 10%, rgba(255,255,255,.18), transparent 60%);
+      opacity:.8;
+      pointer-events:none;
     }
-    .user{
-      font-size:44px; font-weight:800; letter-spacing:.3px;
-      text-shadow: 0 10px 40px rgba(0,0,0,.6);
-    }
-    .welcome{ color:var(--muted); margin-top:-6px }
 
-    .dock{
-      position:absolute; left:50%; transform:translateX(-50%);
+    .spotCover{
+      width:56px; height:56px;
+      border-radius:14px;
+      object-fit:cover;
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow: 0 12px 32px rgba(0,0,0,.35);
+      flex: 0 0 auto;
+      transition: opacity .25s ease, transform .25s ease;
+    }
+
+    .spotMeta{
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+      gap:3px;
+      z-index:1;
+    }
+
+    .spotTop{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      color: rgba(255,255,255,.70);
+      font-size:12px;
+      letter-spacing:.2px;
+    }
+    .liveDot{
+      width:8px; height:8px; border-radius:99px;
+      background:#34c759;
+      box-shadow: 0 0 18px rgba(52,199,89,.55);
+    }
+    .spotTitle{
+      font-weight:800;
+      font-size:15px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width: 420px;
+    }
+    .spotArtist{
+      font-size:13px;
+      color: var(--muted);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width: 420px;
+    }
+
+    .spotRight{
+      margin-left:auto;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      z-index:1;
+    }
+
+    .spotIcon{
+      width:38px; height:38px;
+      display:grid; place-items:center;
+      border-radius:14px;
+      background: rgba(255,255,255,.07);
+      border:1px solid rgba(255,255,255,.12);
+    }
+    .spotIcon i{ color:#1DB954; font-size:18px; }
+
+    /* mono equalizer */
+    .eq{
+      width:34px;
+      height:18px;
+      display:flex;
+      align-items:flex-end;
+      gap:3px;
+      opacity:.90;
+    }
+    .eq span{
+      width:4px;
+      height:6px;
+      border-radius:3px;
+      background: rgba(255,255,255,.85); /* однотонный */
+      box-shadow: 0 10px 30px rgba(255,255,255,.12);
+      transform-origin: bottom;
+      animation: bounce 0.9s ease-in-out infinite;
+    }
+    .eq span:nth-child(2){ animation-delay:.12s; }
+    .eq span:nth-child(3){ animation-delay:.24s; }
+    .eq span:nth-child(4){ animation-delay:.36s; }
+
+    @keyframes bounce{
+      0%,100%{ height:6px; opacity:.65; }
+      50%{ height:18px; opacity:1; }
+    }
+    .eq.paused span{ animation:none; height:6px; opacity:.55; }
+
+    .spotOpen{
+      text-decoration:none;
+      color: rgba(255,255,255,.85);
+      padding:10px 12px;
+      border-radius:14px;
+      background: rgba(255,255,255,.07);
+      border:1px solid rgba(255,255,255,.12);
+      transition:.2s ease;
+      display:none;
+    }
+    .spotOpen:hover{ transform: translateY(-1px); background: rgba(255,255,255,.10); }
+
+    /* CENTER CONTENT */
+    .center{
+      position:absolute;
+      left:50%;
+      top:50%;
+      transform:translate(-50%,-50%);
+      width:min(520px, 92vw);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:12px;
+      text-align:center;
+    }
+
+    .avatarCard{
+      width:min(460px, 92vw);
+      border-radius:28px;
+      overflow:hidden;
+      position:relative;
+    }
+    .avatarCard::after{
+      content:"";
+      position:absolute;
+      inset:-60px;
+      background:
+        radial-gradient(520px 260px at 20% 10%, rgba(255,255,255,.20), transparent 60%),
+        radial-gradient(520px 260px at 80% 90%, rgba(var(--accent), .14), transparent 60%);
+      pointer-events:none;
+      opacity:.9;
+    }
+    .avatarImg{
+      width:100%;
+      height:auto;
+      display:block;
+      object-fit:cover;
+      transform: scale(1.01);
+    }
+
+    .user{
+      font-size:44px;
+      font-weight:900;
+      letter-spacing:.3px;
+      text-shadow: 0 12px 45px rgba(0,0,0,.6);
+    }
+    .welcome{
+      margin-top:-6px;
+      color: var(--muted);
+      font-size:14px;
+    }
+    .oldline{
+      margin-top:2px;
+      color: rgba(255,255,255,.62);
+      font-size:12px;
+    }
+
+    /* SOCIAL BAR (like before) */
+    .socialBar{
+      position:absolute;
+      left:50%;
+      transform:translateX(-50%);
       bottom: calc(14px + env(safe-area-inset-bottom));
       width:min(920px, 96vw);
-      border-radius:28px; padding:14px 16px 12px;
+      border-radius:28px;
+      padding:12px 14px;
+      display:flex;
+      justify-content:space-between;
+      gap:18px;
+      overflow:auto;
     }
-    .dockTop{
-      display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:10px;
-    }
-    .oldInDock, .dockHint{
-      font-size:12px; color:var(--muted);
-      padding:8px 10px; border-radius:14px;
-      background: rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.10);
-      white-space:nowrap;
-    }
-    .oldInDock b{color:#fff}
-    .socials{
-      display:flex; justify-content:space-between; align-items:flex-end; gap:26px; overflow:auto;
-    }
-    .social{
-      min-width:76px; padding:10px 10px 8px; border-radius:18px;
-      text-decoration:none; color:#fff; text-align:center;
-      transition:.18s ease;
-    }
-    .social:hover{ transform:translateY(-3px); background:rgba(255,255,255,.08) }
-    .social i{ font-size:28px }
-    .social span{ display:block; font-size:12px; margin-top:4px; color:var(--muted) }
-    .telegram i{color:#2AABEE}
-    .tiktok i{color:#ff2a6d}
-    .discord i{color:#5865F2}
-    .instagram i{color:#E4405F}
-    .steam i{color:#66c0f4}
-    .spotifyI i{color:#1DB954}
+    .socialBar::-webkit-scrollbar{ height:0px; }
 
-    @media (max-width:620px){
-      .spotify{ left:12px; right:12px; transform:none; top: calc(12px + env(safe-area-inset-top)); min-width:auto }
-      .spotCover{ width:46px; height:46px }
-      .center{ top:52% }
-      .dock{ width:min(560px,95vw); padding:12px 12px 10px; border-radius:24px }
-      .socials{ gap:18px }
-      .social{ min-width:66px; padding:8px 8px 6px; border-radius:16px }
-      .social i{ font-size:26px }
-      .social span{ font-size:11px }
+    .social{
+      min-width:76px;
+      text-decoration:none;
+      color:#fff;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:6px;
+      padding:10px 10px 8px;
+      border-radius:18px;
+      transition: transform .18s ease, background .18s ease;
+    }
+    .social:hover{
+      transform: translateY(-3px);
+      background: rgba(255,255,255,.08);
+    }
+    .social i{
+      font-size:28px;
+      filter: drop-shadow(0 8px 18px rgba(0,0,0,.35));
+    }
+    .social span{
+      font-size:12px;
+      color: rgba(255,255,255,.75);
+    }
+
+    /* brand colors */
+    .telegram i{ color:#2AABEE; }
+    .tiktok i{ color:#FE2C55; }
+    .discord i{ color:#5865F2; }
+    .instagram i{ color:#E1306C; }
+    .steam i{ color:#66C0F4; }
+    .spotifyI i{ color:#1DB954; }
+
+    /* RESPONSIVE FIXES */
+    @media (max-width: 620px){
+      .spotify{
+        top: calc(12px + env(safe-area-inset-top));
+        width: calc(100vw - 24px);
+        padding:12px 12px;
+        border-radius:20px;
+      }
+      .spotCover{ width:46px; height:46px; border-radius:14px; }
+      .spotTitle, .spotArtist{ max-width: 210px; }
+      .spotTitle{ font-size:13px; }
+      .spotArtist{ font-size:12px; }
+      .spotIcon{ width:36px; height:36px; border-radius:14px; }
+      .eq{ width:30px; height:16px; }
+      .eq span{ width:3.5px; }
+
+      /* ключевой фикс: чуть меньше аватар + центр ниже */
+      .center{
+        top: 54%;
+        gap:10px;
+      }
+      .avatarCard{
+        width: min(420px, 92vw);
+        border-radius:24px;
+      }
+      .user{ font-size:34px; }
+      .welcome{ font-size:13px; }
+
+      .socialBar{
+        width: calc(100vw - 24px);
+        border-radius:24px;
+        padding:10px 10px;
+        gap:14px;
+      }
+      .social{
+        min-width:66px;
+        padding:8px 8px 6px;
+        border-radius:16px;
+      }
+      .social i{ font-size:26px; }
+      .social span{ font-size:11px; }
+    }
+
+    @media (max-height: 760px){
+      /* если экран низкий (айфон с Safari панелями) — ещё чуть ниже центр */
+      .center{ top: 56%; }
     }
   </style>
 </head>
+
 <body>
   <div class="bg"></div>
-  <div class="noise"></div>
+  <div class="glow"></div>
+  <div class="grain"></div>
 
-  <!-- Spotify -->
-  <div class="spotify glass">
-    <span class="dot"></span>
-    <img id="cover" class="spotCover" src="" alt="">
-    <div class="spotTxt">
-      <div id="title" class="spotTitle">Loading…</div>
-      <div id="artist" class="spotArtist"></div>
+  <!-- Spotify Card -->
+  <div class="spotify glass" id="spotifyCard">
+    <img id="cover" class="spotCover" alt="cover"/>
+    <div class="spotMeta">
+      <div class="spotTop"><span class="liveDot" id="liveDot"></span><span id="label">Now Playing</span></div>
+      <div class="spotTitle" id="title">Loading…</div>
+      <div class="spotArtist" id="artist"></div>
     </div>
-    <a id="open" class="openSpotify" target="_blank" href="#">
-      <i class="fa-brands fa-spotify"></i>
-    </a>
+
+    <div class="spotRight">
+      <div class="eq" id="eq">
+        <span></span><span></span><span></span><span></span>
+      </div>
+      <div class="spotIcon" aria-hidden="true"><i class="fa-brands fa-spotify"></i></div>
+      <a class="spotOpen" id="open" href="#" target="_blank">Open</a>
+    </div>
   </div>
 
   <!-- Center -->
   <div class="center">
     <div class="avatarCard glass">
-      <img class="avatar" src="avatar.jpg" alt="avatar">
+      <img class="avatarImg" src="avatar.jpg" alt="avatar">
     </div>
     <div class="user">@s1deed</div>
     <div class="welcome">welcome to my bio:</div>
+    <div class="oldline">старый юз: @soogaci</div>
   </div>
 
-  <!-- iOS Dock -->
-  <div class="dock glass">
-    <div class="dockTop">
-      <div class="oldInDock">старый юз: <b>@soogaci</b></div>
-      <div class="dockHint">tap icon</div>
-    </div>
-    <div class="socials">
-      <a class="social telegram" href="https://t.me/s1deed" target="_blank"><i class="fa-brands fa-telegram"></i><span>Telegram</span></a>
-      <a class="social tiktok" href="https://www.tiktok.com/@s1deeed?_r=1&_t=ZS-92QwHlSQe4j" target="_blank"><i class="fa-brands fa-tiktok"></i><span>TikTok</span></a>
-      <a class="social discord" href="https://discord.gg/DuJNA7z2" target="_blank"><i class="fa-brands fa-discord"></i><span>Discord</span></a>
-      <a class="social instagram" href="https://www.instagram.com/s1deed" target="_blank"><i class="fa-brands fa-instagram"></i><span>Instagram</span></a>
-      <a class="social steam" href="https://steamcommunity.com/id/soogaci/" target="_blank"><i class="fa-brands fa-steam"></i><span>Steam</span></a>
-      <a class="social spotifyI" href="https://open.spotify.com/user/31uumxtifdbgfqvll2txasaipgcu" target="_blank"><i class="fa-brands fa-spotify"></i><span>Spotify</span></a>
-    </div>
+  <!-- Social Bar -->
+  <div class="socialBar glass">
+    <a class="social telegram" href="https://t.me/s1deed" target="_blank">
+      <i class="fa-brands fa-telegram"></i><span>Telegram</span>
+    </a>
+    <a class="social tiktok" href="https://www.tiktok.com/@s1deeed?_r=1&_t=ZS-92QwHlSQe4j" target="_blank">
+      <i class="fa-brands fa-tiktok"></i><span>TikTok</span>
+    </a>
+    <a class="social discord" href="https://discord.gg/DuJNA7z2" target="_blank">
+      <i class="fa-brands fa-discord"></i><span>Discord</span>
+    </a>
+    <a class="social instagram" href="https://www.instagram.com/s1deed?igsh=MWg3N3Jmb3oyNnM0Ng%3D%3D&utm_source=qr" target="_blank">
+      <i class="fa-brands fa-instagram"></i><span>Instagram</span>
+    </a>
+    <a class="social steam" href="https://steamcommunity.com/id/soogaci/" target="_blank">
+      <i class="fa-brands fa-steam"></i><span>Steam</span>
+    </a>
+    <a class="social spotifyI" href="https://open.spotify.com/user/31uumxtifdbgfqvll2txasaipgcu" target="_blank">
+      <i class="fa-brands fa-spotify"></i><span>Spotify</span>
+    </a>
   </div>
 
   <script>
     const cover = document.getElementById("cover");
-    const title = document.getElementById("title");
-    const artist = document.getElementById("artist");
-    const open = document.getElementById("open");
+    const titleEl = document.getElementById("title");
+    const artistEl = document.getElementById("artist");
+    const openEl = document.getElementById("open");
+    const eq = document.getElementById("eq");
+    const liveDot = document.getElementById("liveDot");
+    const label = document.getElementById("label");
+
+    let lastKey = "";
+
+    // average color -> [r,g,b]
+    function avgColorFromImage(url){
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = () => {
+          const c = document.createElement("canvas");
+          const ctx = c.getContext("2d");
+          const w = c.width = 40;
+          const h = c.height = 40;
+          ctx.drawImage(img, 0, 0, w, h);
+          const data = ctx.getImageData(0,0,w,h).data;
+          let r=0,g=0,b=0,count=0;
+          for(let i=0;i<data.length;i+=4){
+            r += data[i]; g += data[i+1]; b += data[i+2]; count++;
+          }
+          resolve([Math.round(r/count), Math.round(g/count), Math.round(b/count)]);
+        };
+        img.onerror = () => resolve(null);
+        img.src = url;
+      });
+    }
+
+    // build accent2 as a slightly shifted color
+    function makeAccent2([r,g,b]){
+      // простая "сдвижка" чтобы получить второй оттенок
+      const rr = Math.min(255, Math.round(r * 0.55 + 60));
+      const gg = Math.min(255, Math.round(g * 0.75 + 40));
+      const bb = Math.min(255, Math.round(b * 1.05));
+      return [rr,gg,bb];
+    }
+
+    async function setDynamicTheme(coverUrl){
+      const rgb = await avgColorFromImage(coverUrl);
+      if(!rgb) return;
+      const rgb2 = makeAccent2(rgb);
+      document.documentElement.style.setProperty("--accent", `${rgb[0]} ${rgb[1]} ${rgb[2]}`);
+      document.documentElement.style.setProperty("--accent2", `${rgb2[0]} ${rgb2[1]} ${rgb2[2]}`);
+    }
 
     async function getNowPlaying(){
       try{
-        const r = await fetch("/api/spotify");
+        const r = await fetch("/api/spotify", { cache:"no-store" });
         const d = await r.json();
 
-        if(!d || !d.isPlaying){
-          title.textContent = "Nothing playing";
-          artist.textContent = "";
-          open.style.display = "none";
+        // nothing playing
+        if(!d.isPlaying){
+          titleEl.textContent = "Nothing playing";
+          artistEl.textContent = "";
+          openEl.style.display = "none";
+          eq.classList.add("paused");
+          label.textContent = "Spotify";
+          liveDot.style.background = "rgba(255,255,255,.35)";
+          liveDot.style.boxShadow = "none";
+          lastKey = "";
           return;
         }
 
-        cover.style.opacity = "0";
-        setTimeout(() => {
-          cover.src = d.cover || "";
-          cover.onload = () => cover.style.opacity = "1";
-        }, 120);
+        // playing
+        label.textContent = "Now Playing";
+        liveDot.style.background = "#34c759";
+        liveDot.style.boxShadow = "0 0 18px rgba(52,199,89,.55)";
+        eq.classList.remove("paused");
 
-        title.textContent = d.title || "Playing";
-        artist.textContent = d.artist || "";
-        open.href = d.url || "#";
-        open.style.display = "block";
+        const key = `${d.title}__${d.artist}__${d.cover}`;
+        const changed = key !== lastKey;
+
+        if (changed){
+          // cover fade
+          cover.style.opacity = "0";
+          cover.style.transform = "scale(0.98)";
+          setTimeout(() => {
+            cover.src = d.cover || "";
+          }, 140);
+
+          cover.onload = async () => {
+            cover.style.opacity = "1";
+            cover.style.transform = "scale(1)";
+            if(d.cover) await setDynamicTheme(d.cover);
+          };
+
+          titleEl.textContent = d.title || "Playing";
+          artistEl.textContent = d.artist || "";
+          openEl.href = d.url || "https://open.spotify.com";
+          openEl.style.display = "inline-block";
+
+          lastKey = key;
+        } else {
+          // same track
+          if (!cover.src && d.cover) cover.src = d.cover;
+          if (titleEl.textContent !== d.title) titleEl.textContent = d.title || "Playing";
+          if (artistEl.textContent !== d.artist) artistEl.textContent = d.artist || "";
+          openEl.href = d.url || "https://open.spotify.com";
+          openEl.style.display = "inline-block";
+        }
       }catch(e){
-        title.textContent = "Spotify error";
-        artist.textContent = "";
-        open.style.display = "none";
+        titleEl.textContent = "Spotify error";
+        artistEl.textContent = "";
+        openEl.style.display = "none";
+        eq.classList.add("paused");
       }
     }
 
