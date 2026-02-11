@@ -9,12 +9,13 @@
 
   <style>
     :root{
-      --accent: 168 85 247; /* по умолчанию фиолетовый */
+      --accent: 168 85 247;
       --glass: rgba(255,255,255,.08);
-      --glass2: rgba(255,255,255,.12);
       --border: rgba(255,255,255,.14);
       --text2: rgba(255,255,255,.72);
       --shadow: 0 18px 60px rgba(0,0,0,.45);
+      --mx: 0px;
+      --my: 0px;
     }
 
     *{ box-sizing:border-box; margin:0; padding:0; }
@@ -22,32 +23,30 @@
       height:100vh;
       overflow:hidden;
       color:#fff;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", system-ui, sans-serif;
+      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Inter",system-ui,sans-serif;
       background:#000;
     }
 
-    /* BACKGROUND IMAGE */
+    /* Background */
     .bg{
       position:fixed;
       inset:0;
       background:url("background.jpg") center/cover no-repeat;
       transform:scale(1.08);
-      filter: saturate(1.1) contrast(1.05) brightness(.65);
+      filter:saturate(1.1) contrast(1.06) brightness(.60);
       z-index:-3;
     }
-
-    /* soft blur layer */
     .bg::after{
       content:"";
       position:absolute;
       inset:-40px;
       background:inherit;
-      filter: blur(22px);
-      opacity:.85;
+      filter:blur(22px);
+      opacity:.90;
       transform:scale(1.06);
     }
 
-    /* LIQUID GLASS OVERLAY */
+    /* Liquid glass overlay */
     .liquid{
       position:fixed;
       inset:0;
@@ -65,42 +64,56 @@
         radial-gradient(800px 560px at 80% 30%, rgba(255,255,255,.10), transparent 60%),
         radial-gradient(900px 700px at 50% 85%, rgba(var(--accent), .16), transparent 65%);
       mix-blend-mode:screen;
-      transform: translate3d(var(--mx,0px), var(--my,0px), 0);
+      transform: translate3d(var(--mx), var(--my), 0);
       transition: transform .12s ease;
     }
 
-    /* TOP LEFT SPOTIFY CARD */
+    /* Spotify card */
     .spotify{
       position:absolute;
       left:26px;
       top:26px;
       display:flex;
-      gap:14px;
+      gap:16px;
       align-items:center;
-      padding:14px 16px;
-      border-radius:22px;
+      padding:18px 20px;
+      border-radius:24px;
       background: var(--glass);
       border:1px solid var(--border);
       backdrop-filter: blur(24px) saturate(150%);
       box-shadow: var(--shadow);
-      min-width: 280px;
+      min-width: 380px;
+      overflow:hidden;
+    }
+    /* subtle shine on spotify card */
+    .spotify::before{
+      content:"";
+      position:absolute;
+      inset:-120px;
+      background: radial-gradient(520px 220px at 10% 10%, rgba(255,255,255,.16), transparent 60%);
+      transform: translate3d(calc(var(--mx) * 0.6), calc(var(--my) * 0.6), 0);
+      transition: transform .12s ease;
+      pointer-events:none;
     }
 
     .spotCover{
-      width:56px;
-      height:56px;
-      border-radius:14px;
+      width:74px;
+      height:74px;
+      border-radius:18px;
       object-fit:cover;
       background: rgba(255,255,255,.08);
       border:1px solid rgba(255,255,255,.12);
+      flex:0 0 auto;
     }
 
     .spotTxt{
       display:flex;
       flex-direction:column;
-      gap:3px;
+      gap:4px;
       min-width:0;
+      z-index:1;
     }
+
     .spotLabel{
       font-size:12px;
       color: rgba(255,255,255,.65);
@@ -109,6 +122,7 @@
       align-items:center;
       gap:8px;
     }
+
     .dot{
       width:7px; height:7px; border-radius:999px;
       background: rgba(29,185,84,1);
@@ -117,12 +131,13 @@
     }
 
     .spotTitle{
-      font-weight:650;
-      font-size:14px;
+      font-weight:760;
+      font-size:15px;
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
-      max-width: 210px;
+      max-width: 260px;
+      will-change: transform, opacity, filter;
     }
     .spotArtist{
       font-size:13px;
@@ -130,24 +145,34 @@
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
-      max-width: 210px;
+      max-width: 260px;
+      will-change: transform, opacity, filter;
     }
+
     .spotLink{
       margin-left:auto;
-      color: rgba(255,255,255,.75);
+      color: rgba(255,255,255,.80);
       text-decoration:none;
-      padding:10px 12px;
-      border-radius:14px;
+      padding:12px 14px;
+      border-radius:16px;
       background: rgba(255,255,255,.07);
       border:1px solid rgba(255,255,255,.12);
       transition:.2s;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:1;
     }
     .spotLink:hover{
       transform: translateY(-1px);
       background: rgba(255,255,255,.10);
     }
 
-    /* CENTER CARD */
+    /* Track change animation classes */
+    .swap-out{ opacity:0; transform: translateY(6px); filter: blur(2px); transition: .22s ease; }
+    .swap-in{ opacity:1; transform: translateY(0); filter: blur(0); transition: .22s ease; }
+
+    /* Center */
     .center{
       position:absolute;
       left:50%;
@@ -156,39 +181,89 @@
       display:flex;
       flex-direction:column;
       align-items:center;
-      gap:16px;
+      gap:14px;
       text-align:center;
     }
 
+    /* Glass poster avatar */
     .avatarCard{
-      width:min(420px, 86vw);
+      width:min(430px, 88vw);
       border-radius:28px;
       overflow:hidden;
-      background: var(--glass);
-      border:1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.14);
       backdrop-filter: blur(26px) saturate(150%);
       box-shadow: var(--shadow);
+      position:relative;
+      transform-style: preserve-3d;
+      will-change: transform;
     }
-    .avatarCard img{
+
+    .avatarMedia{
+      position:relative;
+      aspect-ratio: 4 / 5; /* красивее как постер */
+      overflow:hidden;
+    }
+
+    .avatarMedia img{
       width:100%;
+      height:100%;
       display:block;
       object-fit:cover;
       transform: scale(1.02);
     }
 
+    /* inner gloss layer */
+    .avatarCard::before{
+      content:"";
+      position:absolute;
+      inset:-60px;
+      background:
+        radial-gradient(520px 260px at 20% 10%, rgba(255,255,255,.22), transparent 60%),
+        radial-gradient(520px 260px at 80% 90%, rgba(var(--accent), .14), transparent 60%);
+      opacity:.9;
+      pointer-events:none;
+      transform: translate3d(calc(var(--mx) * 0.4), calc(var(--my) * 0.4), 0);
+      transition: transform .12s ease;
+      z-index:2;
+    }
+
+    /* moving shine streak */
+    .shine{
+      position:absolute;
+      inset:-40%;
+      background: linear-gradient(120deg,
+        transparent 40%,
+        rgba(255,255,255,.20) 50%,
+        transparent 60%);
+      transform: translateX(-35%) rotate(10deg);
+      opacity:.0;
+      pointer-events:none;
+      z-index:3;
+    }
+    .avatarCard:hover .shine{
+      opacity:.9;
+      animation: shineSweep 1.25s ease forwards;
+    }
+    @keyframes shineSweep{
+      0%{ transform: translateX(-35%) rotate(10deg); }
+      100%{ transform: translateX(35%) rotate(10deg); }
+    }
+
+    /* text */
     .name{
-      font-size:38px;
-      font-weight:750;
+      font-size:40px;
+      font-weight:800;
       letter-spacing:.3px;
       text-shadow: 0 10px 30px rgba(0,0,0,.45);
     }
-    .sub{
-      color: rgba(255,255,255,.75);
-      font-weight:400;
-      margin-top:-6px;
+    .welcome{
+      font-size:14px;
+      color: rgba(255,255,255,.78);
+      margin-top:-8px;
     }
 
-    /* SOCIALS (ONE LINE) */
+    /* Socials */
     .socials{
       position:absolute;
       left:50%;
@@ -231,7 +306,6 @@
       filter: brightness(1.06);
     }
 
-    /* BRAND COLORS */
     .telegram i{ color:#2AABEE; }
     .tiktok i{ color:#FE2C55; }
     .discord i{ color:#5865F2; }
@@ -239,13 +313,13 @@
     .steam i{ color:#66C0F4; }
     .spotifyI i{ color:#1DB954; }
 
-    /* OLD USERNAME */
+    /* old username badge */
     .old{
       position:absolute;
       right:26px;
       bottom:26px;
       font-size:12px;
-      color: rgba(255,255,255,.62);
+      color: rgba(255,255,255,.68);
       background: rgba(255,255,255,.06);
       border:1px solid rgba(255,255,255,.10);
       backdrop-filter: blur(16px);
@@ -253,12 +327,29 @@
       border-radius:16px;
     }
 
-    /* responsive */
+    /* Mobile */
     @media (max-width: 620px){
-      .spotify{ left:14px; top:14px; min-width: 240px; }
-      .spotTitle,.spotArtist{ max-width: 160px; }
+      .spotify{
+        left:14px; top:14px;
+        padding:12px 12px;
+        min-width: 248px;
+        border-radius:18px;
+        gap:12px;
+      }
+      .spotCover{
+        width:48px; height:48px;
+        border-radius:14px;
+      }
+      .spotTitle, .spotArtist{ max-width: 150px; }
+      .spotTitle{ font-size:13px; }
+      .spotArtist{ font-size:12px; }
+      .spotLink{ padding:10px 12px; border-radius:14px; }
+
       .old{ right:14px; bottom:92px; }
       .name{ font-size:32px; }
+      .welcome{ font-size:13px; }
+
+      .avatarCard{ width:min(360px, 90vw); border-radius:24px; }
     }
   </style>
 </head>
@@ -266,7 +357,6 @@
 <body>
   <div class="bg"></div>
 
-  <!-- svg filter for liquid -->
   <svg width="0" height="0">
     <filter id="liquidFilter">
       <feTurbulence type="fractalNoise" baseFrequency="0.010" numOctaves="2" seed="8" result="noise">
@@ -278,31 +368,32 @@
 
   <div class="liquid"></div>
 
-  <!-- Spotify Now Playing -->
+  <!-- Spotify -->
   <div class="spotify">
     <img id="cover" class="spotCover" alt="cover"/>
     <div class="spotTxt">
       <div class="spotLabel"><span class="dot" id="dot"></span><span id="label">Now Playing</span></div>
-      <div class="spotTitle" id="title">Loading…</div>
-      <div class="spotArtist" id="artist"></div>
+      <div class="spotTitle swap-in" id="title">Loading…</div>
+      <div class="spotArtist swap-in" id="artist"></div>
     </div>
-    <a class="spotLink" id="open" href="#" target="_blank" style="display:none;">
+    <a class="spotLink" id="open" href="#" target="_blank" aria-label="Open in Spotify">
       <i class="fa-brands fa-spotify"></i>
     </a>
   </div>
 
   <!-- Center -->
   <div class="center">
-    <div class="avatarCard">
-      <!-- пока используем background.jpg как картинку.
-           если хочешь отдельный аватар — сделаем avatar.jpg и поменяем src -->
-      <img src="background.jpg" alt="avatar"/>
+    <div class="avatarCard" id="avatarCard">
+      <div class="avatarMedia">
+        <img src="avatar.jpg" alt="avatar"/>
+        <div class="shine"></div>
+      </div>
     </div>
     <div class="name">@s1deed</div>
-    <div class="sub">creative / digital / aesthetic</div>
+    <div class="welcome">welcome to my bio:</div>
   </div>
 
-  <!-- Socials one line -->
+  <!-- Socials -->
   <div class="socials">
     <a class="social telegram" href="https://t.me/s1deed" target="_blank">
       <i class="fa-brands fa-telegram"></i><span>Telegram</span>
@@ -324,18 +415,36 @@
     </a>
   </div>
 
-  <div class="old">old username: @soogaci</div>
+  <div class="old">старый юз: @soogaci</div>
 
   <script>
-    // мягкое "водяное" движение от мышки
+    // liquid movement + (desktop) poster tilt
+    const avatarCard = document.getElementById("avatarCard");
+    let lastX = 0, lastY = 0;
+
     document.addEventListener("mousemove", (e) => {
       const x = (e.clientX / window.innerWidth - 0.5) * 18;
       const y = (e.clientY / window.innerHeight - 0.5) * 18;
+      lastX = x; lastY = y;
       document.documentElement.style.setProperty("--mx", x + "px");
       document.documentElement.style.setProperty("--my", y + "px");
+
+      // subtle 3D tilt only on bigger screens
+      if (window.innerWidth > 820 && avatarCard) {
+        const rx = (e.clientY / window.innerHeight - 0.5) * -6;
+        const ry = (e.clientX / window.innerWidth - 0.5) * 8;
+        avatarCard.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg) translateZ(0)`;
+      }
     });
 
-    // вытащим средний цвет обложки (для подсветки интерфейса)
+    // reset tilt on leave
+    document.addEventListener("mouseleave", () => {
+      if (avatarCard) avatarCard.style.transform = `rotateX(0deg) rotateY(0deg)`;
+      document.documentElement.style.setProperty("--mx", "0px");
+      document.documentElement.style.setProperty("--my", "0px");
+    });
+
+    // average color from cover -> accent
     async function averageColorFromImage(url){
       return new Promise((resolve) => {
         const img = new Image();
@@ -347,18 +456,29 @@
           const h = c.height = 40;
           ctx.drawImage(img, 0, 0, w, h);
           const data = ctx.getImageData(0,0,w,h).data;
-          let r=0,g=0,b=0, count=0;
+          let r=0,g=0,b=0,count=0;
           for(let i=0;i<data.length;i+=4){
-            r += data[i]; g += data[i+1]; b += data[i+2];
-            count++;
+            r += data[i]; g += data[i+1]; b += data[i+2]; count++;
           }
-          r = Math.round(r/count); g = Math.round(g/count); b = Math.round(b/count);
-          resolve([r,g,b]);
+          resolve([Math.round(r/count), Math.round(g/count), Math.round(b/count)]);
         };
         img.onerror = () => resolve(null);
         img.src = url;
       });
     }
+
+    // smooth text swap animation
+    async function animateSwap(el, newText){
+      if (!el) return;
+      el.classList.add("swap-out");
+      el.classList.remove("swap-in");
+      await new Promise(r => setTimeout(r, 160));
+      el.textContent = newText;
+      el.classList.remove("swap-out");
+      el.classList.add("swap-in");
+    }
+
+    let lastTrackKey = "";
 
     async function getNowPlaying(){
       try{
@@ -373,34 +493,63 @@
         const dot = document.getElementById("dot");
 
         if(!d.isPlaying){
-          title.textContent = "Nothing playing";
-          artist.textContent = "";
+          await animateSwap(title, "Nothing playing");
+          await animateSwap(artist, "");
           cover.removeAttribute("src");
           open.style.display = "none";
           label.textContent = "Spotify";
           dot.style.background = "rgba(255,255,255,.35)";
           dot.style.boxShadow = "none";
+          lastTrackKey = "";
           return;
         }
 
-        title.textContent = d.title || "Playing";
-        artist.textContent = d.artist || "";
-        cover.src = d.cover || "";
-        open.href = d.url || "https://open.spotify.com";
-        open.style.display = "inline-flex";
+        const trackKey = `${d.title}__${d.artist}__${d.cover}`;
+        const changed = trackKey !== lastTrackKey;
+
         label.textContent = "Now Playing";
         dot.style.background = "rgba(29,185,84,1)";
         dot.style.boxShadow = "0 0 18px rgba(29,185,84,.55)";
+        open.href = d.url || "https://open.spotify.com";
+        open.style.display = "inline-flex";
 
-        if(d.cover){
-          const rgb = await averageColorFromImage(d.cover);
-          if(rgb){
-            document.documentElement.style.setProperty("--accent", `${rgb[0]} ${rgb[1]} ${rgb[2]}`);
+        if (changed) {
+          // cover crossfade
+          cover.style.opacity = "0";
+          cover.style.transform = "scale(0.98)";
+          cover.style.transition = ".22s ease";
+          setTimeout(() => {
+            cover.src = d.cover || "";
+            cover.onload = () => {
+              cover.style.opacity = "1";
+              cover.style.transform = "scale(1)";
+            };
+          }, 140);
+
+          await animateSwap(title, d.title || "Playing");
+          await animateSwap(artist, d.artist || "");
+
+          if(d.cover){
+            const rgb = await averageColorFromImage(d.cover);
+            if(rgb){
+              document.documentElement.style.setProperty("--accent", `${rgb[0]} ${rgb[1]} ${rgb[2]}`);
+            }
           }
+
+          lastTrackKey = trackKey;
+        } else {
+          // same track, no big animation
+          if (!cover.src && d.cover) cover.src = d.cover;
+          if (title.textContent !== d.title) title.textContent = d.title || "Playing";
+          if (artist.textContent !== d.artist) artist.textContent = d.artist || "";
         }
       }catch(e){
-        document.getElementById("title").textContent = "Spotify error";
-        document.getElementById("artist").textContent = "";
+        const title = document.getElementById("title");
+        const artist = document.getElementById("artist");
+        const open = document.getElementById("open");
+        if (title) title.textContent = "Spotify error";
+        if (artist) artist.textContent = "";
+        if (open) open.style.display = "none";
       }
     }
 
