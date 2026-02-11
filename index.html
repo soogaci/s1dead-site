@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>@s1deed</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+  <style>
+    :root{
+      --accent: 168 85 247; /* по умолчанию фиолетовый */
+      --glass: rgba(255,255,255,.08);
+      --glass2: rgba(255,255,255,.12);
+      --border: rgba(255,255,255,.14);
+      --text2: rgba(255,255,255,.72);
+      --shadow: 0 18px 60px rgba(0,0,0,.45);
+    }
+
+    *{ box-sizing:border-box; margin:0; padding:0; }
+    body{
+      height:100vh;
+      overflow:hidden;
+      color:#fff;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", system-ui, sans-serif;
+      background:#000;
+    }
+
+    /* BACKGROUND IMAGE */
+    .bg{
+      position:fixed;
+      inset:0;
+      background:url("background.jpg") center/cover no-repeat;
+      transform:scale(1.08);
+      filter: saturate(1.1) contrast(1.05) brightness(.65);
+      z-index:-3;
+    }
+
+    /* soft blur layer */
+    .bg::after{
+      content:"";
+      position:absolute;
+      inset:-40px;
+      background:inherit;
+      filter: blur(22px);
+      opacity:.85;
+      transform:scale(1.06);
+    }
+
+    /* LIQUID GLASS OVERLAY */
+    .liquid{
+      position:fixed;
+      inset:0;
+      z-index:-2;
+      pointer-events:none;
+      opacity:.95;
+      filter:url(#liquidFilter);
+    }
+    .liquid::before{
+      content:"";
+      position:absolute;
+      inset:-80px;
+      background:
+        radial-gradient(900px 600px at 20% 10%, rgba(var(--accent), .22), transparent 60%),
+        radial-gradient(800px 560px at 80% 30%, rgba(255,255,255,.10), transparent 60%),
+        radial-gradient(900px 700px at 50% 85%, rgba(var(--accent), .16), transparent 65%);
+      mix-blend-mode:screen;
+      transform: translate3d(var(--mx,0px), var(--my,0px), 0);
+      transition: transform .12s ease;
+    }
+
+    /* TOP LEFT SPOTIFY CARD */
+    .spotify{
+      position:absolute;
+      left:26px;
+      top:26px;
+      display:flex;
+      gap:14px;
+      align-items:center;
+      padding:14px 16px;
+      border-radius:22px;
+      background: var(--glass);
+      border:1px solid var(--border);
+      backdrop-filter: blur(24px) saturate(150%);
+      box-shadow: var(--shadow);
+      min-width: 280px;
+    }
+
+    .spotCover{
+      width:56px;
+      height:56px;
+      border-radius:14px;
+      object-fit:cover;
+      background: rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.12);
+    }
+
+    .spotTxt{
+      display:flex;
+      flex-direction:column;
+      gap:3px;
+      min-width:0;
+    }
+    .spotLabel{
+      font-size:12px;
+      color: rgba(255,255,255,.65);
+      letter-spacing:.2px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .dot{
+      width:7px; height:7px; border-radius:999px;
+      background: rgba(29,185,84,1);
+      box-shadow: 0 0 18px rgba(29,185,84,.55);
+      display:inline-block;
+    }
+
+    .spotTitle{
+      font-weight:650;
+      font-size:14px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width: 210px;
+    }
+    .spotArtist{
+      font-size:13px;
+      color: var(--text2);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width: 210px;
+    }
+    .spotLink{
+      margin-left:auto;
+      color: rgba(255,255,255,.75);
+      text-decoration:none;
+      padding:10px 12px;
+      border-radius:14px;
+      background: rgba(255,255,255,.07);
+      border:1px solid rgba(255,255,255,.12);
+      transition:.2s;
+    }
+    .spotLink:hover{
+      transform: translateY(-1px);
+      background: rgba(255,255,255,.10);
+    }
+
+    /* CENTER CARD */
+    .center{
+      position:absolute;
+      left:50%;
+      top:50%;
+      transform: translate(-50%,-50%);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:16px;
+      text-align:center;
+    }
+
+    .avatarCard{
+      width:min(420px, 86vw);
+      border-radius:28px;
+      overflow:hidden;
+      background: var(--glass);
+      border:1px solid var(--border);
+      backdrop-filter: blur(26px) saturate(150%);
+      box-shadow: var(--shadow);
+    }
+    .avatarCard img{
+      width:100%;
+      display:block;
+      object-fit:cover;
+      transform: scale(1.02);
+    }
+
+    .name{
+      font-size:38px;
+      font-weight:750;
+      letter-spacing:.3px;
+      text-shadow: 0 10px 30px rgba(0,0,0,.45);
+    }
+    .sub{
+      color: rgba(255,255,255,.75);
+      font-weight:400;
+      margin-top:-6px;
+    }
+
+    /* SOCIALS (ONE LINE) */
+    .socials{
+      position:absolute;
+      left:50%;
+      bottom:26px;
+      transform: translateX(-50%);
+      display:flex;
+      gap:26px;
+      align-items:flex-end;
+      padding:14px 18px;
+      border-radius:26px;
+      background: rgba(0,0,0,.20);
+      border: 1px solid rgba(255,255,255,.10);
+      backdrop-filter: blur(18px) saturate(140%);
+      box-shadow: 0 18px 60px rgba(0,0,0,.35);
+      max-width: 95vw;
+      overflow:auto;
+    }
+    .socials::-webkit-scrollbar{ height:0px; }
+
+    .social{
+      text-decoration:none;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:8px;
+      min-width:72px;
+      color:#fff;
+      transition: transform .18s ease, filter .18s ease;
+    }
+    .social i{
+      font-size:28px;
+      filter: drop-shadow(0 8px 18px rgba(0,0,0,.35));
+    }
+    .social span{
+      font-size:12px;
+      color: rgba(255,255,255,.78);
+    }
+    .social:hover{
+      transform: translateY(-4px);
+      filter: brightness(1.06);
+    }
+
+    /* BRAND COLORS */
+    .telegram i{ color:#2AABEE; }
+    .tiktok i{ color:#FE2C55; }
+    .discord i{ color:#5865F2; }
+    .instagram i{ color:#E1306C; }
+    .steam i{ color:#66C0F4; }
+    .spotifyI i{ color:#1DB954; }
+
+    /* OLD USERNAME */
+    .old{
+      position:absolute;
+      right:26px;
+      bottom:26px;
+      font-size:12px;
+      color: rgba(255,255,255,.62);
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      backdrop-filter: blur(16px);
+      padding:10px 12px;
+      border-radius:16px;
+    }
+
+    /* responsive */
+    @media (max-width: 620px){
+      .spotify{ left:14px; top:14px; min-width: 240px; }
+      .spotTitle,.spotArtist{ max-width: 160px; }
+      .old{ right:14px; bottom:92px; }
+      .name{ font-size:32px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg"></div>
+
+  <!-- svg filter for liquid -->
+  <svg width="0" height="0">
+    <filter id="liquidFilter">
+      <feTurbulence type="fractalNoise" baseFrequency="0.010" numOctaves="2" seed="8" result="noise">
+        <animate attributeName="baseFrequency" dur="8s" values="0.010;0.014;0.010" repeatCount="indefinite"/>
+      </feTurbulence>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="18" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </svg>
+
+  <div class="liquid"></div>
+
+  <!-- Spotify Now Playing -->
+  <div class="spotify">
+    <img id="cover" class="spotCover" alt="cover"/>
+    <div class="spotTxt">
+      <div class="spotLabel"><span class="dot" id="dot"></span><span id="label">Now Playing</span></div>
+      <div class="spotTitle" id="title">Loading…</div>
+      <div class="spotArtist" id="artist"></div>
+    </div>
+    <a class="spotLink" id="open" href="#" target="_blank" style="display:none;">
+      <i class="fa-brands fa-spotify"></i>
+    </a>
+  </div>
+
+  <!-- Center -->
+  <div class="center">
+    <div class="avatarCard">
+      <!-- пока используем background.jpg как картинку.
+           если хочешь отдельный аватар — сделаем avatar.jpg и поменяем src -->
+      <img src="background.jpg" alt="avatar"/>
+    </div>
+    <div class="name">@s1deed</div>
+    <div class="sub">creative / digital / aesthetic</div>
+  </div>
+
+  <!-- Socials one line -->
+  <div class="socials">
+    <a class="social telegram" href="https://t.me/s1deed" target="_blank">
+      <i class="fa-brands fa-telegram"></i><span>Telegram</span>
+    </a>
+    <a class="social tiktok" href="https://www.tiktok.com/@s1deeed?_r=1&_t=ZS-92QwHlSQe4j" target="_blank">
+      <i class="fa-brands fa-tiktok"></i><span>TikTok</span>
+    </a>
+    <a class="social discord" href="https://discord.gg/DuJNA7z2" target="_blank">
+      <i class="fa-brands fa-discord"></i><span>Discord</span>
+    </a>
+    <a class="social instagram" href="https://www.instagram.com/s1deed?igsh=MWg3N3Jmb3oyNnM0Ng%3D%3D&utm_source=qr" target="_blank">
+      <i class="fa-brands fa-instagram"></i><span>Instagram</span>
+    </a>
+    <a class="social steam" href="https://steamcommunity.com/id/soogaci/" target="_blank">
+      <i class="fa-brands fa-steam"></i><span>Steam</span>
+    </a>
+    <a class="social spotifyI" href="https://open.spotify.com/user/31uumxtifdbgfqvll2txasaipgcu" target="_blank">
+      <i class="fa-brands fa-spotify"></i><span>Spotify</span>
+    </a>
+  </div>
+
+  <div class="old">old username: @soogaci</div>
+
+  <script>
+    // мягкое "водяное" движение от мышки
+    document.addEventListener("mousemove", (e) => {
+      const x = (e.clientX / window.innerWidth - 0.5) * 18;
+      const y = (e.clientY / window.innerHeight - 0.5) * 18;
+      document.documentElement.style.setProperty("--mx", x + "px");
+      document.documentElement.style.setProperty("--my", y + "px");
+    });
+
+    // вытащим средний цвет обложки (для подсветки интерфейса)
+    async function averageColorFromImage(url){
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = () => {
+          const c = document.createElement("canvas");
+          const ctx = c.getContext("2d");
+          const w = c.width = 40;
+          const h = c.height = 40;
+          ctx.drawImage(img, 0, 0, w, h);
+          const data = ctx.getImageData(0,0,w,h).data;
+          let r=0,g=0,b=0, count=0;
+          for(let i=0;i<data.length;i+=4){
+            r += data[i]; g += data[i+1]; b += data[i+2];
+            count++;
+          }
+          r = Math.round(r/count); g = Math.round(g/count); b = Math.round(b/count);
+          resolve([r,g,b]);
+        };
+        img.onerror = () => resolve(null);
+        img.src = url;
+      });
+    }
+
+    async function getNowPlaying(){
+      try{
+        const r = await fetch("/api/spotify", { cache: "no-store" });
+        const d = await r.json();
+
+        const cover = document.getElementById("cover");
+        const title = document.getElementById("title");
+        const artist = document.getElementById("artist");
+        const open = document.getElementById("open");
+        const label = document.getElementById("label");
+        const dot = document.getElementById("dot");
+
+        if(!d.isPlaying){
+          title.textContent = "Nothing playing";
+          artist.textContent = "";
+          cover.removeAttribute("src");
+          open.style.display = "none";
+          label.textContent = "Spotify";
+          dot.style.background = "rgba(255,255,255,.35)";
+          dot.style.boxShadow = "none";
+          return;
+        }
+
+        title.textContent = d.title || "Playing";
+        artist.textContent = d.artist || "";
+        cover.src = d.cover || "";
+        open.href = d.url || "https://open.spotify.com";
+        open.style.display = "inline-flex";
+        label.textContent = "Now Playing";
+        dot.style.background = "rgba(29,185,84,1)";
+        dot.style.boxShadow = "0 0 18px rgba(29,185,84,.55)";
+
+        if(d.cover){
+          const rgb = await averageColorFromImage(d.cover);
+          if(rgb){
+            document.documentElement.style.setProperty("--accent", `${rgb[0]} ${rgb[1]} ${rgb[2]}`);
+          }
+        }
+      }catch(e){
+        document.getElementById("title").textContent = "Spotify error";
+        document.getElementById("artist").textContent = "";
+      }
+    }
+
+    getNowPlaying();
+    setInterval(getNowPlaying, 10000);
+  </script>
+</body>
+</html>
