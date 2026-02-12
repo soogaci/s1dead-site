@@ -11,18 +11,13 @@
     :root{
       --accent: 155 81 255;
       --accent2: 80 220 255;
-
-      /* динамический фон: по умолчанию аватарка */
       --bg: url("avatar.jpg");
-
       --border: rgba(255,255,255,.16);
       --text: rgba(255,255,255,.92);
       --muted: rgba(255,255,255,.70);
       --shadow: 0 22px 70px rgba(0,0,0,.45);
-
       --mx: 0px;
       --my: 0px;
-
       --tiltX: 0deg;
       --tiltY: 0deg;
       --tiltZ: 0px;
@@ -39,7 +34,6 @@
       padding-bottom: env(safe-area-inset-bottom);
     }
 
-    /* ===== Background (dynamic) ===== */
     .bg{
       position:fixed; inset:0;
       background-image: var(--bg);
@@ -64,7 +58,6 @@
       transition: background .35s ease;
     }
 
-    /* liquid overlay */
     .liquid{
       position:fixed; inset:0;
       z-index:-3;
@@ -93,7 +86,6 @@
       background-image:url("https://grainy-gradients.vercel.app/noise.svg");
     }
 
-    /* ===== Glass ===== */
     .glass{
       background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.06));
       border: 1px solid var(--border);
@@ -104,7 +96,6 @@
       overflow: hidden;
     }
 
-    /* glass highlight sweep */
     .shine::after{
       content:"";
       position:absolute;
@@ -120,15 +111,9 @@
       pointer-events:none;
     }
     @media (hover:hover){
-      .shine:hover::after{
-        opacity:1;
-        animation: sweep 1.05s ease;
-      }
+      .shine:hover::after{ opacity:1; animation: sweep 1.05s ease; }
     }
-    .shine.sweepOnce::after{
-      opacity:1;
-      animation: sweep 1.05s ease;
-    }
+    .shine.sweepOnce::after{ opacity:1; animation: sweep 1.05s ease; }
     @keyframes sweep{
       0%{ transform: translateX(-70%) rotate(8deg); opacity:0; }
       15%{ opacity:1; }
@@ -159,7 +144,6 @@
       transition: transform .12s ease;
       pointer-events:none;
     }
-
     .spotCover{
       width:56px; height:56px;
       border-radius:14px;
@@ -171,7 +155,6 @@
       transition: opacity .25s ease, transform .25s ease;
       z-index:1;
     }
-
     .spotMeta{
       min-width:0;
       display:flex;
@@ -180,7 +163,6 @@
       z-index:1;
       flex: 1 1 auto;
     }
-
     .spotTop{
       display:flex;
       align-items:center;
@@ -194,7 +176,6 @@
       background:#34c759;
       box-shadow:0 0 18px rgba(52,199,89,.55);
     }
-
     .spotTitle{
       font-weight:850;
       font-size:15px;
@@ -213,7 +194,6 @@
       max-width:520px;
       will-change: opacity, transform, filter;
     }
-
     .swap-out{ opacity:0; transform: translateY(6px); filter: blur(2px); transition:.22s ease; }
     .swap-in{ opacity:1; transform: translateY(0); filter: blur(0); transition:.22s ease; }
 
@@ -226,18 +206,15 @@
       flex: 0 0 auto;
     }
 
-    /* mono equalizer */
     .eq{
-      width:34px;
-      height:18px;
+      width:34px; height:18px;
       display:flex;
       align-items:flex-end;
       gap:3px;
       opacity:.92;
     }
     .eq span{
-      width:4px;
-      height:6px;
+      width:4px; height:6px;
       border-radius:3px;
       background:rgba(255,255,255,.86);
       animation:bounce .9s ease-in-out infinite;
@@ -252,7 +229,6 @@
     }
     .eq.paused span{ animation:none; height:6px; opacity:.55; }
 
-    /* unified Open + Spotify icon */
     .spotBtn{
       display:none;
       align-items:center;
@@ -269,7 +245,7 @@
     .spotBtn i{ color:#1DB954; }
     .spotBtn:hover{ transform: translateY(-1px); background:rgba(255,255,255,.10); }
 
-    /* ===== Progress bar (ALWAYS shows when playing) ===== */
+    /* ===== REAL progress (needs API fields) ===== */
     .progressWrap{
       margin-top:8px;
       height:10px;
@@ -294,17 +270,6 @@
       background: rgba(255,255,255,.78);
       box-shadow: 0 10px 30px rgba(255,255,255,.14);
       transition: width .35s ease;
-    }
-    .progressFill.indeterminate{
-      width:40%;
-      left:-40%;
-      animation: indet 1.25s ease-in-out infinite;
-      transition:none;
-    }
-    @keyframes indet{
-      0%{ left:-45%; opacity:.55; }
-      40%{ opacity:1; }
-      100%{ left:105%; opacity:.55; }
     }
     .progressTime{
       font-size:11px;
@@ -357,12 +322,7 @@
       transition: transform .12s ease;
       pointer-events:none;
     }
-    .avatarImg{
-      width:100%;
-      display:block;
-      object-fit:cover;
-      transform: scale(1.01);
-    }
+    .avatarImg{ width:100%; display:block; object-fit:cover; transform: scale(1.01); }
 
     .user{
       font-size:44px;
@@ -382,17 +342,14 @@
       left:50%;
       transform:translateX(-50%);
       bottom: calc(14px + env(safe-area-inset-bottom));
-
       width:min(1060px,96vw);
       padding:12px 14px;
       border-radius:28px;
       z-index:6;
-
       display:flex;
       justify-content:space-between;
       align-items:center;
       gap:18px;
-
       overflow:hidden;
     }
 
@@ -411,23 +368,11 @@
       user-select:none;
       -webkit-tap-highlight-color: transparent;
     }
-    .social:hover{
-      transform: translateY(-3px);
-      background: rgba(255,255,255,.08);
-    }
-    .social.tap{
-      transform: translateY(0) scale(.965);
-      background: rgba(255,255,255,.10);
-    }
+    .social:hover{ transform: translateY(-3px); background: rgba(255,255,255,.08); }
+    .social.tap{ transform: translateY(0) scale(.965); background: rgba(255,255,255,.10); }
 
-    .social i{
-      font-size:28px;
-      filter: drop-shadow(0 8px 18px rgba(0,0,0,.35));
-    }
-    .social span{
-      font-size:12px;
-      color: rgba(255,255,255,.75);
-    }
+    .social i{ font-size:28px; filter: drop-shadow(0 8px 18px rgba(0,0,0,.35)); }
+    .social span{ font-size:12px; color: rgba(255,255,255,.75); }
 
     .telegram i{ color:#2AABEE; }
     .tiktok i{ color:#FE2C55; }
@@ -457,26 +402,18 @@
 
       .layout{
         padding-top: calc(86px + env(safe-area-inset-top));
-        padding-bottom: calc(96px + env(safe-area-inset-bottom));
+        padding-bottom: calc(104px + env(safe-area-inset-bottom));
       }
 
-      .avatarCard{
-        width: min(200px, 58vw);
-        border-radius:22px;
-      }
+      .avatarCard{ width: min(200px, 58vw); border-radius:22px; }
       .user{ font-size:34px; }
       .welcome{ font-size:13px; }
 
-      /* базово чуть выше */
-      .center{ transform: translateY(-1.6vh); }
-
-      /* док на телефоне: скролл */
       .socialBar{
         width: calc(100vw - 24px);
         border-radius:24px;
         padding:10px 10px;
         gap:14px;
-
         justify-content:flex-start;
         overflow-x:auto;
         overflow-y:hidden;
@@ -497,11 +434,9 @@
       .social span{ font-size:11px; }
     }
 
-    /* ===== iPhone ONLY: поднять в 2 раза сильнее (как ты сказал) =====
-       У iPhone 16 Pro Max ширина ~430-460 и высокая высота.
-    */
+    /* ✅ iPhone 16 Pro Max / большие iPhone: поднять центр ещё выше, чтобы "welcome..." было видно */
     @media (max-width: 460px) and (min-height: 880px){
-      .center{ transform: translateY(-3.2vh); }
+      .center{ transform: translateY(-5.0vh); } /* было -3.2vh, стало выше заметно */
     }
   </style>
 </head>
@@ -522,7 +457,6 @@
   <div class="liquid"></div>
   <div class="grain"></div>
 
-  <!-- Spotify Card -->
   <div class="spotify glass shine" id="spotifyCard">
     <img id="cover" class="spotCover" alt="cover"/>
     <div class="spotMeta">
@@ -534,7 +468,7 @@
         <div class="progressTrack">
           <div class="progressFill" id="progressFill"></div>
         </div>
-        <div class="progressTime" id="progressTime">LIVE</div>
+        <div class="progressTime" id="progressTime">0:00 / 0:00</div>
       </div>
     </div>
 
@@ -564,7 +498,6 @@
   </div>
 
   <script>
-    // shine on tap
     function sweepOnce(el){
       if(!el) return;
       el.classList.remove("sweepOnce");
@@ -573,7 +506,6 @@
       setTimeout(()=> el.classList.remove("sweepOnce"), 1100);
     }
 
-    // liquid motion
     function setMotion(clientX, clientY){
       const x = (clientX / window.innerWidth - 0.5) * 18;
       const y = (clientY / window.innerHeight - 0.5) * 18;
@@ -586,7 +518,7 @@
       setMotion(e.touches[0].clientX, e.touches[0].clientY);
     }, {passive:true});
 
-    // avatar tilt
+    // Avatar tilt
     const avatarCard = document.getElementById("avatarCard");
     function setTiltFromPoint(x, y){
       const rect = avatarCard.getBoundingClientRect();
@@ -595,10 +527,8 @@
       const dx = (x - cx) / rect.width;
       const dy = (y - cy) / rect.height;
       const max = 8;
-      const tiltY = dx * max;
-      const tiltX = -dy * max;
-      document.documentElement.style.setProperty("--tiltX", tiltX.toFixed(2) + "deg");
-      document.documentElement.style.setProperty("--tiltY", tiltY.toFixed(2) + "deg");
+      document.documentElement.style.setProperty("--tiltX", (-dy * max).toFixed(2) + "deg");
+      document.documentElement.style.setProperty("--tiltY", ( dx * max).toFixed(2) + "deg");
       document.documentElement.style.setProperty("--tiltZ", "6px");
     }
     function resetTilt(){
@@ -609,7 +539,7 @@
     if (avatarCard){
       avatarCard.addEventListener("mousemove", (e)=> setTiltFromPoint(e.clientX, e.clientY));
       avatarCard.addEventListener("mouseleave", resetTilt);
-      avatarCard.addEventListener("touchstart", ()=> { sweepOnce(avatarCard); }, {passive:true});
+      avatarCard.addEventListener("touchstart", ()=> sweepOnce(avatarCard), {passive:true});
       avatarCard.addEventListener("touchmove", (e)=>{
         if(!e.touches || !e.touches[0]) return;
         setTiltFromPoint(e.touches[0].clientX, e.touches[0].clientY);
@@ -617,7 +547,7 @@
       avatarCard.addEventListener("touchend", resetTilt, {passive:true});
     }
 
-    // tap animation on socials
+    // Tap animation socials
     const socials = document.querySelectorAll(".social");
     socials.forEach(a=>{
       a.addEventListener("pointerdown", ()=>{
@@ -633,7 +563,7 @@
     const spotifyCard = document.getElementById("spotifyCard");
     if (spotifyCard) spotifyCard.addEventListener("touchstart", ()=> sweepOnce(spotifyCard), {passive:true});
 
-    // ===== Spotify Now Playing + dynamic theme + dynamic background =====
+    // Spotify
     const cover = document.getElementById("cover");
     const titleEl = document.getElementById("title");
     const artistEl = document.getElementById("artist");
@@ -683,13 +613,8 @@
       document.documentElement.style.setProperty("--accent", `${rgb[0]} ${rgb[1]} ${rgb[2]}`);
       document.documentElement.style.setProperty("--accent2", `${rgb2[0]} ${rgb2[1]} ${rgb2[2]}`);
     }
-
     function setBackground(urlOrNull){
-      if(urlOrNull){
-        document.documentElement.style.setProperty("--bg", `url("${urlOrNull}")`);
-      } else {
-        document.documentElement.style.setProperty("--bg", DEFAULT_BG);
-      }
+      document.documentElement.style.setProperty("--bg", urlOrNull ? `url("${urlOrNull}")` : DEFAULT_BG);
     }
 
     async function animateSwap(el, newText){
@@ -703,53 +628,41 @@
     }
 
     function fmt(ms){
-      if (typeof ms !== "number" || !isFinite(ms)) return "0:00";
       const s = Math.max(0, Math.floor(ms/1000));
       const m = Math.floor(s/60);
       const r = s%60;
       return `${m}:${String(r).padStart(2,"0")}`;
     }
 
-    function stopProgressTicker(){
+    function stopProgress(){
       if (tickTimer) clearInterval(tickTimer);
       tickTimer = null;
       progressState = null;
-      if (progressWrap) progressWrap.style.display = "none";
-      if (progressFill) progressFill.classList.remove("indeterminate");
+      progressWrap.style.display = "none";
+      progressFill.style.width = "0%";
+      progressTime.textContent = "0:00 / 0:00";
     }
 
-    function startProgressTicker(progressMs, durationMs){
-      if (!progressWrap || !progressFill || !progressTime) return;
-
-      // if real data exists -> real progress
-      if (typeof progressMs === "number" && typeof durationMs === "number" && durationMs > 0){
-        progressWrap.style.display = "flex";
-        progressFill.classList.remove("indeterminate");
-        progressState = { startTs: Date.now(), progressMs, durationMs };
-
-        const render = ()=>{
-          if (!progressState) return;
-          const elapsed = Date.now() - progressState.startTs;
-          const cur = Math.min(progressState.durationMs, progressState.progressMs + elapsed);
-          const pct = Math.max(0, Math.min(100, (cur / progressState.durationMs) * 100));
-          progressFill.style.width = pct.toFixed(2) + "%";
-          progressTime.textContent = `${fmt(cur)} / ${fmt(progressState.durationMs)}`;
-        };
-
-        render();
-        if (tickTimer) clearInterval(tickTimer);
-        tickTimer = setInterval(render, 400);
+    function startRealProgress(progressMs, durationMs){
+      if (typeof progressMs !== "number" || typeof durationMs !== "number" || durationMs <= 0){
+        stopProgress();
         return;
       }
 
-      // else -> indeterminate "LIVE" bar (always visible)
       progressWrap.style.display = "flex";
-      progressFill.style.width = "40%";
-      progressFill.classList.add("indeterminate");
-      progressTime.textContent = "LIVE";
+      progressState = { startTs: Date.now(), progressMs, durationMs };
+
+      const render = ()=>{
+        const elapsed = Date.now() - progressState.startTs;
+        const cur = Math.min(progressState.durationMs, progressState.progressMs + elapsed);
+        const pct = Math.max(0, Math.min(100, (cur / progressState.durationMs) * 100));
+        progressFill.style.width = pct.toFixed(2) + "%";
+        progressTime.textContent = `${fmt(cur)} / ${fmt(progressState.durationMs)}`;
+      };
+
+      render();
       if (tickTimer) clearInterval(tickTimer);
-      tickTimer = null;
-      progressState = null;
+      tickTimer = setInterval(render, 400);
     }
 
     async function getNowPlaying(){
@@ -768,7 +681,7 @@
           lastKey = "";
           cover.removeAttribute("src");
           setBackground(null);
-          stopProgressTicker();
+          stopProgress();
           return;
         }
 
@@ -777,8 +690,8 @@
         liveDot.style.boxShadow = "0 0 18px rgba(52,199,89,.55)";
         eq.classList.remove("paused");
 
-        // progress: real if available, else indeterminate
-        startProgressTicker(d.progressMs, d.durationMs);
+        // ✅ real countdown (needs API fields)
+        startRealProgress(d.progressMs, d.durationMs);
 
         const key = `${d.title}__${d.artist}__${d.cover}`;
         const changed = key !== lastKey;
@@ -807,8 +720,6 @@
           sweepOnce(spotifyCard);
         } else {
           if(!cover.src && d.cover) cover.src = d.cover;
-          if(titleEl.textContent !== d.title) titleEl.textContent = d.title || "Playing";
-          if(artistEl.textContent !== d.artist) artistEl.textContent = d.artist || "";
           openEl.href = d.url || "https://open.spotify.com";
           openEl.style.display = "inline-flex";
           if(d.cover) setBackground(d.cover);
@@ -819,7 +730,7 @@
         openEl.style.display = "none";
         eq.classList.add("paused");
         setBackground(null);
-        stopProgressTicker();
+        stopProgress();
       }
     }
 
