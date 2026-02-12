@@ -12,12 +12,15 @@
       --accent: 155 81 255;
       --accent2: 80 220 255;
       --bg: url("avatar.jpg");
+
       --border: rgba(255,255,255,.16);
       --text: rgba(255,255,255,.92);
       --muted: rgba(255,255,255,.70);
       --shadow: 0 22px 70px rgba(0,0,0,.45);
+
       --mx: 0px;
       --my: 0px;
+
       --tiltX: 0deg;
       --tiltY: 0deg;
       --tiltZ: 0px;
@@ -144,6 +147,7 @@
       transition: transform .12s ease;
       pointer-events:none;
     }
+
     .spotCover{
       width:56px; height:56px;
       border-radius:14px;
@@ -155,6 +159,7 @@
       transition: opacity .25s ease, transform .25s ease;
       z-index:1;
     }
+
     .spotMeta{
       min-width:0;
       display:flex;
@@ -163,6 +168,7 @@
       z-index:1;
       flex: 1 1 auto;
     }
+
     .spotTop{
       display:flex;
       align-items:center;
@@ -176,6 +182,7 @@
       background:#34c759;
       box-shadow:0 0 18px rgba(52,199,89,.55);
     }
+
     .spotTitle{
       font-weight:850;
       font-size:15px;
@@ -194,6 +201,7 @@
       max-width:520px;
       will-change: opacity, transform, filter;
     }
+
     .swap-out{ opacity:0; transform: translateY(6px); filter: blur(2px); transition:.22s ease; }
     .swap-in{ opacity:1; transform: translateY(0); filter: blur(0); transition:.22s ease; }
 
@@ -245,7 +253,7 @@
     .spotBtn i{ color:#1DB954; }
     .spotBtn:hover{ transform: translateY(-1px); background:rgba(255,255,255,.10); }
 
-    /* ===== REAL progress (needs API fields) ===== */
+    /* progress */
     .progressWrap{
       margin-top:8px;
       height:10px;
@@ -284,7 +292,7 @@
       position:relative;
       height:100vh;
       padding-top: calc(92px + env(safe-area-inset-top));
-      padding-bottom: calc(108px + env(safe-area-inset-bottom));
+      padding-bottom: calc(140px + env(safe-area-inset-bottom));
       display:flex;
       align-items:center;
       justify-content:center;
@@ -309,18 +317,6 @@
       will-change: transform;
       transform: perspective(900px) rotateX(var(--tiltX)) rotateY(var(--tiltY)) translateZ(var(--tiltZ));
       transition: transform .12s ease;
-    }
-    .avatarCard::before{
-      content:"";
-      position:absolute;
-      inset:-80px;
-      background:
-        radial-gradient(520px 240px at 18% 10%, rgba(255,255,255,.18), transparent 60%),
-        radial-gradient(520px 260px at 80% 90%, rgba(var(--accent), .14), transparent 60%);
-      opacity:.9;
-      transform: translate3d(calc(var(--mx) * .4), calc(var(--my) * .4), 0);
-      transition: transform .12s ease;
-      pointer-events:none;
     }
     .avatarImg{ width:100%; display:block; object-fit:cover; transform: scale(1.01); }
 
@@ -368,12 +364,9 @@
       user-select:none;
       -webkit-tap-highlight-color: transparent;
     }
-    .social:hover{ transform: translateY(-3px); background: rgba(255,255,255,.08); }
     .social.tap{ transform: translateY(0) scale(.965); background: rgba(255,255,255,.10); }
-
     .social i{ font-size:28px; filter: drop-shadow(0 8px 18px rgba(0,0,0,.35)); }
     .social span{ font-size:12px; color: rgba(255,255,255,.75); }
-
     .telegram i{ color:#2AABEE; }
     .tiktok i{ color:#FE2C55; }
     .discord i{ color:#5865F2; }
@@ -381,14 +374,16 @@
     .steam i{ color:#66C0F4; }
     .spotifyI i{ color:#1DB954; }
 
-    /* ===== Phone ===== */
+    /* ===== Phone only tweaks (DOCK lower + Spotify a bit lower) ===== */
     @media (max-width: 620px){
+      /* Spotify ниже (чутка) */
       .spotify{
-        top: calc(12px + env(safe-area-inset-top));
+        top: calc(34px + env(safe-area-inset-top)); /* было ~12px */
         width: calc(100vw - 24px);
         padding:12px 12px;
         border-radius:20px;
       }
+
       .spotCover{ width:46px; height:46px; border-radius:14px; }
       .spotTitle,.spotArtist{ max-width:190px; }
       .spotTitle{ font-size:13px; }
@@ -400,20 +395,17 @@
       .progressTrack{ width: min(330px, 56vw); }
       .progressTime{ min-width: 70px; }
 
-      .layout{
-        padding-top: calc(86px + env(safe-area-inset-top));
-        padding-bottom: calc(104px + env(safe-area-inset-bottom));
-      }
+      /* центр НЕ двигаем */
+      .center{ transform:none !important; }
 
-      .avatarCard{ width: min(200px, 58vw); border-radius:22px; }
-      .user{ font-size:34px; }
-      .welcome{ font-size:13px; }
-
+      /* Док бар ЗНАЧИТЕЛЬНО ниже */
       .socialBar{
+        bottom: calc(-18px + env(safe-area-inset-bottom)); /* было +14px */
         width: calc(100vw - 24px);
         border-radius:24px;
         padding:10px 10px;
         gap:14px;
+
         justify-content:flex-start;
         overflow-x:auto;
         overflow-y:hidden;
@@ -432,11 +424,12 @@
       }
       .social i{ font-size:26px; }
       .social span{ font-size:11px; }
-    }
 
-    /* ✅ iPhone 16 Pro Max / большие iPhone: поднять центр ещё выше, чтобы "welcome..." было видно */
-    @media (max-width: 460px) and (min-height: 880px){
-      .center{ transform: translateY(-5.0vh); } /* было -3.2vh, стало выше заметно */
+      /* чтобы контент не упирался в док */
+      .layout{
+        padding-top: calc(120px + env(safe-area-inset-top)); /* из-за опущенного spotify */
+        padding-bottom: calc(170px + env(safe-area-inset-bottom));
+      }
     }
   </style>
 </head>
@@ -518,35 +511,6 @@
       setMotion(e.touches[0].clientX, e.touches[0].clientY);
     }, {passive:true});
 
-    // Avatar tilt
-    const avatarCard = document.getElementById("avatarCard");
-    function setTiltFromPoint(x, y){
-      const rect = avatarCard.getBoundingClientRect();
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top + rect.height / 2;
-      const dx = (x - cx) / rect.width;
-      const dy = (y - cy) / rect.height;
-      const max = 8;
-      document.documentElement.style.setProperty("--tiltX", (-dy * max).toFixed(2) + "deg");
-      document.documentElement.style.setProperty("--tiltY", ( dx * max).toFixed(2) + "deg");
-      document.documentElement.style.setProperty("--tiltZ", "6px");
-    }
-    function resetTilt(){
-      document.documentElement.style.setProperty("--tiltX", "0deg");
-      document.documentElement.style.setProperty("--tiltY", "0deg");
-      document.documentElement.style.setProperty("--tiltZ", "0px");
-    }
-    if (avatarCard){
-      avatarCard.addEventListener("mousemove", (e)=> setTiltFromPoint(e.clientX, e.clientY));
-      avatarCard.addEventListener("mouseleave", resetTilt);
-      avatarCard.addEventListener("touchstart", ()=> sweepOnce(avatarCard), {passive:true});
-      avatarCard.addEventListener("touchmove", (e)=>{
-        if(!e.touches || !e.touches[0]) return;
-        setTiltFromPoint(e.touches[0].clientX, e.touches[0].clientY);
-      }, {passive:true});
-      avatarCard.addEventListener("touchend", resetTilt, {passive:true});
-    }
-
     // Tap animation socials
     const socials = document.querySelectorAll(".social");
     socials.forEach(a=>{
@@ -563,7 +527,7 @@
     const spotifyCard = document.getElementById("spotifyCard");
     if (spotifyCard) spotifyCard.addEventListener("touchstart", ()=> sweepOnce(spotifyCard), {passive:true});
 
-    // Spotify
+    // Spotify + real progress (needs api fields)
     const cover = document.getElementById("cover");
     const titleEl = document.getElementById("title");
     const artistEl = document.getElementById("artist");
@@ -648,7 +612,6 @@
         stopProgress();
         return;
       }
-
       progressWrap.style.display = "flex";
       progressState = { startTs: Date.now(), progressMs, durationMs };
 
@@ -690,7 +653,6 @@
         liveDot.style.boxShadow = "0 0 18px rgba(52,199,89,.55)";
         eq.classList.remove("paused");
 
-        // ✅ real countdown (needs API fields)
         startRealProgress(d.progressMs, d.durationMs);
 
         const key = `${d.title}__${d.artist}__${d.cover}`;
