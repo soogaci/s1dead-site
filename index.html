@@ -334,7 +334,6 @@
       margin: 2px 0 6px;
     }
 
-    /* Recently played compact */
     .steamCard.compact{ padding:12px; gap:10px; }
     .rgList{ display:flex; flex-direction:column; gap:10px; }
     .rgItem{
@@ -371,6 +370,20 @@
       font-weight:800;
       letter-spacing:.2px;
     }
+
+    /* ✅ NEW: ровная "подложка" под группой блоков */
+    .stack{
+      border-radius:28px;
+      padding:12px;
+      background: rgba(0,0,0,.14);
+      border:1px solid rgba(255,255,255,.10);
+      backdrop-filter: blur(18px) saturate(150%);
+      -webkit-backdrop-filter: blur(18px) saturate(150%);
+      box-shadow: 0 18px 60px rgba(0,0,0,.28);
+      overflow:hidden;
+    }
+    .stack .steamCard{ background: transparent; box-shadow:none; border:0; backdrop-filter:none; -webkit-backdrop-filter:none; }
+    /* но внутренние элементы steamCard стеклянные уже сами, так что внешний фон только у stack */
 
     /* ===== Mobile pager ===== */
     .pager{ display:none; }
@@ -413,6 +426,7 @@
         bottom: calc(86px + env(safe-area-inset-bottom));
         overflow:hidden;
         padding: 0 14px;
+
         touch-action: none;
       }
 
@@ -444,22 +458,12 @@
                     opacity .62s cubic-bezier(.2,.9,.18,1);
       }
 
-      /* ✅ СДВИНУЛ ВСЕ СТРИМ/ТЕСТ-СТРАНИЦЫ НИЖЕ, ЧТОБ НЕ СЪЕДАЛОСЬ */
-      .mPage[data-index="1"] .inner,
-      .mPage[data-index="2"] .inner,
-      .mPage[data-index="3"] .inner{
-        padding-top: 10px; /* было 0 — теперь ниже */
-      }
-
       .inner.scrollable{
         height:100%;
         overflow-y:auto;
         -webkit-overflow-scrolling: touch;
         padding-bottom: 24px;
         overscroll-behavior: contain;
-
-        /* ✅ чтобы iOS-оверлей справа меньше бросался в глаза */
-        padding-right: 18px;
       }
       .inner.scrollable::-webkit-scrollbar{ width:0px; }
 
@@ -478,7 +482,6 @@
       .user{ font-size:28.8px; }
       .welcome{ font-size:12px; padding:7px 11px; }
 
-      /* ✅ ВАЖНО: УБРАЛ ПОЛНОСТЬЮ "ПЛАШКУ/ФОН" У ТОЧЕК (это и было затемнение) */
       .pageDots{
         display:flex;
         position:fixed;
@@ -488,27 +491,15 @@
         z-index:31;
         flex-direction:column;
         gap:9px;
-        padding:0;
-        border-radius:0;
-        background: transparent;
-        border: none;
-        backdrop-filter: none;
-        -webkit-backdrop-filter: none;
-        pointer-events:none;
+        padding:9px 7px;
+        border-radius:16px;
+        background: rgba(255,255,255,.045);
+        border:1px solid rgba(255,255,255,.08);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
       }
-
-      /* ✅ точки меньше + прозрачнее */
-      .dot{
-        width:6px;height:6px;border-radius:99px;
-        background: rgba(255,255,255,.60);
-        opacity:.20;
-        transition:.25s ease;
-      }
-      .dot.active{
-        opacity:.70;
-        background: rgba(255,255,255,.92);
-        transform: scale(1.12);
-      }
+      .dot{ width:7px;height:7px;border-radius:99px; background: rgba(255,255,255,.32); opacity:.35; transition:.25s ease; }
+      .dot.active{ opacity:.95; background: rgba(255,255,255,.88); transform: scale(1.18); }
     }
 
     .dockHidden{
@@ -591,39 +582,42 @@
           <div class="inner scrollable">
             <div class="pTitle"><i class="fa-brands fa-steam"></i><span>Steam</span></div>
 
-            <div class="steamCard glass shine">
-              <div class="steamTop">
-                <div class="steamBrand">
-                  <div class="steamLogo"><i class="fa-brands fa-steam"></i></div>
-                  <div style="min-width:0">
-                    <div class="steamLabel">Steam</div>
-                    <div class="steamNameRow">
-                      <div class="steamPersona" id="steamPersonaM">Loading…</div>
-                      <a class="miniProfile" id="steamOpenM" href="https://steamcommunity.com/profiles/76561199064708359/" target="_blank" aria-label="Open profile">
-                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                      </a>
+            <!-- ✅ ровная подложка под блоками -->
+            <div class="stack">
+              <div class="steamCard glass shine">
+                <div class="steamTop">
+                  <div class="steamBrand">
+                    <div class="steamLogo"><i class="fa-brands fa-steam"></i></div>
+                    <div style="min-width:0">
+                      <div class="steamLabel">Steam</div>
+                      <div class="steamNameRow">
+                        <div class="steamPersona" id="steamPersonaM">Loading…</div>
+                        <a class="miniProfile" id="steamOpenM" href="https://steamcommunity.com/profiles/76561199064708359/" target="_blank" aria-label="Open profile">
+                          <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        </a>
+                      </div>
                     </div>
+                  </div>
+
+                  <div class="steamStatus">
+                    <span class="sDot offline" id="steamDotM"></span>
+                    <span id="steamStatusTextM">…</span>
                   </div>
                 </div>
 
-                <div class="steamStatus">
-                  <span class="sDot offline" id="steamDotM"></span>
-                  <span id="steamStatusTextM">…</span>
+                <div class="steamGame">
+                  <i class="fa-solid fa-gamepad"></i>
+                  <div class="steamGameText">
+                    <div class="steamGameTitle" id="steamGameTitleM">—</div>
+                    <div class="steamGameSub" id="steamGameSubM">Session: —</div>
+                  </div>
                 </div>
               </div>
 
-              <div class="steamGame">
-                <i class="fa-solid fa-gamepad"></i>
-                <div class="steamGameText">
-                  <div class="steamGameTitle" id="steamGameTitleM">—</div>
-                  <div class="steamGameSub" id="steamGameSubM">Session: —</div>
-                </div>
+              <div class="steamCard compact glass shine">
+                <div class="pTitle" style="margin:0 0 6px;"><i class="fa-solid fa-clock-rotate-left"></i><span>Recently played</span></div>
+                <div class="rgList" id="recentList"></div>
               </div>
-            </div>
-
-            <div class="steamCard compact glass shine">
-              <div class="pTitle" style="margin:0 0 6px;"><i class="fa-solid fa-clock-rotate-left"></i><span>Recently played</span></div>
-              <div class="rgList" id="recentList"></div>
             </div>
 
             <div style="height: 18px;"></div>
@@ -634,7 +628,8 @@
         <section class="mPage inactive" data-index="2">
           <div class="inner scrollable">
             <div class="pTitle"><i class="fa-solid fa-square"></i><span>Test page A</span></div>
-            <div class="steamCard glass shine">
+
+            <div class="stack">
               <div class="phGrid">
                 <div class="ph">Block 1</div>
                 <div class="ph">Block 2</div>
@@ -642,6 +637,7 @@
                 <div class="ph">Block 4</div>
               </div>
             </div>
+
             <div style="height: 18px;"></div>
           </div>
         </section>
@@ -650,7 +646,8 @@
         <section class="mPage inactive" data-index="3">
           <div class="inner scrollable">
             <div class="pTitle"><i class="fa-solid fa-square"></i><span>Test page B</span></div>
-            <div class="steamCard glass shine">
+
+            <div class="stack">
               <div class="phGrid">
                 <div class="ph">Empty</div>
                 <div class="ph">Empty</div>
@@ -658,6 +655,7 @@
                 <div class="ph">Empty</div>
               </div>
             </div>
+
             <div style="height: 18px;"></div>
           </div>
         </section>
