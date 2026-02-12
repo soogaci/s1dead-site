@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 
   <meta name="theme-color" content="#07070b" media="(prefers-color-scheme: dark)">
-  <meta name="theme-color" content="#07070b" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
 
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -29,39 +29,35 @@
       --mx: 0px;
       --my: 0px;
 
-      /* ✅ iOS Safari fix: dynamic viewport height */
-      --vh: 1vh;
+      /* ✅ Реальная высота экрана для Safari (JS будет обновлять) */
+      --appH: 100vh;
+
+      /* ✅ Отступы пейджера (JS будет выставлять) */
+      --pagerTop: 96px;
+      --pagerBottom: 96px;
     }
 
     *{ box-sizing:border-box; margin:0; padding:0; }
     html,body{ height:100%; }
+
     html{
       background:#07070b;
       overscroll-behavior:none;
-      height: calc(var(--vh) * 100);
     }
+
     body{
       font-family:-apple-system,BlinkMacSystemFont,"Inter",system-ui,sans-serif;
       color:var(--text);
-      background:transparent; /* ✅ фон держим на html/bgWrap */
+      background:#07070b;
+      height: var(--appH);
       overflow:hidden;
       overscroll-behavior:none;
       position:relative;
       touch-action: manipulation;
-      min-height: calc(var(--vh) * 100);
-      height: calc(var(--vh) * 100);
     }
 
     /* ===== Background ===== */
-    .bgWrap{
-      position:fixed;
-      inset:0;
-      z-index:0;
-      background:#07070b;
-      pointer-events:none;
-      height: calc(var(--vh) * 100);
-      min-height: calc(var(--vh) * 100);
-    }
+    .bgWrap{ position:fixed; inset:0; z-index:0; background:#07070b; pointer-events:none; }
     .bgFallback{
       position:absolute; inset:0;
       background:
@@ -119,12 +115,7 @@
       background-image:url("https://grainy-gradients.vercel.app/noise.svg");
     }
 
-    .ui{
-      position:relative;
-      z-index:10;
-      height: calc(var(--vh) * 100);
-      min-height: calc(var(--vh) * 100);
-    }
+    .ui{ position:relative; z-index:10; height: var(--appH); }
 
     /* Glass */
     .glass{
@@ -260,7 +251,7 @@
     /* Desktop center */
     .layout{
       position:relative;
-      height: calc(var(--vh) * 100);
+      height: var(--appH);
       padding-top: 92px;
       padding-bottom: 108px;
       display:flex;
@@ -306,6 +297,7 @@
     }
     .steamLogo i{ color:#66C0F4; font-size:22px; }
     .steamLabel{ font-size:12px; color:rgba(255,255,255,.70); }
+
     .steamNameRow{ display:flex; align-items:center; gap:10px; min-width:0; }
     .steamPersona{ font-size:14px; font-weight:850; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:210px; }
 
@@ -431,12 +423,13 @@
         left:0; right:0;
         z-index:20;
 
-        /* ✅ важное: safari/ios корректно считает высоту */
-        top: calc(84px + env(safe-area-inset-top));
-        bottom: calc(86px + env(safe-area-inset-bottom));
+        /* ✅ вместо фиксированных 84/86 — реальные отступы */
+        top: calc(var(--pagerTop) + env(safe-area-inset-top));
+        bottom: calc(var(--pagerBottom) + env(safe-area-inset-bottom));
 
         overflow:hidden;
         padding: 0 14px;
+
         touch-action: none;
       }
 
@@ -459,6 +452,10 @@
       .inner{
         width:100%;
         max-width:520px;
+
+        /* ✅ центрируем контент нормально */
+        margin: 0 auto;
+
         display:flex;
         flex-direction:column;
         gap:14px;
@@ -472,7 +469,10 @@
         height:100%;
         overflow-y:auto;
         -webkit-overflow-scrolling: touch;
-        padding-bottom: 24px;
+
+        /* ✅ чуть больше воздуха снизу чтобы не резало карточки */
+        padding-bottom: 32px;
+
         overscroll-behavior: contain;
       }
       .inner.scrollable::-webkit-scrollbar{ width:0px; }
@@ -492,6 +492,12 @@
       .user{ font-size:28.8px; }
       .welcome{ font-size:12px; padding:7px 11px; }
 
+      /* ✅ Steam заголовки не липнут к краю */
+      .pTitle{ padding-left: 2px; margin: 6px 0 8px; }
+
+      /* ✅ ВОТ ТВОЙ ОТСУП: между Steam карточкой и Recently played */
+      .steamCard.compact{ margin-top: 12px; }
+
       .pageDots{
         display:flex;
         position:fixed;
@@ -510,9 +516,6 @@
       }
       .dot{ width:8px;height:8px;border-radius:99px; background: rgba(255,255,255,.35); opacity:.45; transition:.25s ease; }
       .dot.active{ opacity:1; background: rgba(255,255,255,.90); transform: scale(1.15); }
-
-      /* ✅ чуть больше отступ между Steam карточкой и Recently played */
-      .steamCard.compact{ margin-top: 10px; } /* было слишком близко визуально */
     }
 
     .dockHidden{
@@ -626,7 +629,7 @@
             </div>
 
             <div class="steamCard compact glass shine">
-              <div class="pTitle" style="margin:0 0 6px;"><i class="fa-solid fa-clock-rotate-left"></i><span>Recently played</span></div>
+              <div class="pTitle" style="margin:0 0 8px;"><i class="fa-solid fa-clock-rotate-left"></i><span>Recently played</span></div>
               <div class="rgList" id="recentList"></div>
             </div>
 
@@ -682,14 +685,40 @@
   </div>
 
   <script>
-    /* ✅ iOS Safari true viewport height fix */
-    function setVH(){
-      const vh = window.innerHeight * 0.01;
-      document.documentElement.style.setProperty('--vh', `${vh}px`);
+    /* ===========================
+       ✅ SAFARI iOS FIX: real viewport height
+       =========================== */
+    function applyAppHeight(){
+      const vv = window.visualViewport;
+      const h = vv ? vv.height : window.innerHeight;
+      document.documentElement.style.setProperty("--appH", h + "px");
     }
-    setVH();
-    window.addEventListener('resize', setVH);
-    window.addEventListener('orientationchange', () => setTimeout(setVH, 120));
+    applyAppHeight();
+    window.addEventListener("resize", applyAppHeight, {passive:true});
+    window.addEventListener("orientationchange", applyAppHeight, {passive:true});
+    if (window.visualViewport){
+      window.visualViewport.addEventListener("resize", applyAppHeight, {passive:true});
+      window.visualViewport.addEventListener("scroll", applyAppHeight, {passive:true});
+    }
+
+    /* ✅ выставляем реальные top/bottom для pager чтобы не было “огромных рамок” */
+    function applyPagerInsets(){
+      const spotify = document.getElementById("spotifyCard");
+      const dock = document.getElementById("socialBar");
+
+      const spotH = spotify ? spotify.getBoundingClientRect().height : 72;
+      const dockH = dock ? dock.getBoundingClientRect().height : 78;
+
+      // верх: высота споти + небольшой воздух
+      const top = Math.round(spotH + 18);
+
+      // низ: если док видим — от него, если скрыт — минимально
+      const dockVisible = dock && !dock.classList.contains("dockHidden");
+      const bottom = dockVisible ? Math.round(dockH + 16) : 18;
+
+      document.documentElement.style.setProperty("--pagerTop", top + "px");
+      document.documentElement.style.setProperty("--pagerBottom", bottom + "px");
+    }
 
     function setMotion(clientX, clientY){
       const x = (clientX / window.innerWidth - 0.5) * 18;
@@ -771,6 +800,7 @@
           lastKey = "";
           cover.removeAttribute("src");
           setDefaultBackground();
+          applyPagerInsets();
           return;
         }
 
@@ -803,12 +833,15 @@
           openEl.href = d.url || "https://open.spotify.com";
           openEl.style.display = "inline-flex";
         }
+
+        applyPagerInsets();
       }catch(e){
         await animateSwap(titleEl, "Spotify error");
         await animateSwap(artistEl, "");
         openEl.style.display = "none";
         eq.classList.add("paused");
         setDefaultBackground();
+        applyPagerInsets();
       }
     }
 
@@ -991,6 +1024,7 @@
         dock.classList.remove("dockShown");
         dock.classList.add("dockHidden");
       }
+      applyPagerInsets(); // ✅ пересчёт нижнего отступа
     }
 
     function translateFor(i, extraDy=0){
@@ -1022,14 +1056,19 @@
 
       const activeInner = pages[index]?.querySelector(".inner.scrollable");
       if(activeInner) activeInner.scrollTop = 0;
+
+      applyPagerInsets();
     }
 
     function resize(){
+      applyAppHeight();
+      applyPagerInsets();
       if(!pager) return;
       height = pager.clientHeight || window.innerHeight;
       setActive(index);
     }
-    window.addEventListener("resize", resize);
+    window.addEventListener("resize", resize, {passive:true});
+    window.addEventListener("orientationchange", resize, {passive:true});
 
     let startY = 0, dragging = false, lastDy = 0, lock = false, startT = 0;
     const THRESH = 56;
@@ -1123,7 +1162,10 @@
     setInterval(getNowPlaying, 10000);
     setInterval(getSteam, 12000);
 
-    setTimeout(()=>{ if (isMobile()) setActive(0); }, 60);
+    setTimeout(()=>{
+      applyPagerInsets();
+      if (isMobile()) setActive(0);
+    }, 80);
   </script>
 </body>
 </html>
