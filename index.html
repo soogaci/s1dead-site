@@ -273,7 +273,7 @@
       -webkit-backdrop-filter: blur(14px) saturate(150%);
     }
 
-    /* Steam + stats */
+    /* Steam */
     .steamCard{ border-radius:24px; padding:14px; display:flex; flex-direction:column; gap:10px; }
     .steamTop{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
     .steamBrand{ display:flex; align-items:center; gap:10px; min-width:0; }
@@ -329,16 +329,6 @@
       margin: 2px 0 6px;
     }
 
-    .split{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:10px;
-      align-items:start;
-    }
-    @media (max-width: 620px){
-      .split{ grid-template-columns: 1fr; }
-    }
-
     .rgList{ display:flex; flex-direction:column; gap:10px; }
     .rgItem{
       padding:12px;
@@ -362,7 +352,7 @@
       flex:0 0 auto;
     }
 
-    /* Placeholders grid */
+    /* Placeholders */
     .phGrid{
       display:grid;
       grid-template-columns: repeat(2, 1fr);
@@ -422,7 +412,9 @@
         bottom: calc(86px + env(safe-area-inset-bottom));
         overflow:hidden;
         padding: 0 14px;
-        touch-action: pan-y;
+
+        /* ✅ FIX: iOS swipe reliable */
+        touch-action: none;
       }
 
       .track{
@@ -462,7 +454,7 @@
       }
       .inner.scrollable::-webkit-scrollbar{ width:0px; }
 
-      /* ✅ FIX: no blur filter on iOS for pages (kills black rectangle bug) */
+      /* ✅ FIX: no blur/filter on iOS for pages */
       .mPage.inactive .inner{
         opacity:0;
         transform: scale(.985) translateY(14px);
@@ -597,7 +589,7 @@
                 <i class="fa-solid fa-gamepad"></i>
                 <div class="steamGameText">
                   <div class="steamGameTitle" id="steamGameTitleM">—</div>
-                  <div class="steamGameSub" id="steamGameSubM">Session: 0:00</div>
+                  <div class="steamGameSub" id="steamGameSubM">Session: —</div>
                 </div>
               </div>
 
@@ -611,7 +603,6 @@
               <div class="rgList" id="recentList"></div>
             </div>
 
-            <!-- маленький “спейсер”, чтобы список не прятался под Safari -->
             <div style="height: 18px;"></div>
           </div>
         </section>
@@ -994,7 +985,6 @@
 
       setDockVisible(index === 0);
 
-      // reset inline styles
       pages.forEach(pg=>{
         const inner = pg.querySelector(".inner");
         if(!inner) return;
@@ -1013,7 +1003,7 @@
     }
     window.addEventListener("resize", resize);
 
-    let startY = 0, startX = 0, dragging = false, lastDy = 0, lock = false, startT = 0;
+    let startY = 0, dragging = false, lastDy = 0, lock = false, startT = 0;
     const THRESH = 56;
     const VEL_TRIG = 0.38;
 
@@ -1026,7 +1016,6 @@
 
       const p = e.touches ? e.touches[0] : e;
       startY = p.clientY;
-      startX = p.clientX;
 
       track.style.transition = "none";
       pages.forEach(pg=> {
@@ -1039,9 +1028,6 @@
       if(!dragging || !pager) return;
       const p = e.touches ? e.touches[0] : e;
       const dy = p.clientY - startY;
-      const dx = p.clientX - startX;
-
-      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 10) return;
 
       const sc = e.target && e.target.closest ? e.target.closest(".inner.scrollable") : null;
       if(sc){
@@ -1063,7 +1049,6 @@
 
       track.style.transform = `translate3d(0, ${y}px, 0)`;
 
-      // ✅ IMPORTANT: no blur/filter at all (iOS bug)
       const progress = Math.min(1, Math.abs(dy) / height);
       const cur = pages[index];
       if(cur){
