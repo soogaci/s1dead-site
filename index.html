@@ -4,38 +4,49 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
   <title>@s1deed</title>
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
   <style>
     :root{
       --accent: 155 81 255;
       --accent2: 80 220 255;
+
+      --glass: rgba(255,255,255,.10);
       --border: rgba(255,255,255,.16);
       --text: rgba(255,255,255,.92);
       --muted: rgba(255,255,255,.70);
       --shadow: 0 22px 70px rgba(0,0,0,.45);
+
+      --mx: 0px;
+      --my: 0px;
     }
+
     *{ box-sizing:border-box; margin:0; padding:0; }
     html,body{ height:100%; }
     body{
       font-family:-apple-system,BlinkMacSystemFont,"Inter",system-ui,sans-serif;
       color:var(--text);
-      overflow:hidden;
       background:#07070b;
+      overflow:hidden; /* ок, соцбар будет скроллиться отдельно */
       padding-top: env(safe-area-inset-top);
       padding-bottom: env(safe-area-inset-bottom);
     }
 
-    /* BG */
+    /* ===== Background (blurred avatar) ===== */
     .bg{
       position:fixed; inset:0;
       background:url("avatar.jpg") center/cover no-repeat;
       filter: blur(26px) saturate(135%) brightness(.72);
       transform: scale(1.12);
-      z-index:-4;
+      z-index:-5;
     }
+
+    /* dynamic glow */
     .glow{
-      position:fixed; inset:-90px; z-index:-3; pointer-events:none;
+      position:fixed; inset:-90px;
+      z-index:-4;
+      pointer-events:none;
       background:
         radial-gradient(900px 650px at 18% 10%, rgba(var(--accent), .38), transparent 62%),
         radial-gradient(800px 600px at 82% 18%, rgba(var(--accent2), .20), transparent 65%),
@@ -44,6 +55,37 @@
       transition: background .35s ease;
     }
 
+    /* liquid overlay with displacement */
+    .liquid{
+      position:fixed; inset:0;
+      z-index:-3;
+      pointer-events:none;
+      opacity:.95;
+      filter:url(#liquidFilter);
+    }
+    .liquid::before{
+      content:"";
+      position:absolute;
+      inset:-80px;
+      background:
+        radial-gradient(900px 600px at 20% 10%, rgba(var(--accent), .22), transparent 60%),
+        radial-gradient(800px 560px at 80% 30%, rgba(255,255,255,.10), transparent 60%),
+        radial-gradient(900px 700px at 50% 85%, rgba(var(--accent), .16), transparent 65%);
+      mix-blend-mode:screen;
+      transform: translate3d(var(--mx), var(--my), 0);
+      transition: transform .12s ease;
+    }
+
+    /* subtle grain */
+    .grain{
+      position:fixed; inset:0;
+      z-index:-2;
+      pointer-events:none;
+      opacity:.08;
+      background-image:url("https://grainy-gradients.vercel.app/noise.svg");
+    }
+
+    /* ===== Glass utility ===== */
     .glass{
       background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.06));
       border: 1px solid var(--border);
@@ -52,34 +94,131 @@
       box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,.20);
     }
 
-    /* Spotify */
+    /* ===== Spotify card ===== */
     .spotify{
-      position:absolute; top:14px; left:50%; transform:translateX(-50%);
-      width:min(760px,96vw); padding:14px 16px; border-radius:22px;
-      display:flex; align-items:center; gap:12px; z-index:5;
+      position:absolute;
+      top:14px;
+      left:50%;
+      transform:translateX(-50%);
+      width:min(760px,96vw);
+      padding:14px 16px;
+      border-radius:22px;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      z-index:5;
+      overflow:hidden;
     }
-    .spotCover{ width:56px; height:56px; border-radius:14px; object-fit:cover; }
-    .spotMeta{ min-width:0; display:flex; flex-direction:column; gap:3px; }
-    .spotTop{ display:flex; gap:8px; font-size:12px; color:rgba(255,255,255,.7); }
-    .liveDot{ width:8px;height:8px;border-radius:99px;background:#34c759; box-shadow:0 0 18px rgba(52,199,89,.55); }
-    .spotTitle{ font-weight:850; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:420px; }
-    .spotArtist{ font-size:13px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:420px; }
-    .spotRight{ margin-left:auto; display:flex; align-items:center; gap:10px; }
+    /* iOS-like shine */
+    .spotify::before{
+      content:"";
+      position:absolute;
+      inset:-140px;
+      background: radial-gradient(560px 260px at 10% 10%, rgba(255,255,255,.18), transparent 60%);
+      opacity:.9;
+      transform: translate3d(calc(var(--mx) * .6), calc(var(--my) * .6), 0);
+      transition: transform .12s ease;
+      pointer-events:none;
+    }
 
-    /* mono eq */
-    .eq{ width:34px; height:18px; display:flex; align-items:flex-end; gap:3px; }
-    .eq span{ width:4px; height:6px; border-radius:3px; background:rgba(255,255,255,.86); animation:bounce .9s ease-in-out infinite; transform-origin:bottom; }
-    .eq span:nth-child(2){ animation-delay:.12s } .eq span:nth-child(3){ animation-delay:.24s } .eq span:nth-child(4){ animation-delay:.36s }
-    @keyframes bounce{0%,100%{height:6px;opacity:.6}50%{height:18px;opacity:1}}
-    .eq.paused span{ animation:none; height:6px; opacity:.55 }
+    .spotCover{
+      width:56px; height:56px;
+      border-radius:14px;
+      object-fit:cover;
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow: 0 12px 32px rgba(0,0,0,.35);
+      flex:0 0 auto;
+      transition: opacity .25s ease, transform .25s ease;
+      z-index:1;
+    }
 
-    /* Open button (icon + text) */
+    .spotMeta{
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+      gap:3px;
+      z-index:1;
+    }
+
+    .spotTop{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-size:12px;
+      color:rgba(255,255,255,.70);
+      letter-spacing:.2px;
+    }
+    .liveDot{
+      width:8px;height:8px;border-radius:99px;
+      background:#34c759;
+      box-shadow:0 0 18px rgba(52,199,89,.55);
+    }
+
+    .spotTitle{
+      font-weight:850;
+      font-size:15px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width:420px;
+      will-change: opacity, transform, filter;
+    }
+    .spotArtist{
+      font-size:13px;
+      color:var(--muted);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width:420px;
+      will-change: opacity, transform, filter;
+    }
+
+    /* text swap animation */
+    .swap-out{ opacity:0; transform: translateY(6px); filter: blur(2px); transition:.22s ease; }
+    .swap-in{ opacity:1; transform: translateY(0); filter: blur(0); transition:.22s ease; }
+
+    .spotRight{
+      margin-left:auto;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      z-index:1;
+    }
+
+    /* mono equalizer */
+    .eq{
+      width:34px;
+      height:18px;
+      display:flex;
+      align-items:flex-end;
+      gap:3px;
+      opacity:.92;
+    }
+    .eq span{
+      width:4px;
+      height:6px;
+      border-radius:3px;
+      background:rgba(255,255,255,.86);
+      animation:bounce .9s ease-in-out infinite;
+      transform-origin:bottom;
+    }
+    .eq span:nth-child(2){ animation-delay:.12s }
+    .eq span:nth-child(3){ animation-delay:.24s }
+    .eq span:nth-child(4){ animation-delay:.36s }
+    @keyframes bounce{
+      0%,100%{ height:6px; opacity:.6 }
+      50%{ height:18px; opacity:1 }
+    }
+    .eq.paused span{ animation:none; height:6px; opacity:.55; }
+
+    /* unified Open + Spotify icon button */
     .spotBtn{
       display:none;
       align-items:center;
       gap:8px;
       text-decoration:none;
-      color:rgba(255,255,255,.9);
+      color:rgba(255,255,255,.90);
       padding:10px 12px;
       border-radius:14px;
       border:1px solid rgba(255,255,255,.12);
@@ -90,75 +229,180 @@
     .spotBtn i{ color:#1DB954; }
     .spotBtn:hover{ transform: translateY(-1px); background:rgba(255,255,255,.10); }
 
-    /* Layout */
+    /* ===== Layout wrapper (prevents overlaps) ===== */
     .layout{
-      position:relative; height:100vh;
+      position:relative;
+      height:100vh;
       padding-top: calc(92px + env(safe-area-inset-top));
       padding-bottom: calc(108px + env(safe-area-inset-bottom));
-      display:flex; align-items:center; justify-content:center;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:1;
     }
+
     .center{
       width:min(520px,92vw);
-      display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:10px;
+      text-align:center;
     }
 
-    .avatarCard{ width:min(360px,86vw); border-radius:26px; overflow:hidden; }
-    .avatarImg{ width:100%; display:block; }
-    .user{ font-size:44px; font-weight:900; }
-    .welcome{ margin-top:-6px; color:var(--muted); font-size:14px; }
-    .oldline{ margin-top:2px; color:rgba(255,255,255,.78); font-size:12px; padding:6px 10px; border-radius:14px; background:rgba(0,0,0,.18); border:1px solid rgba(255,255,255,.10); }
+    .avatarCard{
+      width:min(360px,86vw);
+      border-radius:26px;
+      overflow:hidden;
+      position:relative;
+    }
+    /* avatar shine */
+    .avatarCard::before{
+      content:"";
+      position:absolute;
+      inset:-80px;
+      background:
+        radial-gradient(520px 240px at 18% 10%, rgba(255,255,255,.18), transparent 60%),
+        radial-gradient(520px 260px at 80% 90%, rgba(var(--accent), .14), transparent 60%);
+      opacity:.9;
+      transform: translate3d(calc(var(--mx) * .4), calc(var(--my) * .4), 0);
+      transition: transform .12s ease;
+      pointer-events:none;
+    }
+    .avatarImg{
+      width:100%;
+      display:block;
+      object-fit:cover;
+      transform: scale(1.01);
+    }
 
-    /* Social bar */
+    .user{
+      font-size:44px;
+      font-weight:900;
+      letter-spacing:.3px;
+      text-shadow: 0 12px 45px rgba(0,0,0,.6);
+    }
+    .welcome{
+      margin-top:-6px;
+      color:var(--muted);
+      font-size:14px;
+    }
+    .oldline{
+      margin-top:2px;
+      color:rgba(255,255,255,.78);
+      font-size:12px;
+      padding:6px 10px;
+      border-radius:14px;
+      background:rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.10);
+      display:inline-block;
+    }
+
+    /* ===== Social dock bar (MUST scroll on iPhone) ===== */
     .socialBar{
-      position:absolute; left:50%; transform:translateX(-50%);
+      position:absolute;
+      left:50%;
+      transform:translateX(-50%);
       bottom: calc(14px + env(safe-area-inset-bottom));
-      width:min(920px,96vw); padding:12px 14px; border-radius:28px;
-      display:flex; justify-content:space-between; gap:18px; z-index:5;
-      overflow:auto;
+      width:min(920px,96vw);
+      padding:12px 14px;
+      border-radius:28px;
+      z-index:5;
+
+      display:flex;
+      gap:18px;
+
+      overflow-x:auto;         /* <— важное */
+      overflow-y:hidden;
+      -webkit-overflow-scrolling: touch; /* iOS inertia */
+      touch-action: pan-x;     /* разрешаем горизонтальный свайп */
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x proximity;
     }
     .socialBar::-webkit-scrollbar{ height:0px; }
+
     .social{
+      flex:0 0 auto;           /* чтобы не сжимались */
       min-width:76px;
-      display:flex; flex-direction:column; align-items:center; gap:6px;
-      padding:10px 10px 8px; border-radius:18px;
-      text-decoration:none; color:#fff;
+
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:6px;
+
+      padding:10px 10px 8px;
+      border-radius:18px;
+      text-decoration:none;
+      color:#fff;
+
+      transition: transform .18s ease, background .18s ease;
+      scroll-snap-align: start;
     }
-    .social i{ font-size:28px; }
-    .social span{ font-size:12px; color:rgba(255,255,255,.75); }
+    .social:hover{
+      transform: translateY(-3px);
+      background: rgba(255,255,255,.08);
+    }
+    .social i{
+      font-size:28px;
+      filter: drop-shadow(0 8px 18px rgba(0,0,0,.35));
+    }
+    .social span{
+      font-size:12px;
+      color: rgba(255,255,255,.75);
+    }
 
-    .telegram i{ color:#2AABEE } .tiktok i{ color:#FE2C55 } .discord i{ color:#5865F2 }
-    .instagram i{ color:#E1306C } .steam i{ color:#66C0F4 } .spotifyI i{ color:#1DB954 }
+    /* brand colors */
+    .telegram i{ color:#2AABEE; }
+    .tiktok i{ color:#FE2C55; }
+    .discord i{ color:#5865F2; }
+    .instagram i{ color:#E1306C; }
+    .steam i{ color:#66C0F4; }
+    .spotifyI i{ color:#1DB954; }
 
-    /* PHONE ONLY */
+    /* ===== Phone ===== */
     @media (max-width: 620px){
-      .spotify{ top: calc(12px + env(safe-area-inset-top)); width: calc(100vw - 24px); padding:12px 12px; border-radius:20px; }
-      .spotCover{ width:46px; height:46px; }
+      .spotify{
+        top: calc(12px + env(safe-area-inset-top));
+        width: calc(100vw - 24px);
+        padding:12px 12px;
+        border-radius:20px;
+      }
+      .spotCover{ width:46px; height:46px; border-radius:14px; }
       .spotTitle,.spotArtist{ max-width:190px; }
       .spotTitle{ font-size:13px; }
       .spotArtist{ font-size:12px; }
       .eq{ width:30px; height:16px; }
       .eq span{ width:3.5px; }
-      .spotBtn{ padding:9px 10px; }
-
-      .avatarCard{ width: min(200px, 58vw); border-radius:22px; }
-      .user{ font-size:34px; }
-      .welcome{ font-size:13px; }
-
-      /* было -8vh, теперь мягко: -3vh (примерно 3%) */
-      .center{ transform: translateY(-3vh); }
+      .spotBtn{ padding:9px 10px; border-radius:14px; }
 
       .layout{
         padding-top: calc(86px + env(safe-area-inset-top));
         padding-bottom: calc(96px + env(safe-area-inset-bottom));
       }
 
+      /* фото меньше — как ты хотел */
+      .avatarCard{
+        width: min(200px, 58vw);
+        border-radius:22px;
+      }
+      .user{ font-size:34px; }
+      .welcome{ font-size:13px; }
+
+      /* ВАЖНО: поднимаем центр всего на ~1% (мягко) */
+      .center{ transform: translateY(-1vh); }
+
+      /* соцбар на телефоне: ещё шире + точно скролл */
       .socialBar{
         width: calc(100vw - 24px);
         border-radius:24px;
         padding:10px 10px;
         gap:14px;
       }
-      .social{ min-width:66px; padding:8px 8px 6px; border-radius:16px; }
+      .social{
+        min-width:66px;
+        padding:8px 8px 6px;
+        border-radius:16px;
+      }
       .social i{ font-size:26px; }
       .social span{ font-size:11px; }
     }
@@ -169,12 +413,26 @@
   <div class="bg"></div>
   <div class="glow"></div>
 
+  <!-- liquid svg filter -->
+  <svg width="0" height="0">
+    <filter id="liquidFilter">
+      <feTurbulence type="fractalNoise" baseFrequency="0.010" numOctaves="2" seed="8" result="noise">
+        <animate attributeName="baseFrequency" dur="8s" values="0.010;0.014;0.010" repeatCount="indefinite"/>
+      </feTurbulence>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="18" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </svg>
+
+  <div class="liquid"></div>
+  <div class="grain"></div>
+
+  <!-- Spotify Card -->
   <div class="spotify glass">
     <img id="cover" class="spotCover" alt="cover"/>
     <div class="spotMeta">
       <div class="spotTop"><span class="liveDot" id="liveDot"></span><span id="label">Now Playing</span></div>
-      <div class="spotTitle" id="title">Loading…</div>
-      <div class="spotArtist" id="artist"></div>
+      <div class="spotTitle swap-in" id="title">Loading…</div>
+      <div class="spotArtist swap-in" id="artist"></div>
     </div>
     <div class="spotRight">
       <div class="eq" id="eq"><span></span><span></span><span></span><span></span></div>
@@ -184,85 +442,155 @@
 
   <div class="layout">
     <div class="center">
-      <div class="avatarCard glass"><img class="avatarImg" src="avatar.jpg" alt="avatar"></div>
+      <div class="avatarCard glass">
+        <img class="avatarImg" src="avatar.jpg" alt="avatar">
+      </div>
       <div class="user">@s1deed</div>
       <div class="welcome">welcome to my bio:</div>
       <div class="oldline">старый юз: @soogaci</div>
     </div>
   </div>
 
-  <div class="socialBar glass">
+  <!-- Social dock (scrollable on iPhone) -->
+  <div class="socialBar glass" id="socialBar">
     <a class="social telegram" href="https://t.me/s1deed" target="_blank"><i class="fa-brands fa-telegram"></i><span>Telegram</span></a>
     <a class="social tiktok" href="https://www.tiktok.com/@s1deeed?_r=1&_t=ZS-92QwHlSQe4j" target="_blank"><i class="fa-brands fa-tiktok"></i><span>TikTok</span></a>
     <a class="social discord" href="https://discord.gg/DuJNA7z2" target="_blank"><i class="fa-brands fa-discord"></i><span>Discord</span></a>
-    <a class="social instagram" href="https://www.instagram.com/s1deed" target="_blank"><i class="fa-brands fa-instagram"></i><span>Instagram</span></a>
+    <a class="social instagram" href="https://www.instagram.com/s1deed?igsh=MWg3N3Jmb3oyNnM0Ng%3D%3D&utm_source=qr" target="_blank"><i class="fa-brands fa-instagram"></i><span>Instagram</span></a>
     <a class="social steam" href="https://steamcommunity.com/id/soogaci/" target="_blank"><i class="fa-brands fa-steam"></i><span>Steam</span></a>
     <a class="social spotifyI" href="https://open.spotify.com/user/31uumxtifdbgfqvll2txasaipgcu" target="_blank"><i class="fa-brands fa-spotify"></i><span>Spotify</span></a>
   </div>
 
   <script>
-    const cover=document.getElementById("cover");
-    const titleEl=document.getElementById("title");
-    const artistEl=document.getElementById("artist");
-    const openEl=document.getElementById("open");
-    const eq=document.getElementById("eq");
-    const liveDot=document.getElementById("liveDot");
-    const label=document.getElementById("label");
-    let lastKey="";
+    // ===== liquid movement (mouse + touch) =====
+    function setMotion(clientX, clientY){
+      const x = (clientX / window.innerWidth - 0.5) * 18;
+      const y = (clientY / window.innerHeight - 0.5) * 18;
+      document.documentElement.style.setProperty("--mx", x + "px");
+      document.documentElement.style.setProperty("--my", y + "px");
+    }
+
+    document.addEventListener("mousemove", (e) => setMotion(e.clientX, e.clientY), {passive:true});
+    document.addEventListener("touchmove", (e) => {
+      if (!e.touches || !e.touches[0]) return;
+      setMotion(e.touches[0].clientX, e.touches[0].clientY);
+    }, {passive:true});
+
+    // ===== Spotify Now Playing + dynamic theme =====
+    const cover = document.getElementById("cover");
+    const titleEl = document.getElementById("title");
+    const artistEl = document.getElementById("artist");
+    const openEl = document.getElementById("open");
+    const eq = document.getElementById("eq");
+    const liveDot = document.getElementById("liveDot");
+    const label = document.getElementById("label");
+
+    let lastKey = "";
 
     function avgColorFromImage(url){
       return new Promise((resolve)=>{
-        const img=new Image(); img.crossOrigin="anonymous";
-        img.onload=()=>{const c=document.createElement("canvas"),x=c.getContext("2d");c.width=c.height=40;x.drawImage(img,0,0,40,40);
-          const d=x.getImageData(0,0,40,40).data;let r=0,g=0,b=0,n=0;
-          for(let i=0;i<d.length;i+=4){r+=d[i];g+=d[i+1];b+=d[i+2];n++}
-          resolve([Math.round(r/n),Math.round(g/n),Math.round(b/n)])};
-        img.onerror=()=>resolve(null); img.src=url;
+        const img = new Image();
+        img.crossOrigin="anonymous";
+        img.onload=()=>{
+          const c=document.createElement("canvas");
+          const ctx=c.getContext("2d");
+          c.width=c.height=40;
+          ctx.drawImage(img,0,0,40,40);
+          const d=ctx.getImageData(0,0,40,40).data;
+          let r=0,g=0,b=0,n=0;
+          for(let i=0;i<d.length;i+=4){ r+=d[i]; g+=d[i+1]; b+=d[i+2]; n++; }
+          resolve([Math.round(r/n),Math.round(g/n),Math.round(b/n)]);
+        };
+        img.onerror=()=>resolve(null);
+        img.src=url;
       });
     }
-    function makeAccent2([r,g,b]){ return [Math.min(255,Math.round(r*.55+60)),Math.min(255,Math.round(g*.75+40)),Math.min(255,Math.round(b*1.05))] }
+    function makeAccent2([r,g,b]){
+      return [
+        Math.min(255, Math.round(r*0.55 + 60)),
+        Math.min(255, Math.round(g*0.75 + 40)),
+        Math.min(255, Math.round(b*1.05))
+      ];
+    }
     async function setTheme(url){
-      const rgb=await avgColorFromImage(url); if(!rgb) return;
-      const rgb2=makeAccent2(rgb);
-      document.documentElement.style.setProperty("--accent",`${rgb[0]} ${rgb[1]} ${rgb[2]}`);
-      document.documentElement.style.setProperty("--accent2",`${rgb2[0]} ${rgb2[1]} ${rgb2[2]}`);
+      const rgb = await avgColorFromImage(url);
+      if(!rgb) return;
+      const rgb2 = makeAccent2(rgb);
+      document.documentElement.style.setProperty("--accent", `${rgb[0]} ${rgb[1]} ${rgb[2]}`);
+      document.documentElement.style.setProperty("--accent2", `${rgb2[0]} ${rgb2[1]} ${rgb2[2]}`);
+    }
+
+    async function animateSwap(el, newText){
+      if(!el) return;
+      el.classList.add("swap-out");
+      el.classList.remove("swap-in");
+      await new Promise(r => setTimeout(r, 160));
+      el.textContent = newText;
+      el.classList.remove("swap-out");
+      el.classList.add("swap-in");
     }
 
     async function getNowPlaying(){
       try{
-        const r=await fetch("/api/spotify",{cache:"no-store"}); const d=await r.json();
-        if(!d.isPlaying){
-          titleEl.textContent="Nothing playing"; artistEl.textContent=""; openEl.style.display="none";
-          eq.classList.add("paused"); label.textContent="Spotify";
-          liveDot.style.background="rgba(255,255,255,.35)"; liveDot.style.boxShadow="none";
-          lastKey=""; return;
+        const r = await fetch("/api/spotify", { cache:"no-store" });
+        const d = await r.json();
+
+        if(!d || !d.isPlaying){
+          await animateSwap(titleEl, "Nothing playing");
+          await animateSwap(artistEl, "");
+          openEl.style.display = "none";
+          eq.classList.add("paused");
+          label.textContent = "Spotify";
+          liveDot.style.background = "rgba(255,255,255,.35)";
+          liveDot.style.boxShadow = "none";
+          lastKey = "";
+          cover.removeAttribute("src");
+          return;
         }
-        label.textContent="Now Playing";
-        liveDot.style.background="#34c759"; liveDot.style.boxShadow="0 0 18px rgba(52,199,89,.55)";
+
+        label.textContent = "Now Playing";
+        liveDot.style.background = "#34c759";
+        liveDot.style.boxShadow = "0 0 18px rgba(52,199,89,.55)";
         eq.classList.remove("paused");
 
-        const key=`${d.title}__${d.artist}__${d.cover}`; const changed=key!==lastKey;
+        const key = `${d.title}__${d.artist}__${d.cover}`;
+        const changed = key !== lastKey;
+
         if(changed){
-          cover.style.opacity="0"; setTimeout(()=>cover.src=d.cover||"",120);
-          cover.onload=async()=>{cover.style.opacity="1"; if(d.cover) await setTheme(d.cover)}
-          titleEl.textContent=d.title||"Playing";
-          artistEl.textContent=d.artist||"";
-          openEl.href=d.url||"https://open.spotify.com";
-          openEl.style.display="inline-flex";
-          lastKey=key;
+          // cover fade
+          cover.style.opacity = "0";
+          cover.style.transform = "scale(0.98)";
+          setTimeout(()=>{ cover.src = d.cover || ""; }, 140);
+
+          cover.onload = async () => {
+            cover.style.opacity = "1";
+            cover.style.transform = "scale(1)";
+            if(d.cover) await setTheme(d.cover);
+          };
+
+          await animateSwap(titleEl, d.title || "Playing");
+          await animateSwap(artistEl, d.artist || "");
+
+          openEl.href = d.url || "https://open.spotify.com";
+          openEl.style.display = "inline-flex";
+          lastKey = key;
         } else {
-          if(!cover.src&&d.cover) cover.src=d.cover;
-          if(titleEl.textContent!==d.title) titleEl.textContent=d.title||"Playing";
-          if(artistEl.textContent!==d.artist) artistEl.textContent=d.artist||"";
-          openEl.href=d.url||"https://open.spotify.com";
-          openEl.style.display="inline-flex";
+          if(!cover.src && d.cover) cover.src = d.cover;
+          if(titleEl.textContent !== d.title) titleEl.textContent = d.title || "Playing";
+          if(artistEl.textContent !== d.artist) artistEl.textContent = d.artist || "";
+          openEl.href = d.url || "https://open.spotify.com";
+          openEl.style.display = "inline-flex";
         }
       }catch(e){
-        titleEl.textContent="Spotify error"; artistEl.textContent=""; openEl.style.display="none";
+        await animateSwap(titleEl, "Spotify error");
+        await animateSwap(artistEl, "");
+        openEl.style.display = "none";
         eq.classList.add("paused");
       }
     }
-    getNowPlaying(); setInterval(getNowPlaying,10000);
+
+    getNowPlaying();
+    setInterval(getNowPlaying, 10000);
   </script>
 </body>
 </html>
