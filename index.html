@@ -28,12 +28,12 @@
       font-family:-apple-system,BlinkMacSystemFont,"Inter",system-ui,sans-serif;
       color:var(--text);
       background:#07070b;
-      overflow:hidden; /* ок, соцбар будет скроллиться отдельно */
+      overflow:hidden;
       padding-top: env(safe-area-inset-top);
       padding-bottom: env(safe-area-inset-bottom);
     }
 
-    /* ===== Background (blurred avatar) ===== */
+    /* ===== Background ===== */
     .bg{
       position:fixed; inset:0;
       background:url("avatar.jpg") center/cover no-repeat;
@@ -42,7 +42,6 @@
       z-index:-5;
     }
 
-    /* dynamic glow */
     .glow{
       position:fixed; inset:-90px;
       z-index:-4;
@@ -55,7 +54,7 @@
       transition: background .35s ease;
     }
 
-    /* liquid overlay with displacement */
+    /* liquid overlay */
     .liquid{
       position:fixed; inset:0;
       z-index:-3;
@@ -76,7 +75,6 @@
       transition: transform .12s ease;
     }
 
-    /* subtle grain */
     .grain{
       position:fixed; inset:0;
       z-index:-2;
@@ -85,7 +83,7 @@
       background-image:url("https://grainy-gradients.vercel.app/noise.svg");
     }
 
-    /* ===== Glass utility ===== */
+    /* ===== Glass ===== */
     .glass{
       background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.06));
       border: 1px solid var(--border);
@@ -100,16 +98,15 @@
       top:14px;
       left:50%;
       transform:translateX(-50%);
-      width:min(760px,96vw);
+      width:min(860px,96vw);
       padding:14px 16px;
       border-radius:22px;
       display:flex;
       align-items:center;
       gap:12px;
-      z-index:5;
+      z-index:6;
       overflow:hidden;
     }
-    /* iOS-like shine */
     .spotify::before{
       content:"";
       position:absolute;
@@ -161,7 +158,7 @@
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
-      max-width:420px;
+      max-width:520px;
       will-change: opacity, transform, filter;
     }
     .spotArtist{
@@ -170,11 +167,11 @@
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
-      max-width:420px;
+      max-width:520px;
       will-change: opacity, transform, filter;
     }
 
-    /* text swap animation */
+    /* swap animation */
     .swap-out{ opacity:0; transform: translateY(6px); filter: blur(2px); transition:.22s ease; }
     .swap-in{ opacity:1; transform: translateY(0); filter: blur(0); transition:.22s ease; }
 
@@ -212,7 +209,7 @@
     }
     .eq.paused span{ animation:none; height:6px; opacity:.55; }
 
-    /* unified Open + Spotify icon button */
+    /* unified Open + Spotify icon */
     .spotBtn{
       display:none;
       align-items:center;
@@ -229,12 +226,12 @@
     .spotBtn i{ color:#1DB954; }
     .spotBtn:hover{ transform: translateY(-1px); background:rgba(255,255,255,.10); }
 
-    /* ===== Layout wrapper (prevents overlaps) ===== */
+    /* ===== Layout wrapper ===== */
     .layout{
       position:relative;
       height:100vh;
       padding-top: calc(92px + env(safe-area-inset-top));
-      padding-bottom: calc(108px + env(safe-area-inset-bottom));
+      padding-bottom: calc(118px + env(safe-area-inset-bottom)); /* чуть больше, чтобы oldline не попадал под док */
       display:flex;
       align-items:center;
       justify-content:center;
@@ -256,7 +253,6 @@
       overflow:hidden;
       position:relative;
     }
-    /* avatar shine */
     .avatarCard::before{
       content:"";
       position:absolute;
@@ -298,45 +294,41 @@
       display:inline-block;
     }
 
-    /* ===== Social dock bar (MUST scroll on iPhone) ===== */
+    /* ===== Social dock =====
+       Desktop: как раньше — занимает ширину и распределяет иконки
+       Mobile: включаем горизонтальный скролл
+    */
     .socialBar{
       position:absolute;
       left:50%;
       transform:translateX(-50%);
       bottom: calc(14px + env(safe-area-inset-bottom));
-      width:min(920px,96vw);
+
+      width:min(1060px,96vw);  /* шире чем было, чтобы на ПК не “половина” */
       padding:12px 14px;
       border-radius:28px;
-      z-index:5;
+      z-index:6;
 
       display:flex;
+      justify-content:space-between; /* как раньше на ПК */
+      align-items:center;
       gap:18px;
 
-      overflow-x:auto;         /* <— важное */
-      overflow-y:hidden;
-      -webkit-overflow-scrolling: touch; /* iOS inertia */
-      touch-action: pan-x;     /* разрешаем горизонтальный свайп */
-      overscroll-behavior-x: contain;
-      scroll-snap-type: x proximity;
+      overflow:hidden; /* на ПК без скролла */
     }
-    .socialBar::-webkit-scrollbar{ height:0px; }
 
     .social{
-      flex:0 0 auto;           /* чтобы не сжимались */
+      flex: 0 0 auto;
       min-width:76px;
-
       display:flex;
       flex-direction:column;
       align-items:center;
       gap:6px;
-
       padding:10px 10px 8px;
       border-radius:18px;
       text-decoration:none;
       color:#fff;
-
       transition: transform .18s ease, background .18s ease;
-      scroll-snap-align: start;
     }
     .social:hover{
       transform: translateY(-3px);
@@ -351,7 +343,6 @@
       color: rgba(255,255,255,.75);
     }
 
-    /* brand colors */
     .telegram i{ color:#2AABEE; }
     .tiktok i{ color:#FE2C55; }
     .discord i{ color:#5865F2; }
@@ -359,7 +350,7 @@
     .steam i{ color:#66C0F4; }
     .spotifyI i{ color:#1DB954; }
 
-    /* ===== Phone ===== */
+    /* ===== Mobile ===== */
     @media (max-width: 620px){
       .spotify{
         top: calc(12px + env(safe-area-inset-top));
@@ -377,10 +368,9 @@
 
       .layout{
         padding-top: calc(86px + env(safe-area-inset-top));
-        padding-bottom: calc(96px + env(safe-area-inset-bottom));
+        padding-bottom: calc(122px + env(safe-area-inset-bottom)); /* ещё запас, чтобы oldline не исчез */
       }
 
-      /* фото меньше — как ты хотел */
       .avatarCard{
         width: min(200px, 58vw);
         border-radius:22px;
@@ -388,23 +378,43 @@
       .user{ font-size:34px; }
       .welcome{ font-size:13px; }
 
-      /* ВАЖНО: поднимаем центр всего на ~1% (мягко) */
+      /* ты просил около 1% — оставляем, но oldline поднимаем “чуть” выше за счёт паддинга */
       .center{ transform: translateY(-1vh); }
 
-      /* соцбар на телефоне: ещё шире + точно скролл */
+      /* ВКЛЮЧАЕМ СКРОЛЛ ДОКА НА ТЕЛЕФОНЕ */
       .socialBar{
         width: calc(100vw - 24px);
         border-radius:24px;
         padding:10px 10px;
         gap:14px;
+
+        justify-content:flex-start; /* чтобы карусель была норм */
+        overflow-x:auto;
+        overflow-y:hidden;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-x;
+        overscroll-behavior-x: contain;
+        scroll-snap-type: x proximity;
       }
+      .socialBar::-webkit-scrollbar{ height:0px; }
+
       .social{
         min-width:66px;
         padding:8px 8px 6px;
         border-radius:16px;
+        scroll-snap-align: start;
       }
       .social i{ font-size:26px; }
       .social span{ font-size:11px; }
+    }
+
+    /* ===== iPhone 16 Pro Max tuning =====
+       Большие айфоны: чуть выше, чтобы oldline гарантированно был виден.
+       (ширина ~430-460px и высокая высота)
+    */
+    @media (max-width: 460px) and (min-height: 880px){
+      .center{ transform: translateY(-2vh); } /* oldline поднимается на волосок */
+      .layout{ padding-bottom: calc(132px + env(safe-area-inset-bottom)); } /* ещё безопаснее */
     }
   </style>
 </head>
@@ -451,7 +461,7 @@
     </div>
   </div>
 
-  <!-- Social dock (scrollable on iPhone) -->
+  <!-- Social dock -->
   <div class="socialBar glass" id="socialBar">
     <a class="social telegram" href="https://t.me/s1deed" target="_blank"><i class="fa-brands fa-telegram"></i><span>Telegram</span></a>
     <a class="social tiktok" href="https://www.tiktok.com/@s1deeed?_r=1&_t=ZS-92QwHlSQe4j" target="_blank"><i class="fa-brands fa-tiktok"></i><span>TikTok</span></a>
@@ -469,7 +479,6 @@
       document.documentElement.style.setProperty("--mx", x + "px");
       document.documentElement.style.setProperty("--my", y + "px");
     }
-
     document.addEventListener("mousemove", (e) => setMotion(e.clientX, e.clientY), {passive:true});
     document.addEventListener("touchmove", (e) => {
       if (!e.touches || !e.touches[0]) return;
@@ -557,7 +566,6 @@
         const changed = key !== lastKey;
 
         if(changed){
-          // cover fade
           cover.style.opacity = "0";
           cover.style.transform = "scale(0.98)";
           setTimeout(()=>{ cover.src = d.cover || ""; }, 140);
