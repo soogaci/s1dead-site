@@ -11,13 +11,18 @@
     :root{
       --accent: 155 81 255;
       --accent2: 80 220 255;
+
+      /* динамический фон: по умолчанию аватарка */
       --bg: url("avatar.jpg");
+
       --border: rgba(255,255,255,.16);
       --text: rgba(255,255,255,.92);
       --muted: rgba(255,255,255,.70);
       --shadow: 0 22px 70px rgba(0,0,0,.45);
+
       --mx: 0px;
       --my: 0px;
+
       --tiltX: 0deg;
       --tiltY: 0deg;
       --tiltZ: 0px;
@@ -34,17 +39,19 @@
       padding-bottom: env(safe-area-inset-bottom);
     }
 
-    /* ===== Background ===== */
+    /* ===== Background (dynamic) ===== */
     .bg{
       position:fixed; inset:0;
       background-image: var(--bg);
       background-position:center;
       background-size:cover;
+      background-repeat:no-repeat;
       filter: blur(26px) saturate(135%) brightness(.72);
       transform: scale(1.12);
       z-index:-5;
       transition: filter .35s ease;
     }
+
     .glow{
       position:fixed; inset:-90px;
       z-index:-4;
@@ -56,6 +63,8 @@
       filter: blur(10px);
       transition: background .35s ease;
     }
+
+    /* liquid overlay */
     .liquid{
       position:fixed; inset:0;
       z-index:-3;
@@ -75,6 +84,7 @@
       transform: translate3d(var(--mx), var(--my), 0);
       transition: transform .12s ease;
     }
+
     .grain{
       position:fixed; inset:0;
       z-index:-2;
@@ -83,6 +93,7 @@
       background-image:url("https://grainy-gradients.vercel.app/noise.svg");
     }
 
+    /* ===== Glass ===== */
     .glass{
       background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.06));
       border: 1px solid var(--border);
@@ -93,57 +104,388 @@
       overflow: hidden;
     }
 
-    /* ===== Spotify ===== */
+    /* glass highlight sweep */
+    .shine::after{
+      content:"";
+      position:absolute;
+      inset:-120px;
+      background:
+        linear-gradient(110deg,
+          transparent 30%,
+          rgba(255,255,255,.18) 45%,
+          rgba(255,255,255,.06) 55%,
+          transparent 70%);
+      transform: translateX(-60%) rotate(8deg);
+      opacity:0;
+      pointer-events:none;
+    }
+    @media (hover:hover){
+      .shine:hover::after{
+        opacity:1;
+        animation: sweep 1.05s ease;
+      }
+    }
+    .shine.sweepOnce::after{
+      opacity:1;
+      animation: sweep 1.05s ease;
+    }
+    @keyframes sweep{
+      0%{ transform: translateX(-70%) rotate(8deg); opacity:0; }
+      15%{ opacity:1; }
+      100%{ transform: translateX(70%) rotate(8deg); opacity:0; }
+    }
+
+    /* ===== Spotify card ===== */
     .spotify{
       position:absolute;
-      top:14px; left:50%;
+      top:14px;
+      left:50%;
       transform:translateX(-50%);
       width:min(1060px,96vw);
       padding:14px 16px;
       border-radius:22px;
-      display:flex; align-items:center; gap:12px;
+      display:flex;
+      align-items:center;
+      gap:12px;
       z-index:6;
     }
-    .spotCover{ width:56px;height:56px;border-radius:14px;object-fit:cover;border:1px solid rgba(255,255,255,.12); }
-    .spotMeta{ min-width:0; display:flex; flex-direction:column; gap:3px; }
-    .spotTitle{ font-weight:850; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .spotArtist{ font-size:13px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .spotify::before{
+      content:"";
+      position:absolute;
+      inset:-140px;
+      background: radial-gradient(560px 260px at 10% 10%, rgba(255,255,255,.18), transparent 60%);
+      opacity:.9;
+      transform: translate3d(calc(var(--mx) * .6), calc(var(--my) * .6), 0);
+      transition: transform .12s ease;
+      pointer-events:none;
+    }
 
-    /* ===== Center ===== */
+    .spotCover{
+      width:56px; height:56px;
+      border-radius:14px;
+      object-fit:cover;
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow: 0 12px 32px rgba(0,0,0,.35);
+      flex:0 0 auto;
+      transition: opacity .25s ease, transform .25s ease;
+      z-index:1;
+    }
+
+    .spotMeta{
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+      gap:3px;
+      z-index:1;
+      flex: 1 1 auto;
+    }
+
+    .spotTop{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-size:12px;
+      color:rgba(255,255,255,.70);
+      letter-spacing:.2px;
+    }
+    .liveDot{
+      width:8px;height:8px;border-radius:99px;
+      background:#34c759;
+      box-shadow:0 0 18px rgba(52,199,89,.55);
+    }
+
+    .spotTitle{
+      font-weight:850;
+      font-size:15px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width:520px;
+      will-change: opacity, transform, filter;
+    }
+    .spotArtist{
+      font-size:13px;
+      color:var(--muted);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width:520px;
+      will-change: opacity, transform, filter;
+    }
+
+    .swap-out{ opacity:0; transform: translateY(6px); filter: blur(2px); transition:.22s ease; }
+    .swap-in{ opacity:1; transform: translateY(0); filter: blur(0); transition:.22s ease; }
+
+    .spotRight{
+      margin-left:auto;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      z-index:1;
+      flex: 0 0 auto;
+    }
+
+    /* mono equalizer */
+    .eq{
+      width:34px;
+      height:18px;
+      display:flex;
+      align-items:flex-end;
+      gap:3px;
+      opacity:.92;
+    }
+    .eq span{
+      width:4px;
+      height:6px;
+      border-radius:3px;
+      background:rgba(255,255,255,.86);
+      animation:bounce .9s ease-in-out infinite;
+      transform-origin:bottom;
+    }
+    .eq span:nth-child(2){ animation-delay:.12s }
+    .eq span:nth-child(3){ animation-delay:.24s }
+    .eq span:nth-child(4){ animation-delay:.36s }
+    @keyframes bounce{
+      0%,100%{ height:6px; opacity:.6 }
+      50%{ height:18px; opacity:1 }
+    }
+    .eq.paused span{ animation:none; height:6px; opacity:.55; }
+
+    /* unified Open + Spotify icon */
+    .spotBtn{
+      display:none;
+      align-items:center;
+      gap:8px;
+      text-decoration:none;
+      color:rgba(255,255,255,.90);
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.07);
+      white-space:nowrap;
+      transition:.18s ease;
+    }
+    .spotBtn i{ color:#1DB954; }
+    .spotBtn:hover{ transform: translateY(-1px); background:rgba(255,255,255,.10); }
+
+    /* ===== Progress bar ===== */
+    .progressWrap{
+      margin-top:8px;
+      height:10px;
+      display:none;
+      align-items:center;
+      gap:10px;
+    }
+    .progressTrack{
+      position:relative;
+      height:6px;
+      width: min(520px, 62vw);
+      border-radius:999px;
+      background: rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.10);
+      overflow:hidden;
+    }
+    .progressFill{
+      position:absolute;
+      left:0; top:0; bottom:0;
+      width:0%;
+      border-radius:999px;
+      background: rgba(255,255,255,.78);
+      box-shadow: 0 10px 30px rgba(255,255,255,.14);
+      transition: width .35s ease;
+    }
+    .progressTime{
+      font-size:11px;
+      color: rgba(255,255,255,.65);
+      min-width: 84px;
+      text-align:right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ===== Layout ===== */
     .layout{
-      position:relative; height:100vh;
+      position:relative;
+      height:100vh;
       padding-top: calc(92px + env(safe-area-inset-top));
       padding-bottom: calc(108px + env(safe-area-inset-bottom));
-      display:flex; align-items:center; justify-content:center;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:1;
     }
+
     .center{
       width:min(520px,92vw);
-      display:flex; flex-direction:column; align-items:center; gap:10px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:10px;
       text-align:center;
     }
-    .avatarCard{ width:min(360px,86vw); border-radius:26px; overflow:hidden; }
-    .avatarImg{ width:100%; display:block; object-fit:cover; }
-    .user{ font-size:44px; font-weight:900; }
-    .welcome{ color:var(--muted); font-size:14px; }
+
+    .avatarCard{
+      width:min(360px,86vw);
+      border-radius:26px;
+      overflow:hidden;
+      position:relative;
+      transform-style: preserve-3d;
+      will-change: transform;
+      transform: perspective(900px) rotateX(var(--tiltX)) rotateY(var(--tiltY)) translateZ(var(--tiltZ));
+      transition: transform .12s ease;
+    }
+    .avatarCard::before{
+      content:"";
+      position:absolute;
+      inset:-80px;
+      background:
+        radial-gradient(520px 240px at 18% 10%, rgba(255,255,255,.18), transparent 60%),
+        radial-gradient(520px 260px at 80% 90%, rgba(var(--accent), .14), transparent 60%);
+      opacity:.9;
+      transform: translate3d(calc(var(--mx) * .4), calc(var(--my) * .4), 0);
+      transition: transform .12s ease;
+      pointer-events:none;
+    }
+    .avatarImg{
+      width:100%;
+      display:block;
+      object-fit:cover;
+      transform: scale(1.01);
+    }
+
+    .user{
+      font-size:44px;
+      font-weight:900;
+      letter-spacing:.3px;
+      text-shadow: 0 12px 45px rgba(0,0,0,.6);
+    }
+    .welcome{
+      margin-top:-6px;
+      color:var(--muted);
+      font-size:14px;
+    }
 
     /* ===== Social dock ===== */
     .socialBar{
-      position:absolute; left:50%;
+      position:absolute;
+      left:50%;
       transform:translateX(-50%);
       bottom: calc(14px + env(safe-area-inset-bottom));
-      width:min(1060px,96vw);
-      padding:12px 14px; border-radius:28px;
-      display:flex; justify-content:space-between; align-items:center; gap:18px;
-    }
-    .social{ text-decoration:none; color:#fff; text-align:center; }
-    .social i{ font-size:28px; }
-    .social span{ font-size:12px; color:rgba(255,255,255,.75); }
 
-    /* ===== ONLY MOBILE: move center up by ~18% ===== */
+      width:min(1060px,96vw);
+      padding:12px 14px;
+      border-radius:28px;
+      z-index:6;
+
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:18px;
+
+      overflow:hidden;
+    }
+
+    .social{
+      flex:0 0 auto;
+      min-width:76px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:6px;
+      padding:10px 10px 8px;
+      border-radius:18px;
+      text-decoration:none;
+      color:#fff;
+      transition: transform .18s ease, background .18s ease;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .social:hover{
+      transform: translateY(-3px);
+      background: rgba(255,255,255,.08);
+    }
+    .social.tap{
+      transform: translateY(0) scale(.965);
+      background: rgba(255,255,255,.10);
+    }
+
+    .social i{
+      font-size:28px;
+      filter: drop-shadow(0 8px 18px rgba(0,0,0,.35));
+    }
+    .social span{
+      font-size:12px;
+      color: rgba(255,255,255,.75);
+    }
+
+    .telegram i{ color:#2AABEE; }
+    .tiktok i{ color:#FE2C55; }
+    .discord i{ color:#5865F2; }
+    .instagram i{ color:#E1306C; }
+    .steam i{ color:#66C0F4; }
+    .spotifyI i{ color:#1DB954; }
+
+    /* ===== Phone ===== */
     @media (max-width: 620px){
-      .center{
-        translate: 0 -18vh !important;
+      .spotify{
+        top: calc(12px + env(safe-area-inset-top));
+        width: calc(100vw - 24px);
+        padding:12px 12px;
+        border-radius:20px;
       }
+      .spotCover{ width:46px; height:46px; border-radius:14px; }
+      .spotTitle,.spotArtist{ max-width:190px; }
+      .spotTitle{ font-size:13px; }
+      .spotArtist{ font-size:12px; }
+      .eq{ width:30px; height:16px; }
+      .eq span{ width:3.5px; }
+      .spotBtn{ padding:9px 10px; border-radius:14px; }
+
+      .progressTrack{ width: min(330px, 56vw); }
+      .progressTime{ min-width: 70px; }
+
+      .layout{
+        padding-top: calc(86px + env(safe-area-inset-top));
+        padding-bottom: calc(96px + env(safe-area-inset-bottom));
+      }
+
+      /* === ТВОИ ПРАВКИ: меньше + выше ТОЛЬКО ЦЕНТР === */
+      .center{
+        transform: translateY(-8vh) scale(.88);
+        transform-origin: center;
+      }
+      .avatarCard{
+        width: min(220px, 60vw); /* чуть меньше аватар */
+        border-radius:22px;
+      }
+      .user{ font-size:32px; }
+      .welcome{ font-size:13px; }
+
+      /* док: скролл */
+      .socialBar{
+        width: calc(100vw - 24px);
+        border-radius:24px;
+        padding:10px 10px;
+        gap:14px;
+
+        justify-content:flex-start;
+        overflow-x:auto;
+        overflow-y:hidden;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-x;
+        overscroll-behavior-x: contain;
+        scroll-snap-type: x proximity;
+      }
+      .socialBar::-webkit-scrollbar{ height:0px; }
+
+      .social{
+        min-width:66px;
+        padding:8px 8px 6px;
+        border-radius:16px;
+        scroll-snap-align: start;
+      }
+      .social i{ font-size:26px; }
+      .social span{ font-size:11px; }
     }
   </style>
 </head>
@@ -164,17 +506,31 @@
   <div class="liquid"></div>
   <div class="grain"></div>
 
-  <div class="spotify glass">
-    <img class="spotCover" src="" alt="">
+  <!-- Spotify Card -->
+  <div class="spotify glass shine" id="spotifyCard">
+    <img id="cover" class="spotCover" alt="cover"/>
     <div class="spotMeta">
-      <div class="spotTitle">Loading…</div>
-      <div class="spotArtist"></div>
+      <div class="spotTop"><span class="liveDot" id="liveDot"></span><span id="label">Now Playing</span></div>
+      <div class="spotTitle swap-in" id="title">Loading…</div>
+      <div class="spotArtist swap-in" id="artist"></div>
+
+      <div class="progressWrap" id="progressWrap">
+        <div class="progressTrack">
+          <div class="progressFill" id="progressFill"></div>
+        </div>
+        <div class="progressTime" id="progressTime">0:00 / 0:00</div>
+      </div>
+    </div>
+
+    <div class="spotRight">
+      <div class="eq" id="eq"><span></span><span></span><span></span><span></span></div>
+      <a class="spotBtn" id="open" href="#" target="_blank"><i class="fa-brands fa-spotify"></i><span>Open</span></a>
     </div>
   </div>
 
   <div class="layout">
     <div class="center">
-      <div class="avatarCard glass">
+      <div class="avatarCard glass shine" id="avatarCard">
         <img class="avatarImg" src="avatar.jpg" alt="avatar">
       </div>
       <div class="user">@s1deed</div>
@@ -182,13 +538,262 @@
     </div>
   </div>
 
-  <div class="socialBar glass">
-    <a class="social" href="https://t.me/s1deed" target="_blank"><i class="fa-brands fa-telegram"></i><span>Telegram</span></a>
-    <a class="social" href="https://www.tiktok.com/@s1deeed" target="_blank"><i class="fa-brands fa-tiktok"></i><span>TikTok</span></a>
-    <a class="social" href="https://discord.gg/DuJNA7z2" target="_blank"><i class="fa-brands fa-discord"></i><span>Discord</span></a>
-    <a class="social" href="https://www.instagram.com/s1deed" target="_blank"><i class="fa-brands fa-instagram"></i><span>Instagram</span></a>
-    <a class="social" href="https://steamcommunity.com/id/soogaci/" target="_blank"><i class="fa-brands fa-steam"></i><span>Steam</span></a>
-    <a class="social" href="https://open.spotify.com/user/31uumxtifdbgfqvll2txasaipgcu" target="_blank"><i class="fa-brands fa-spotify"></i><span>Spotify</span></a>
+  <div class="socialBar glass shine" id="socialBar">
+    <a class="social telegram" href="https://t.me/s1deed" target="_blank"><i class="fa-brands fa-telegram"></i><span>Telegram</span></a>
+    <a class="social tiktok" href="https://www.tiktok.com/@s1deeed?_r=1&_t=ZS-92QwHlSQe4j" target="_blank"><i class="fa-brands fa-tiktok"></i><span>TikTok</span></a>
+    <a class="social discord" href="https://discord.gg/DuJNA7z2" target="_blank"><i class="fa-brands fa-discord"></i><span>Discord</span></a>
+    <a class="social instagram" href="https://www.instagram.com/s1deed?igsh=MWg3N3Jmb3oyNnM0Ng%3D%3D&utm_source=qr" target="_blank"><i class="fa-brands fa-instagram"></i><span>Instagram</span></a>
+    <a class="social steam" href="https://steamcommunity.com/id/soogaci/" target="_blank"><i class="fa-brands fa-steam"></i><span>Steam</span></a>
+    <a class="social spotifyI" href="https://open.spotify.com/user/31uumxtifdbgfqvll2txasaipgcu" target="_blank"><i class="fa-brands fa-spotify"></i><span>Spotify</span></a>
   </div>
+
+  <script>
+    // shine on tap
+    function sweepOnce(el){
+      if(!el) return;
+      el.classList.remove("sweepOnce");
+      void el.offsetWidth;
+      el.classList.add("sweepOnce");
+      setTimeout(()=> el.classList.remove("sweepOnce"), 1100);
+    }
+
+    // liquid motion
+    function setMotion(clientX, clientY){
+      const x = (clientX / window.innerWidth - 0.5) * 18;
+      const y = (clientY / window.innerHeight - 0.5) * 18;
+      document.documentElement.style.setProperty("--mx", x + "px");
+      document.documentElement.style.setProperty("--my", y + "px");
+    }
+    document.addEventListener("mousemove", (e) => setMotion(e.clientX, e.clientY), {passive:true});
+    document.addEventListener("touchmove", (e) => {
+      if (!e.touches || !e.touches[0]) return;
+      setMotion(e.touches[0].clientX, e.touches[0].clientY);
+    }, {passive:true});
+
+    // avatar tilt
+    const avatarCard = document.getElementById("avatarCard");
+    function setTiltFromPoint(x, y){
+      const rect = avatarCard.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const dx = (x - cx) / rect.width;
+      const dy = (y - cy) / rect.height;
+      const max = 8;
+      const tiltY = dx * max;
+      const tiltX = -dy * max;
+      document.documentElement.style.setProperty("--tiltX", tiltX.toFixed(2) + "deg");
+      document.documentElement.style.setProperty("--tiltY", tiltY.toFixed(2) + "deg");
+      document.documentElement.style.setProperty("--tiltZ", "6px");
+    }
+    function resetTilt(){
+      document.documentElement.style.setProperty("--tiltX", "0deg");
+      document.documentElement.style.setProperty("--tiltY", "0deg");
+      document.documentElement.style.setProperty("--tiltZ", "0px");
+    }
+    if (avatarCard){
+      avatarCard.addEventListener("mousemove", (e)=> setTiltFromPoint(e.clientX, e.clientY));
+      avatarCard.addEventListener("mouseleave", resetTilt);
+      avatarCard.addEventListener("touchstart", ()=> { sweepOnce(avatarCard); }, {passive:true});
+      avatarCard.addEventListener("touchmove", (e)=>{
+        if(!e.touches || !e.touches[0]) return;
+        setTiltFromPoint(e.touches[0].clientX, e.touches[0].clientY);
+      }, {passive:true});
+      avatarCard.addEventListener("touchend", resetTilt, {passive:true});
+    }
+
+    // tap animation on socials
+    const socials = document.querySelectorAll(".social");
+    socials.forEach(a=>{
+      a.addEventListener("pointerdown", ()=>{
+        a.classList.add("tap");
+        if (navigator.vibrate) navigator.vibrate(12);
+      }, {passive:true});
+      const clear = ()=> a.classList.remove("tap");
+      a.addEventListener("pointerup", clear, {passive:true});
+      a.addEventListener("pointercancel", clear, {passive:true});
+      a.addEventListener("touchstart", ()=> sweepOnce(document.getElementById("socialBar")), {passive:true});
+    });
+
+    const spotifyCard = document.getElementById("spotifyCard");
+    if (spotifyCard) spotifyCard.addEventListener("touchstart", ()=> sweepOnce(spotifyCard), {passive:true});
+
+    // ===== Spotify Now Playing + dynamic theme + dynamic background =====
+    const cover = document.getElementById("cover");
+    const titleEl = document.getElementById("title");
+    const artistEl = document.getElementById("artist");
+    const openEl = document.getElementById("open");
+    const eq = document.getElementById("eq");
+    const liveDot = document.getElementById("liveDot");
+    const label = document.getElementById("label");
+
+    const progressWrap = document.getElementById("progressWrap");
+    const progressFill = document.getElementById("progressFill");
+    const progressTime = document.getElementById("progressTime");
+
+    let lastKey = "";
+    let tickTimer = null;
+    let progressState = null;
+    const DEFAULT_BG = 'url("avatar.jpg")';
+
+    function avgColorFromImage(url){
+      return new Promise((resolve)=>{
+        const img = new Image();
+        img.crossOrigin="anonymous";
+        img.onload=()=>{
+          const c=document.createElement("canvas");
+          const ctx=c.getContext("2d");
+          c.width=c.height=40;
+          ctx.drawImage(img,0,0,40,40);
+          const d=ctx.getImageData(0,0,40,40).data;
+          let r=0,g=0,b=0,n=0;
+          for(let i=0;i<d.length;i+=4){ r+=d[i]; g+=d[i+1]; b+=d[i+2]; n++; }
+          resolve([Math.round(r/n),Math.round(g/n),Math.round(b/n)]);
+        };
+        img.onerror=()=>resolve(null);
+        img.src=url;
+      });
+    }
+    function makeAccent2([r,g,b]){
+      return [
+        Math.min(255, Math.round(r*0.55 + 60)),
+        Math.min(255, Math.round(g*0.75 + 40)),
+        Math.min(255, Math.round(b*1.05))
+      ];
+    }
+    async function setThemeFromCover(url){
+      const rgb = await avgColorFromImage(url);
+      if(!rgb) return;
+      const rgb2 = makeAccent2(rgb);
+      document.documentElement.style.setProperty("--accent", `${rgb[0]} ${rgb[1]} ${rgb[2]}`);
+      document.documentElement.style.setProperty("--accent2", `${rgb2[0]} ${rgb2[1]} ${rgb2[2]}`);
+    }
+
+    function setBackground(urlOrNull){
+      if(urlOrNull){
+        document.documentElement.style.setProperty("--bg", `url("${urlOrNull}")`);
+      } else {
+        document.documentElement.style.setProperty("--bg", DEFAULT_BG);
+      }
+    }
+
+    async function animateSwap(el, newText){
+      if(!el) return;
+      el.classList.add("swap-out");
+      el.classList.remove("swap-in");
+      await new Promise(r => setTimeout(r, 160));
+      el.textContent = newText;
+      el.classList.remove("swap-out");
+      el.classList.add("swap-in");
+    }
+
+    function fmt(ms){
+      const s = Math.max(0, Math.floor(ms/1000));
+      const m = Math.floor(s/60);
+      const r = s%60;
+      return `${m}:${String(r).padStart(2,"0")}`;
+    }
+
+    function stopProgress(){
+      if (tickTimer) clearInterval(tickTimer);
+      tickTimer = null;
+      progressState = null;
+      progressWrap.style.display = "none";
+      progressFill.style.width = "0%";
+      progressTime.textContent = "0:00 / 0:00";
+    }
+
+    function startRealProgress(progressMs, durationMs){
+      if (typeof progressMs !== "number" || typeof durationMs !== "number" || durationMs <= 0){
+        stopProgress();
+        return;
+      }
+
+      progressWrap.style.display = "flex";
+      progressState = { startTs: Date.now(), progressMs, durationMs };
+
+      const render = ()=>{
+        const elapsed = Date.now() - progressState.startTs;
+        const cur = Math.min(progressState.durationMs, progressState.progressMs + elapsed);
+        const pct = Math.max(0, Math.min(100, (cur / progressState.durationMs) * 100));
+        progressFill.style.width = pct.toFixed(2) + "%";
+        progressTime.textContent = `${fmt(cur)} / ${fmt(progressState.durationMs)}`;
+      };
+
+      render();
+      if (tickTimer) clearInterval(tickTimer);
+      tickTimer = setInterval(render, 400);
+    }
+
+    async function getNowPlaying(){
+      try{
+        const r = await fetch("/api/spotify", { cache:"no-store" });
+        const d = await r.json();
+
+        if(!d || !d.isPlaying){
+          await animateSwap(titleEl, "Nothing playing");
+          await animateSwap(artistEl, "");
+          openEl.style.display = "none";
+          eq.classList.add("paused");
+          label.textContent = "Spotify";
+          liveDot.style.background = "rgba(255,255,255,.35)";
+          liveDot.style.boxShadow = "none";
+          lastKey = "";
+          cover.removeAttribute("src");
+          setBackground(null);
+          stopProgress();
+          return;
+        }
+
+        label.textContent = "Now Playing";
+        liveDot.style.background = "#34c759";
+        liveDot.style.boxShadow = "0 0 18px rgba(52,199,89,.55)";
+        eq.classList.remove("paused");
+
+        startRealProgress(d.progressMs, d.durationMs);
+
+        const key = `${d.title}__${d.artist}__${d.cover}`;
+        const changed = key !== lastKey;
+
+        if(changed){
+          cover.style.opacity = "0";
+          cover.style.transform = "scale(0.98)";
+          setTimeout(()=>{ cover.src = d.cover || ""; }, 140);
+
+          cover.onload = async () => {
+            cover.style.opacity = "1";
+            cover.style.transform = "scale(1)";
+            if(d.cover){
+              setBackground(d.cover);
+              await setThemeFromCover(d.cover);
+            }
+          };
+
+          await animateSwap(titleEl, d.title || "Playing");
+          await animateSwap(artistEl, d.artist || "");
+
+          openEl.href = d.url || "https://open.spotify.com";
+          openEl.style.display = "inline-flex";
+          lastKey = key;
+
+          sweepOnce(spotifyCard);
+        } else {
+          if(!cover.src && d.cover) cover.src = d.cover;
+          openEl.href = d.url || "https://open.spotify.com";
+          openEl.style.display = "inline-flex";
+          if(d.cover) setBackground(d.cover);
+        }
+      }catch(e){
+        await animateSwap(titleEl, "Spotify error");
+        await animateSwap(artistEl, "");
+        openEl.style.display = "none";
+        eq.classList.add("paused");
+        setBackground(null);
+        stopProgress();
+      }
+    }
+
+    getNowPlaying();
+    setInterval(getNowPlaying, 10000);
+  </script>
 </body>
 </html>
