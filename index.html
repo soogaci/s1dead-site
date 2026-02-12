@@ -12,6 +12,9 @@
       --accent: 155 81 255;
       --accent2: 80 220 255;
 
+      /* динамический фон: по умолчанию аватарка */
+      --bg: url("avatar.jpg");
+
       --glass: rgba(255,255,255,.10);
       --border: rgba(255,255,255,.16);
       --text: rgba(255,255,255,.92);
@@ -33,15 +36,20 @@
       padding-bottom: env(safe-area-inset-bottom);
     }
 
-    /* ===== Background ===== */
+    /* ===== Background (NOW dynamic) ===== */
     .bg{
       position:fixed; inset:0;
-      background:url("avatar.jpg") center/cover no-repeat;
+      background-image: var(--bg);
+      background-position:center;
+      background-size:cover;
+      background-repeat:no-repeat;
       filter: blur(26px) saturate(135%) brightness(.72);
       transform: scale(1.12);
       z-index:-5;
+      transition: filter .35s ease;
     }
 
+    /* dynamic glow (from accent vars) */
     .glow{
       position:fixed; inset:-90px;
       z-index:-4;
@@ -98,7 +106,7 @@
       top:14px;
       left:50%;
       transform:translateX(-50%);
-      width:min(860px,96vw);
+      width:min(1060px,96vw);
       padding:14px 16px;
       border-radius:22px;
       display:flex;
@@ -171,7 +179,6 @@
       will-change: opacity, transform, filter;
     }
 
-    /* swap animation */
     .swap-out{ opacity:0; transform: translateY(6px); filter: blur(2px); transition:.22s ease; }
     .swap-in{ opacity:1; transform: translateY(0); filter: blur(0); transition:.22s ease; }
 
@@ -226,12 +233,12 @@
     .spotBtn i{ color:#1DB954; }
     .spotBtn:hover{ transform: translateY(-1px); background:rgba(255,255,255,.10); }
 
-    /* ===== Layout wrapper ===== */
+    /* ===== Layout ===== */
     .layout{
       position:relative;
       height:100vh;
       padding-top: calc(92px + env(safe-area-inset-top));
-      padding-bottom: calc(118px + env(safe-area-inset-bottom)); /* чуть больше, чтобы oldline не попадал под док */
+      padding-bottom: calc(108px + env(safe-area-inset-bottom));
       display:flex;
       align-items:center;
       justify-content:center;
@@ -283,34 +290,21 @@
       color:var(--muted);
       font-size:14px;
     }
-    .oldline{
-      margin-top:2px;
-      color:rgba(255,255,255,.78);
-      font-size:12px;
-      padding:6px 10px;
-      border-radius:14px;
-      background:rgba(0,0,0,.18);
-      border:1px solid rgba(255,255,255,.10);
-      display:inline-block;
-    }
 
-    /* ===== Social dock =====
-       Desktop: как раньше — занимает ширину и распределяет иконки
-       Mobile: включаем горизонтальный скролл
-    */
+    /* ===== Social dock ===== */
     .socialBar{
       position:absolute;
       left:50%;
       transform:translateX(-50%);
       bottom: calc(14px + env(safe-area-inset-bottom));
 
-      width:min(1060px,96vw);  /* шире чем было, чтобы на ПК не “половина” */
+      width:min(1060px,96vw);
       padding:12px 14px;
       border-radius:28px;
       z-index:6;
 
       display:flex;
-      justify-content:space-between; /* как раньше на ПК */
+      justify-content:space-between;  /* на ПК: как раньше */
       align-items:center;
       gap:18px;
 
@@ -318,7 +312,7 @@
     }
 
     .social{
-      flex: 0 0 auto;
+      flex:0 0 auto;
       min-width:76px;
       display:flex;
       flex-direction:column;
@@ -350,7 +344,7 @@
     .steam i{ color:#66C0F4; }
     .spotifyI i{ color:#1DB954; }
 
-    /* ===== Mobile ===== */
+    /* ===== Phone ===== */
     @media (max-width: 620px){
       .spotify{
         top: calc(12px + env(safe-area-inset-top));
@@ -368,7 +362,7 @@
 
       .layout{
         padding-top: calc(86px + env(safe-area-inset-top));
-        padding-bottom: calc(122px + env(safe-area-inset-bottom)); /* ещё запас, чтобы oldline не исчез */
+        padding-bottom: calc(96px + env(safe-area-inset-bottom));
       }
 
       .avatarCard{
@@ -378,17 +372,14 @@
       .user{ font-size:34px; }
       .welcome{ font-size:13px; }
 
-      /* ты просил около 1% — оставляем, но oldline поднимаем “чуть” выше за счёт паддинга */
-      .center{ transform: translateY(-1vh); }
-
-      /* ВКЛЮЧАЕМ СКРОЛЛ ДОКА НА ТЕЛЕФОНЕ */
+      /* док на телефоне: скролл */
       .socialBar{
         width: calc(100vw - 24px);
         border-radius:24px;
         padding:10px 10px;
         gap:14px;
 
-        justify-content:flex-start; /* чтобы карусель была норм */
+        justify-content:flex-start;
         overflow-x:auto;
         overflow-y:hidden;
         -webkit-overflow-scrolling: touch;
@@ -406,15 +397,6 @@
       }
       .social i{ font-size:26px; }
       .social span{ font-size:11px; }
-    }
-
-    /* ===== iPhone 16 Pro Max tuning =====
-       Большие айфоны: чуть выше, чтобы oldline гарантированно был виден.
-       (ширина ~430-460px и высокая высота)
-    */
-    @media (max-width: 460px) and (min-height: 880px){
-      .center{ transform: translateY(-2vh); } /* oldline поднимается на волосок */
-      .layout{ padding-bottom: calc(132px + env(safe-area-inset-bottom)); } /* ещё безопаснее */
     }
   </style>
 </head>
@@ -457,7 +439,6 @@
       </div>
       <div class="user">@s1deed</div>
       <div class="welcome">welcome to my bio:</div>
-      <div class="oldline">старый юз: @soogaci</div>
     </div>
   </div>
 
@@ -485,7 +466,7 @@
       setMotion(e.touches[0].clientX, e.touches[0].clientY);
     }, {passive:true});
 
-    // ===== Spotify Now Playing + dynamic theme =====
+    // ===== Spotify Now Playing + dynamic theme + dynamic background =====
     const cover = document.getElementById("cover");
     const titleEl = document.getElementById("title");
     const artistEl = document.getElementById("artist");
@@ -495,6 +476,7 @@
     const label = document.getElementById("label");
 
     let lastKey = "";
+    const DEFAULT_BG = 'url("avatar.jpg")';
 
     function avgColorFromImage(url){
       return new Promise((resolve)=>{
@@ -521,12 +503,22 @@
         Math.min(255, Math.round(b*1.05))
       ];
     }
-    async function setTheme(url){
+    async function setThemeFromCover(url){
       const rgb = await avgColorFromImage(url);
       if(!rgb) return;
       const rgb2 = makeAccent2(rgb);
       document.documentElement.style.setProperty("--accent", `${rgb[0]} ${rgb[1]} ${rgb[2]}`);
       document.documentElement.style.setProperty("--accent2", `${rgb2[0]} ${rgb2[1]} ${rgb2[2]}`);
+    }
+
+    function setBackground(urlOrNull){
+      if(urlOrNull){
+        // фон = обложка
+        document.documentElement.style.setProperty("--bg", `url("${urlOrNull}")`);
+      } else {
+        // fallback фон = аватарка
+        document.documentElement.style.setProperty("--bg", DEFAULT_BG);
+      }
     }
 
     async function animateSwap(el, newText){
@@ -554,6 +546,7 @@
           liveDot.style.boxShadow = "none";
           lastKey = "";
           cover.removeAttribute("src");
+          setBackground(null); // возвращаем аватар как фон
           return;
         }
 
@@ -573,7 +566,10 @@
           cover.onload = async () => {
             cover.style.opacity = "1";
             cover.style.transform = "scale(1)";
-            if(d.cover) await setTheme(d.cover);
+            if(d.cover){
+              setBackground(d.cover);        // ✅ фон = обложка
+              await setThemeFromCover(d.cover); // ✅ акценты = обложка
+            }
           };
 
           await animateSwap(titleEl, d.title || "Playing");
@@ -588,12 +584,14 @@
           if(artistEl.textContent !== d.artist) artistEl.textContent = d.artist || "";
           openEl.href = d.url || "https://open.spotify.com";
           openEl.style.display = "inline-flex";
+          if(d.cover) setBackground(d.cover);
         }
       }catch(e){
         await animateSwap(titleEl, "Spotify error");
         await animateSwap(artistEl, "");
         openEl.style.display = "none";
         eq.classList.add("paused");
+        setBackground(null); // fallback на аватар
       }
     }
 
