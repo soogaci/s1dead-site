@@ -40,9 +40,10 @@
       overflow:hidden;
       overscroll-behavior:none;
       position:relative;
+      touch-action: manipulation;
     }
 
-    /* ===== Background (NO negative z-index, iOS safe) ===== */
+    /* ===== Background (iOS-safe) ===== */
     .bgWrap{
       position:fixed; inset:0;
       z-index:0;
@@ -164,10 +165,10 @@
       align-items:center;
       gap:12px;
       border-radius:22px;
-
       top: calc(12px + env(safe-area-inset-top));
       width:min(1060px,92vw);
       padding:14px 16px;
+      will-change: transform, opacity;
     }
     .spotCover{
       width:56px; height:56px;
@@ -222,10 +223,10 @@
       gap:18px;
       overflow:hidden;
       border-radius:28px;
-
       bottom: calc(12px + env(safe-area-inset-bottom));
       width:min(1060px,92vw);
       padding:12px 14px;
+      will-change: transform, opacity;
     }
     .social{
       flex:0 0 auto;
@@ -252,7 +253,7 @@
     .steam i{ color:#66C0F4; }
     .spotifyI i{ color:#1DB954; }
 
-    /* ===== Desktop layout ===== */
+    /* Desktop */
     .layout{
       position:relative;
       height:100vh;
@@ -277,13 +278,6 @@
       gap:10px;
       text-align:center;
     }
-    .rightCol{
-      width:min(380px,92vw);
-      display:flex;
-      flex-direction:column;
-      gap:14px;
-    }
-
     .avatarCard{
       width:min(360px,86vw);
       border-radius:26px;
@@ -302,7 +296,7 @@
       -webkit-backdrop-filter: blur(14px) saturate(150%);
     }
 
-    /* ===== Steam cards ===== */
+    /* Steam blocks */
     .steamCard{
       border-radius:24px;
       padding:14px;
@@ -363,7 +357,6 @@
       gap:8px;
       margin-bottom: 2px;
     }
-
     .rgList{ display:flex; flex-direction:column; gap:10px; }
     .rgItem{
       padding:12px;
@@ -387,10 +380,9 @@
       flex:0 0 auto;
     }
 
-    /* ===== Mobile pages ===== */
-    .scrollPages{ display:none; }
+    /* ===== Mobile pager (iron swipe) ===== */
+    .pager{ display:none; }
     .pageDots{ display:none; }
-    .pageInner{ will-change: transform, opacity, filter; }
 
     @media (max-width: 620px){
       .spotify{
@@ -412,47 +404,65 @@
         -webkit-overflow-scrolling: touch;
         touch-action: pan-x;
         overscroll-behavior-x: contain;
-        scroll-snap-type: x proximity;
       }
       .socialBar::-webkit-scrollbar{ height:0px; }
-      .social{ min-width:64px; padding:6px 8px 6px; border-radius:16px; scroll-snap-align:start; }
+      .social{ min-width:64px; padding:6px 8px 6px; border-radius:16px; }
       .social i{ font-size:24px; }
       .social span{ font-size:11px; }
 
       .layout{ display:none; }
 
-      .scrollPages{
+      .pager{
         display:block;
         position:fixed;
         left:0; right:0;
         z-index:20;
         top: calc(84px + env(safe-area-inset-top));
         bottom: calc(86px + env(safe-area-inset-bottom));
+        overflow:hidden;
         padding: 0 14px;
-        overflow-y:auto;
-        -webkit-overflow-scrolling: touch;
-        scroll-snap-type: y mandatory;
-        scroll-snap-stop: always;
-        overscroll-behavior-y: contain;
+        touch-action: pan-y;
       }
-      .scrollPages::-webkit-scrollbar{ width:0px; }
 
-      .page{
-        min-height: 100%;
-        height: 100%;
+      .track{
+        height:100%;
+        width:100%;
+        will-change: transform;
+        transform: translate3d(0,0,0);
+        transition: transform .62s cubic-bezier(.2,.9,.18,1);
+      }
+
+      .mPage{
+        height:100%;
         display:flex;
         align-items:center;
         justify-content:center;
-        scroll-snap-align:start;
-        scroll-snap-stop: always;
       }
-      .pageInner{
+
+      .inner{
         width:100%;
         max-width:520px;
         display:flex;
         flex-direction:column;
         gap:14px;
-        transform: translateY(0);
+        transform: translateZ(0);
+        will-change: transform, opacity, filter;
+        transition: transform .62s cubic-bezier(.2,.9,.18,1),
+                    opacity .62s cubic-bezier(.2,.9,.18,1),
+                    filter .62s cubic-bezier(.2,.9,.18,1);
+      }
+
+      .mPage.inactive .inner{
+        opacity:0;
+        filter: blur(14px);
+        transform: scale(.98) translateY(14px);
+        pointer-events:none;
+      }
+      .mPage.active .inner{
+        opacity:1;
+        filter: blur(0);
+        transform: scale(1) translateY(0);
+        pointer-events:auto;
       }
 
       .avatarCard{ width: min(216px, 58vw); border-radius:22px; margin:0 auto; }
@@ -475,8 +485,22 @@
         backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
       }
-      .dot{ width:8px;height:8px;border-radius:99px; background: rgba(255,255,255,.35); opacity:.45; transition:.2s ease; }
+      .dot{ width:8px;height:8px;border-radius:99px; background: rgba(255,255,255,.35); opacity:.45; transition:.25s ease; }
       .dot.active{ opacity:1; background: rgba(255,255,255,.90); transform: scale(1.15); }
+    }
+
+    /* Dock show/hide (mobile) */
+    .dockHidden{
+      opacity:0 !important;
+      transform: translateX(-50%) translateY(14px) !important;
+      pointer-events:none !important;
+      transition: opacity .42s ease, transform .42s ease;
+    }
+    .dockShown{
+      opacity:1 !important;
+      transform: translateX(-50%) translateY(0) !important;
+      pointer-events:auto !important;
+      transition: opacity .42s ease, transform .42s ease;
     }
   </style>
 </head>
@@ -527,91 +551,64 @@
           <div class="user">@s1deed</div>
           <div class="welcome"><i class="fa-solid fa-sparkles"></i> welcome to my bio</div>
         </div>
-
-        <div class="rightCol">
-          <div class="steamCard glass shine">
-            <div class="steamTop">
-              <div class="steamBrand">
-                <div class="steamLogo"><i class="fa-brands fa-steam"></i></div>
-                <div>
-                  <div class="steamLabel">Steam</div>
-                  <div class="steamPersona" id="steamPersonaD">Loading…</div>
-                </div>
-              </div>
-              <div class="steamStatus">
-                <span class="sDot offline" id="steamDotD"></span>
-                <span id="steamStatusTextD">…</span>
-              </div>
-            </div>
-
-            <div class="steamGame">
-              <i class="fa-solid fa-gamepad"></i>
-              <div class="steamGameText">
-                <div class="steamGameTitle" id="steamGameTitleD">—</div>
-                <div class="steamGameSub" id="steamGameSubD">Checking activity…</div>
-              </div>
-            </div>
-
-            <a class="steamBtn" id="steamOpenD" href="https://steamcommunity.com/profiles/76561199064708359/" target="_blank">
-              <i class="fa-brands fa-steam"></i><span>Open profile</span>
-            </a>
-          </div>
-
-          <div class="steamCard glass shine">
-            <div class="pTitle"><i class="fa-solid fa-clock-rotate-left"></i><span>Recently played</span></div>
-            <div class="rgList" id="recentListD"></div>
-          </div>
-        </div>
       </div>
     </div>
 
-    <!-- Mobile pages -->
-    <div class="scrollPages" id="scrollPages">
-      <section class="page" data-index="0"><div class="pageInner">
-        <div class="center">
-          <div class="avatarCard glass shine"><img class="avatarImg" src="avatar.jpg" alt="avatar"></div>
-          <div class="user">@s1deed</div>
-          <div class="welcome"><i class="fa-solid fa-sparkles"></i> welcome to my bio</div>
-        </div>
-      </div></section>
+    <!-- Mobile pager -->
+    <div class="pager" id="pager">
+      <div class="track" id="track">
+        <section class="mPage active" data-index="0">
+          <div class="inner">
+            <div class="center">
+              <div class="avatarCard glass shine"><img class="avatarImg" src="avatar.jpg" alt="avatar"></div>
+              <div class="user">@s1deed</div>
+              <div class="welcome"><i class="fa-solid fa-sparkles"></i> welcome to my bio</div>
+            </div>
+          </div>
+        </section>
 
-      <section class="page" data-index="1"><div class="pageInner">
-        <div class="pTitle"><i class="fa-brands fa-steam"></i><span>Steam activity</span></div>
-        <div class="steamCard glass shine">
-          <div class="steamTop">
-            <div class="steamBrand">
-              <div class="steamLogo"><i class="fa-brands fa-steam"></i></div>
-              <div>
-                <div class="steamLabel">Steam</div>
-                <div class="steamPersona" id="steamPersonaM">Loading…</div>
+        <section class="mPage inactive" data-index="1">
+          <div class="inner">
+            <div class="pTitle"><i class="fa-brands fa-steam"></i><span>Steam activity</span></div>
+            <div class="steamCard glass shine">
+              <div class="steamTop">
+                <div class="steamBrand">
+                  <div class="steamLogo"><i class="fa-brands fa-steam"></i></div>
+                  <div>
+                    <div class="steamLabel">Steam</div>
+                    <div class="steamPersona" id="steamPersonaM">Loading…</div>
+                  </div>
+                </div>
+                <div class="steamStatus">
+                  <span class="sDot offline" id="steamDotM"></span>
+                  <span id="steamStatusTextM">…</span>
+                </div>
               </div>
-            </div>
-            <div class="steamStatus">
-              <span class="sDot offline" id="steamDotM"></span>
-              <span id="steamStatusTextM">…</span>
+
+              <div class="steamGame">
+                <i class="fa-solid fa-gamepad"></i>
+                <div class="steamGameText">
+                  <div class="steamGameTitle" id="steamGameTitleM">—</div>
+                  <div class="steamGameSub" id="steamGameSubM">Session: 0:00</div>
+                </div>
+              </div>
+
+              <a class="steamBtn" id="steamOpenM" href="https://steamcommunity.com/profiles/76561199064708359/" target="_blank">
+                <i class="fa-brands fa-steam"></i><span>Open profile</span>
+              </a>
             </div>
           </div>
+        </section>
 
-          <div class="steamGame">
-            <i class="fa-solid fa-gamepad"></i>
-            <div class="steamGameText">
-              <div class="steamGameTitle" id="steamGameTitleM">—</div>
-              <div class="steamGameSub" id="steamGameSubM">Session: 0:00</div>
+        <section class="mPage inactive" data-index="2">
+          <div class="inner">
+            <div class="pTitle"><i class="fa-solid fa-clock-rotate-left"></i><span>Recently played</span></div>
+            <div class="steamCard glass shine">
+              <div class="rgList" id="recentList"></div>
             </div>
           </div>
-
-          <a class="steamBtn" id="steamOpenM" href="https://steamcommunity.com/profiles/76561199064708359/" target="_blank">
-            <i class="fa-brands fa-steam"></i><span>Open profile</span>
-          </a>
-        </div>
-      </div></section>
-
-      <section class="page" data-index="2"><div class="pageInner">
-        <div class="pTitle"><i class="fa-solid fa-clock-rotate-left"></i><span>Recently played</span></div>
-        <div class="steamCard glass shine">
-          <div class="rgList" id="recentList"></div>
-        </div>
-      </div></section>
+        </section>
+      </div>
     </div>
 
     <div class="pageDots" id="pageDots" aria-hidden="true">
@@ -621,7 +618,7 @@
     </div>
 
     <!-- Dock -->
-    <div class="socialBar glass shine" id="socialBar">
+    <div class="socialBar glass shine dockShown" id="socialBar">
       <a class="social telegram" href="https://t.me/s1deed" target="_blank"><i class="fa-brands fa-telegram"></i><span>Telegram</span></a>
       <a class="social tiktok" href="https://www.tiktok.com/@s1deeed?_r=1&_t=ZS-92QwHlSQe4j" target="_blank"><i class="fa-brands fa-tiktok"></i><span>TikTok</span></a>
       <a class="social discord" href="https://discord.gg/DuJNA7z2" target="_blank"><i class="fa-brands fa-discord"></i><span>Discord</span></a>
@@ -676,12 +673,9 @@
 
         bgActive = (bgActive === "A") ? "B" : "A";
       };
-      img.onerror = () => {};
       img.src = url;
     }
-    function setDefaultBackground(){
-      setBackgroundCrossfade("avatar.jpg");
-    }
+    function setDefaultBackground(){ setBackgroundCrossfade("avatar.jpg"); }
 
     /* Spotify */
     const spotifyCard = document.getElementById("spotifyCard");
@@ -692,7 +686,6 @@
     const eq = document.getElementById("eq");
     const liveDot = document.getElementById("liveDot");
     const label = document.getElementById("label");
-
     let lastKey = "";
 
     async function animateSwap(el, newText){
@@ -763,14 +756,6 @@
     }
 
     /* Steam */
-    const D = {
-      persona: document.getElementById("steamPersonaD"),
-      dot: document.getElementById("steamDotD"),
-      status: document.getElementById("steamStatusTextD"),
-      gTitle: document.getElementById("steamGameTitleD"),
-      gSub: document.getElementById("steamGameSubD"),
-      open: document.getElementById("steamOpenD"),
-    };
     const M = {
       persona: document.getElementById("steamPersonaM"),
       dot: document.getElementById("steamDotM"),
@@ -779,9 +764,7 @@
       gSub: document.getElementById("steamGameSubM"),
       open: document.getElementById("steamOpenM"),
     };
-
     const recentList = document.getElementById("recentList");
-    const recentListD = document.getElementById("recentListD");
 
     function setDot(el, mode){ if(!el) return; el.className = "sDot " + mode; }
     function mapDot(status, inGame){
@@ -830,20 +813,6 @@
         `;
       }).join("");
     }
-    function applySteamUI(target, d, sessionText){
-      if(!target.persona) return;
-      target.persona.textContent = d.personaName || "Steam";
-      target.open.href = d.profileUrl || target.open.href;
-      setDot(target.dot, mapDot(d.status, d.isInGame));
-      target.status.textContent = d.isInGame ? "Playing now" : (d.status || "—");
-      if (d.isInGame && d.gameName){
-        target.gTitle.textContent = d.gameName;
-        target.gSub.textContent = sessionText || "Session: 0:00";
-      } else {
-        target.gTitle.textContent = "Not in-game";
-        target.gSub.textContent = "Session: —";
-      }
-    }
 
     let currentGameId = null;
     let sessionStart = null;
@@ -874,16 +843,29 @@
       return `Session: ${fmtSession(dur)}${total}`;
     }
 
+    function applySteam(d, sessionText){
+      if(!M.persona) return;
+      M.persona.textContent = d.personaName || "Steam";
+      M.open.href = d.profileUrl || M.open.href;
+      setDot(M.dot, mapDot(d.status, d.isInGame));
+      M.status.textContent = d.isInGame ? "Playing now" : (d.status || "—");
+      if (d.isInGame && d.gameName){
+        M.gTitle.textContent = d.gameName;
+        M.gSub.textContent = sessionText || "Session: 0:00";
+      } else {
+        M.gTitle.textContent = "Not in-game";
+        M.gSub.textContent = "Session: —";
+      }
+    }
+
     async function getSteam(){
       try{
         const r = await fetch("/api/steam", { cache:"no-store" });
         const d = await r.json();
 
         if(!d || !d.ok){
-          applySteamUI(D, { personaName:"Steam", profileUrl:D.open?.href, status:"Unavailable", isInGame:false }, "Session: —");
-          applySteamUI(M, { personaName:"Steam", profileUrl:M.open?.href, status:"Unavailable", isInGame:false }, "Session: —");
+          applySteam({ personaName:"Steam", profileUrl:M.open?.href, status:"Unavailable", isInGame:false }, "Session: —");
           renderRecentInto(recentList, []);
-          renderRecentInto(recentListD, []);
           stopSession();
           return;
         }
@@ -899,14 +881,12 @@
         } else stopSession();
 
         const sessionText = d.isInGame ? getSessionText(totalMin) : "Session: —";
-        applySteamUI(D, d, sessionText);
-        applySteamUI(M, d, sessionText);
+        applySteam(d, sessionText);
 
         if (d.isInGame && sessionStart){
           if(sessionTicker) clearInterval(sessionTicker);
           sessionTicker = setInterval(()=>{
             const txt = getSessionText(totalMin);
-            if (D.gSub) D.gSub.textContent = txt;
             if (M.gSub) M.gSub.textContent = txt;
           }, 1000);
         } else {
@@ -915,31 +895,138 @@
         }
 
         renderRecentInto(recentList, d.recent || []);
-        renderRecentInto(recentListD, d.recent || []);
       }catch(e){
-        applySteamUI(D, { personaName:"Steam", profileUrl:D.open?.href, status:"Error", isInGame:false }, "Session: —");
-        applySteamUI(M, { personaName:"Steam", profileUrl:M.open?.href, status:"Error", isInGame:false }, "Session: —");
+        applySteam({ personaName:"Steam", profileUrl:M.open?.href, status:"Error", isInGame:false }, "Session: —");
         renderRecentInto(recentList, []);
-        renderRecentInto(recentListD, []);
         stopSession();
       }
     }
 
-    /* Mobile dots */
-    const scrollPages = document.getElementById("scrollPages");
+    /* ===== Iron swipe pager + Dock only on page 0 ===== */
+    const pager = document.getElementById("pager");
+    const track = document.getElementById("track");
+    const pages = Array.from(document.querySelectorAll(".mPage"));
     const dots = Array.from(document.querySelectorAll(".dot"));
-    function updateDots(){
-      if(!scrollPages || dots.length===0) return;
-      const pages = Array.from(scrollPages.querySelectorAll(".page"));
-      const top = scrollPages.scrollTop;
-      const h = scrollPages.clientHeight || 1;
-      const idx = Math.max(0, Math.min(pages.length-1, Math.round(top / h)));
-      dots.forEach((d,i)=> d.classList.toggle("active", i===idx));
+    const dock = document.getElementById("socialBar");
+
+    let index = 0;
+    let height = 1;
+
+    function setDockVisible(isVisible){
+      if(!dock) return;
+      // Only apply on mobile
+      if (!window.matchMedia("(max-width: 620px)").matches) return;
+
+      if(isVisible){
+        dock.classList.remove("dockHidden");
+        dock.classList.add("dockShown");
+      }else{
+        dock.classList.remove("dockShown");
+        dock.classList.add("dockHidden");
+      }
     }
-    if (scrollPages){
-      scrollPages.addEventListener("scroll", ()=> requestAnimationFrame(updateDots), {passive:true});
-      window.addEventListener("resize", ()=> requestAnimationFrame(updateDots));
-      setTimeout(updateDots, 200);
+
+    function setActive(i){
+      index = Math.max(0, Math.min(pages.length-1, i));
+      height = pager ? pager.clientHeight : window.innerHeight;
+      const y = -index * height;
+
+      track.style.transform = `translate3d(0, ${y}px, 0)`;
+
+      pages.forEach((p,pi)=>{
+        p.classList.toggle("active", pi===index);
+        p.classList.toggle("inactive", pi!==index);
+      });
+      dots.forEach((d,di)=> d.classList.toggle("active", di===index));
+
+      // Dock ONLY on page 0
+      setDockVisible(index === 0);
+    }
+
+    function resize(){
+      if(!pager) return;
+      height = pager.clientHeight || window.innerHeight;
+      setActive(index);
+    }
+    window.addEventListener("resize", resize);
+
+    // Touch swipe: one gesture = one page
+    let startY = 0, startX = 0, dragging = false, lastDy = 0, lock = false, startT = 0;
+
+    const THRESH = 56;     // px
+    const VEL_TRIG = 0.38; // px/ms
+
+    function onDown(e){
+      if(!pager || lock) return;
+      dragging = true;
+      lastDy = 0;
+      startT = performance.now();
+      const p = e.touches ? e.touches[0] : e;
+      startY = p.clientY;
+      startX = p.clientX;
+
+      track.style.transition = "none";
+      pages.forEach(pg=> pg.querySelector(".inner").style.transition = "none");
+      // IMPORTANT: dock transition stays (no manual opacity while dragging) -> no jitter
+    }
+
+    function onMove(e){
+      if(!dragging || !pager) return;
+      const p = e.touches ? e.touches[0] : e;
+      const dy = p.clientY - startY;
+      const dx = p.clientX - startX;
+
+      // Let horizontal gestures go to dock scroll
+      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 10) return;
+
+      e.preventDefault();
+      lastDy = dy;
+
+      height = pager.clientHeight || window.innerHeight;
+      let base = -index * height;
+      let y = base + dy;
+
+      if(index === 0 && dy > 0) y = base + dy * 0.25;
+      if(index === pages.length-1 && dy < 0) y = base + dy * 0.25;
+
+      track.style.transform = `translate3d(0, ${y}px, 0)`;
+
+      // Smooth dissolve current page (no dock dissolve here)
+      const progress = Math.min(1, Math.abs(dy) / height);
+      const cur = pages[index];
+      if(cur){
+        const inner = cur.querySelector(".inner");
+        inner.style.opacity = String(1 - progress*0.55);
+        inner.style.filter = `blur(${progress*10}px)`;
+        inner.style.transform = `scale(${1 - progress*0.02}) translateY(${dy>0 ? progress*8 : -progress*8}px)`;
+      }
+    }
+
+    function onUp(){
+      if(!dragging || !pager) return;
+      dragging = false;
+
+      track.style.transition = "transform .62s cubic-bezier(.2,.9,.18,1)";
+      pages.forEach(pg=> pg.querySelector(".inner").style.transition =
+        "transform .62s cubic-bezier(.2,.9,.18,1), opacity .62s cubic-bezier(.2,.9,.18,1), filter .62s cubic-bezier(.2,.9,.18,1)"
+      );
+
+      const dt = Math.max(1, performance.now() - startT);
+      const vel = (lastDy / dt);
+
+      let next = index;
+      if(lastDy <= -THRESH || vel <= -VEL_TRIG) next = index + 1;
+      else if(lastDy >= THRESH || vel >= VEL_TRIG) next = index - 1;
+
+      lock = true;
+      setActive(next);
+      setTimeout(()=>{ lock = false; }, 380);
+    }
+
+    if (pager){
+      pager.addEventListener("touchstart", onDown, {passive:false});
+      pager.addEventListener("touchmove", onMove, {passive:false});
+      pager.addEventListener("touchend", onUp, {passive:true});
     }
 
     /* init */
@@ -948,6 +1035,13 @@
     getSteam();
     setInterval(getNowPlaying, 10000);
     setInterval(getSteam, 12000);
+
+    setTimeout(()=>{
+      if (window.matchMedia("(max-width: 620px)").matches) {
+        setActive(0);
+        setDockVisible(true);
+      }
+    }, 50);
   </script>
 </body>
 </html>
