@@ -3,12 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
-  <meta name="theme-color" content="#07070b">
+
+  <meta name="theme-color" content="#07070b" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
+
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="s1deed">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="format-detection" content="telephone=no">
+
   <title>@s1deed</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
@@ -16,17 +20,19 @@
     :root{
       --accent: 155 81 255;
       --accent2: 80 220 255;
+
       --border: rgba(255,255,255,.16);
       --text: rgba(255,255,255,.92);
       --muted: rgba(255,255,255,.70);
       --shadow: 0 22px 70px rgba(0,0,0,.45);
+
       --mx: 0px;
       --my: 0px;
     }
 
     *{ box-sizing:border-box; margin:0; padding:0; }
-    html,body{ height:100%; background:#07070b; }
-    html{ overscroll-behavior:none; }
+    html,body{ height:100%; }
+    html{ background:#07070b; overscroll-behavior:none; }
     body{
       font-family:-apple-system,BlinkMacSystemFont,"Inter",system-ui,sans-serif;
       color:var(--text);
@@ -37,7 +43,7 @@
       touch-action: manipulation;
     }
 
-    /* ===== Background (ТОЧНО РАБОТАЕТ) ===== */
+    /* ===== Background ===== */
     .bgWrap{ position:fixed; inset:0; z-index:0; background:#07070b; pointer-events:none; }
     .bgFallback{
       position:absolute; inset:0;
@@ -64,25 +70,41 @@
       background: radial-gradient(1200px 800px at 50% 50%, rgba(0,0,0,.03), rgba(0,0,0,.42));
     }
 
-    .glow{ position:fixed; inset:-90px; z-index:1; pointer-events:none; background:radial-gradient(900px 650px at 18% 10%, rgba(var(--accent), .38), transparent 62%), radial-gradient(800px 600px at 82% 18%, rgba(var(--accent2), .20), transparent 65%), radial-gradient(900px 700px at 50% 92%, rgba(var(--accent), .18), transparent 70%); filter: blur(10px); transition: background .35s ease; }
+    .glow{
+      position:fixed; inset:-90px;
+      z-index:1;
+      pointer-events:none;
+      background:
+        radial-gradient(900px 650px at 18% 10%, rgba(var(--accent), .38), transparent 62%),
+        radial-gradient(800px 600px at 82% 18%, rgba(var(--accent2), .20), transparent 65%),
+        radial-gradient(900px 700px at 50% 92%, rgba(var(--accent), .18), transparent 70%);
+      filter: blur(10px);
+      transition: background .35s ease;
+    }
+
     .liquid{ position:fixed; inset:0; z-index:2; pointer-events:none; opacity:.95; filter:url(#liquidFilter); }
     .liquid::before{
-      content:""; position:absolute; inset:-80px;
-      background:radial-gradient(900px 600px at 20% 10%, rgba(var(--accent), .22), transparent 60%),
-                 radial-gradient(800px 560px at 80% 30%, rgba(255,255,255,.10), transparent 60%),
-                 radial-gradient(900px 700px at 50% 85%, rgba(var(--accent), .16), transparent 65%);
+      content:"";
+      position:absolute; inset:-80px;
+      background:
+        radial-gradient(900px 600px at 20% 10%, rgba(var(--accent), .22), transparent 60%),
+        radial-gradient(800px 560px at 80% 30%, rgba(255,255,255,.10), transparent 60%),
+        radial-gradient(900px 700px at 50% 85%, rgba(var(--accent), .16), transparent 65%);
       mix-blend-mode:screen;
       transform: translate3d(var(--mx), var(--my), 0);
       transition: transform .12s ease;
     }
+
     .grain{
-      position:fixed; inset:0; z-index:3; pointer-events:none; opacity:.08;
+      position:fixed; inset:0;
+      z-index:3; pointer-events:none;
+      opacity:.08;
       background-image:url("https://grainy-gradients.vercel.app/noise.svg");
     }
 
-    .ui{ position:relative; z-index:10; height:100%; min-height:100vh; background:#07070b; }
+    .ui{ position:relative; z-index:10; height:100%; }
 
-    /* === Glass === */
+    /* Glass */
     .glass{
       background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.06));
       border: 1px solid var(--border);
@@ -93,21 +115,53 @@
       overflow: hidden;
     }
     .shine::after{
-      content:""; position:absolute; inset:-120px;
-      background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,.18) 45%, rgba(255,255,255,.06) 55%, transparent 70%);
+      content:"";
+      position:absolute;
+      inset:-120px;
+      background: linear-gradient(110deg,
+        transparent 30%,
+        rgba(255,255,255,.18) 45%,
+        rgba(255,255,255,.06) 55%,
+        transparent 70%);
       transform: translateX(-60%) rotate(8deg);
-      opacity:0; pointer-events:none;
+      opacity:0;
+      pointer-events:none;
     }
-    @media (hover:hover){ .shine:hover::after{ opacity:1; animation: sweep 1.05s ease; } }
+    @media (hover:hover){
+      .shine:hover::after{ opacity:1; animation: sweep 1.05s ease; }
+    }
     .shine.sweepOnce::after{ opacity:1; animation: sweep 1.05s ease; }
-    @keyframes sweep{ 0%{ transform: translateX(-70%) rotate(8deg); opacity:0; } 15%{ opacity:1; } 100%{ transform: translateX(70%) rotate(8deg); opacity:0; } }
-
-    /* === Spotify === */
-    .spotify{
-      position:fixed; left:50%; transform:translateX(-50%); z-index:30; display:flex; align-items:center; gap:12px;
-      border-radius:22px; top: calc(12px + env(safe-area-inset-top)); width:min(1060px,92vw); padding:14px 16px;
+    @keyframes sweep{
+      0%{ transform: translateX(-70%) rotate(8deg); opacity:0; }
+      15%{ opacity:1; }
+      100%{ transform: translateX(70%) rotate(8deg); opacity:0; }
     }
-    .spotCover{ width:56px; height:56px; border-radius:14px; object-fit:cover; background: rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); box-shadow: 0 12px 32px rgba(0,0,0,.35); flex:0 0 auto; transition: opacity .25s ease, transform .25s ease; }
+
+    /* Spotify */
+    .spotify{
+      position:fixed;
+      left:50%;
+      transform:translateX(-50%);
+      z-index:30;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      border-radius:22px;
+      top: calc(12px + env(safe-area-inset-top));
+      width:min(1060px,92vw);
+      padding:14px 16px;
+      will-change: transform, opacity;
+    }
+    .spotCover{
+      width:56px; height:56px;
+      border-radius:14px;
+      object-fit:cover;
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow: 0 12px 32px rgba(0,0,0,.35);
+      flex:0 0 auto;
+      transition: opacity .25s ease, transform .25s ease;
+    }
     .spotMeta{ min-width:0; display:flex; flex-direction:column; gap:3px; flex:1 1 auto; }
     .spotTop{ display:flex; align-items:center; gap:8px; font-size:12px; color:rgba(255,255,255,.70); }
     .liveDot{ width:8px;height:8px;border-radius:99px; background:#34c759; box-shadow:0 0 18px rgba(52,199,89,.55); }
@@ -115,83 +169,245 @@
     .spotArtist{ font-size:13px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:520px; }
     .swap-out{ opacity:0; transform: translateY(6px); filter: blur(2px); transition:.22s ease; }
     .swap-in{ opacity:1; transform: translateY(0); filter: blur(0); transition:.22s ease; }
+
     .spotRight{ margin-left:auto; display:flex; align-items:center; gap:10px; flex:0 0 auto; }
     .eq{ width:34px; height:18px; display:flex; align-items:flex-end; gap:3px; opacity:.92; }
     .eq span{ width:4px; height:6px; border-radius:3px; background:rgba(255,255,255,.86); animation:bounce .9s ease-in-out infinite; transform-origin:bottom; }
-    .eq span:nth-child(2){ animation-delay:.12s } .eq span:nth-child(3){ animation-delay:.24s } .eq span:nth-child(4){ animation-delay:.36s }
+    .eq span:nth-child(2){ animation-delay:.12s }
+    .eq span:nth-child(3){ animation-delay:.24s }
+    .eq span:nth-child(4){ animation-delay:.36s }
     @keyframes bounce{ 0%,100%{ height:6px; opacity:.6 } 50%{ height:18px; opacity:1 } }
     .eq.paused span{ animation:none; height:6px; opacity:.55; }
-    .spotBtn{ display:none; align-items:center; gap:8px; text-decoration:none; color:rgba(255,255,255,.90); padding:10px 12px; border-radius:14px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.07); white-space:nowrap; transition:.18s ease; }
+
+    .spotBtn{
+      display:none;
+      align-items:center;
+      gap:8px;
+      text-decoration:none;
+      color:rgba(255,255,255,.90);
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.07);
+      white-space:nowrap;
+      transition:.18s ease;
+    }
     .spotBtn i{ color:#1DB954; }
 
-    /* === Dock socials === */
+    /* Dock socials */
     .socialBar{
-      position:fixed; left:50%; transform:translateX(-50%); z-index:30; display:flex; align-items:center; gap:18px; overflow:hidden;
-      border-radius:28px; bottom: calc(12px + env(safe-area-inset-bottom)); width:min(1060px,92vw); padding:12px 14px;
+      position:fixed;
+      left:50%;
+      transform:translateX(-50%);
+      z-index:30;
+      display:flex;
+      align-items:center;
+      gap:18px;
+      overflow:hidden;
+      border-radius:28px;
+      bottom: calc(12px + env(safe-area-inset-bottom));
+      width:min(1060px,92vw);
+      padding:12px 14px;
+      will-change: transform, opacity;
     }
-    .social{ flex:0 0 auto; min-width:76px; display:flex; flex-direction:column; align-items:center; gap:6px; padding:10px 10px 8px; border-radius:18px; text-decoration:none; color:#fff; transition: transform .18s ease, background .18s ease; user-select:none; -webkit-tap-highlight-color: transparent; }
+    .social{
+      flex:0 0 auto;
+      min-width:76px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:6px;
+      padding:10px 10px 8px;
+      border-radius:18px;
+      text-decoration:none;
+      color:#fff;
+      transition: transform .18s ease, background .18s ease;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
     .social:hover{ transform: translateY(-3px); background: rgba(255,255,255,.08); }
     .social i{ font-size:28px; filter: drop-shadow(0 8px 18px rgba(0,0,0,.35)); }
     .social span{ font-size:12px; color: rgba(255,255,255,.75); }
-    .telegram i{ color:#2AABEE; } .tiktok i{ color:#FE2C55; } .discord i{ color:#5865F2; } .instagram i{ color:#E1306C; } .steam i{ color:#66C0F4; } .spotifyI i{ color:#1DB954; }
+    .telegram i{ color:#2AABEE; }
+    .tiktok i{ color:#FE2C55; }
+    .discord i{ color:#5865F2; }
+    .instagram i{ color:#E1306C; }
+    .steam i{ color:#66C0F4; }
+    .spotifyI i{ color:#1DB954; }
 
-    /* === Desktop center === */
-    .layout{ position:relative; height:100vh; padding-top:92px; padding-bottom:108px; display:flex; align-items:center; justify-content:center; }
-    .center{ width:min(520px,92vw); display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center; }
-    .avatarCard{ width:min(360px,86vw); border-radius:26px; overflow:hidden; }
+    /* Desktop center */
+    .layout{
+      position:relative;
+      height:100vh;
+      padding-top: 92px;
+      padding-bottom: 108px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .center{
+      width:min(520px,92vw);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:10px;
+      text-align:center;
+    }
+    .avatarCard{
+      width:min(360px,86vw);
+      border-radius:26px;
+      overflow:hidden;
+    }
     .avatarImg{ width:100%; display:block; object-fit:cover; transform: scale(1.01); }
     .user{ font-size:44px; font-weight:900; text-shadow: 0 12px 45px rgba(0,0,0,.6); }
-    .welcome{ display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; font-size:13px; color: rgba(255,255,255,.82); background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.05)); border:1px solid rgba(255,255,255,.14); backdrop-filter: blur(14px) saturate(150%); -webkit-backdrop-filter: blur(14px) saturate(150%); }
+    .welcome{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 12px; border-radius:999px;
+      font-size:13px;
+      color: rgba(255,255,255,.82);
+      background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.05));
+      border:1px solid rgba(255,255,255,.14);
+      backdrop-filter: blur(14px) saturate(150%);
+      -webkit-backdrop-filter: blur(14px) saturate(150%);
+    }
 
-    /* === Steam === */
+    /* Steam */
     .steamCard{ border-radius:24px; padding:14px; display:flex; flex-direction:column; gap:10px; }
     .steamTop{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
     .steamBrand{ display:flex; align-items:center; gap:10px; min-width:0; }
-    .steamLogo{ width:44px;height:44px;border-radius:14px; display:grid; place-items:center; background: rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); flex:0 0 auto; }
+    .steamLogo{
+      width:44px;height:44px;border-radius:14px;
+      display:grid; place-items:center;
+      background: rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.12);
+      flex:0 0 auto;
+    }
     .steamLogo i{ color:#66C0F4; font-size:22px; }
     .steamLabel{ font-size:12px; color:rgba(255,255,255,.70); }
+
     .steamNameRow{ display:flex; align-items:center; gap:10px; min-width:0; }
     .steamPersona{ font-size:14px; font-weight:850; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:210px; }
-    .miniProfile{ flex:0 0 auto; display:inline-flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:12px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.07); text-decoration:none; transition:.18s ease; }
+
+    .miniProfile{
+      flex:0 0 auto;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:34px; height:34px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.07);
+      text-decoration:none;
+      transition:.18s ease;
+    }
     .miniProfile i{ color:#66C0F4; font-size:16px; }
     .miniProfile:active{ transform: scale(.98); }
+
     .steamStatus{ display:flex; align-items:center; gap:8px; color:rgba(255,255,255,.78); font-size:12px; }
     .sDot{ width:8px;height:8px;border-radius:99px; background: rgba(255,255,255,.35); }
     .sDot.online{ background:#34c759; box-shadow:0 0 18px rgba(52,199,89,.55); }
     .sDot.away{ background:#ffd60a; box-shadow:0 0 18px rgba(255,214,10,.45); }
     .sDot.busy{ background:#ff453a; box-shadow:0 0 18px rgba(255,69,58,.45); }
     .sDot.offline{ background:rgba(255,255,255,.30); }
-    .steamGame{ padding:12px; border-radius:18px; background: rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.10); display:flex; align-items:center; gap:10px; min-height:54px; }
+
+    .steamGame{
+      padding:12px;
+      border-radius:18px;
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-height:54px;
+    }
     .steamGameText{ min-width:0; display:flex; flex-direction:column; gap:2px; }
     .steamGameTitle{ font-weight:900; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:290px; }
     .steamGameSub{ font-size:12px; color:rgba(255,255,255,.70); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:290px; }
-    .pTitle{ font-size:12px; color: rgba(255,255,255,.70); letter-spacing:.2px; display:flex; align-items:center; gap:8px; margin:0 0 8px 0; }
+
+    .pTitle{
+      font-size:12px;
+      color: rgba(255,255,255,.70);
+      letter-spacing:.2px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin: 2px 0 6px;
+    }
+
     .steamCard.compact{ padding:12px; gap:10px; }
     .rgList{ display:flex; flex-direction:column; gap:10px; }
-    .rgItem{ padding:12px 12px; border-radius:16px; background: rgba(255,255,255,.055); border:1px solid rgba(255,255,255,.10); display:flex; align-items:center; justify-content:space-between; gap:12px; overflow:hidden; }
-    .rgLeft{ min-width:0; display:flex; flex-direction:column; gap:4px; }
+    .rgItem{
+      padding:10px 10px;
+      border-radius:16px;
+      background: rgba(255,255,255,.055);
+      border:1px solid rgba(255,255,255,.10);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      overflow:hidden;
+    }
+    .rgLeft{ min-width:0; display:flex; flex-direction:column; gap:3px; }
     .rgName{ font-weight:900; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width: 240px; }
     .rgMeta{ font-size:11px; color: rgba(255,255,255,.70); display:flex; gap:10px; flex-wrap:wrap; }
-    .rgThumb{ width:78px; height:44px; border-radius:12px; object-fit:cover; border:1px solid rgba(255,255,255,.12); flex:0 0 auto; }
+    .rgThumb{
+      width:78px; height:44px;
+      border-radius:12px;
+      object-fit:cover;
+      border:1px solid rgba(255,255,255,.12);
+      flex:0 0 auto;
+    }
 
-    /* === Placeholders === */
+    /* Placeholders */
     .phGrid{ display:grid; grid-template-columns: repeat(2, 1fr); gap:12px; }
-    .ph{ height:120px; border-radius:22px; background: rgba(255,255,255,.06); border:1px dashed rgba(255,255,255,.18); display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,.65); font-weight:800; letter-spacing:.2px; }
+    .ph{
+      height:120px;
+      border-radius:22px;
+      background: rgba(255,255,255,.06);
+      border:1px dashed rgba(255,255,255,.18);
+      display:flex; align-items:center; justify-content:center;
+      color:rgba(255,255,255,.65);
+      font-weight:800;
+      letter-spacing:.2px;
+    }
 
-    /* === Stack (БЕЗ ТЕНИ) === */
-    .stack{ border-radius:28px; padding:12px; background: rgba(0,0,0,.14); border:1px solid rgba(255,255,255,.10); backdrop-filter: blur(18px) saturate(150%); -webkit-backdrop-filter: blur(18px) saturate(150%); overflow:hidden; }
-    .stack .steamCard{ background: transparent; box-shadow:none; border:0; backdrop-filter:none; -webkit-backdrop-filter:none; }
+    /* ✅ ровная подложка (без грязной тени снизу) */
+    .stack{
+      border-radius:28px;
+      padding:12px;
+      background: rgba(0,0,0,.10);
+      border:1px solid rgba(255,255,255,.10);
+      backdrop-filter: blur(18px) saturate(150%);
+      -webkit-backdrop-filter: blur(18px) saturate(150%);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+      overflow:hidden;
+    }
 
     /* ===== Mobile pager ===== */
     .pager{ display:none; }
     .pageDots{ display:none; }
 
     @media (max-width: 620px){
-      .spotify{ width: calc(100vw - 28px); padding:10px 12px; border-radius:20px; }
+      .spotify{
+        width: calc(100vw - 28px);
+        padding:10px 12px;
+        border-radius:20px;
+      }
       .spotCover{ width:44px; height:44px; }
       .eq{ width:28px; height:14px; }
 
-      .socialBar{ width: calc(100vw - 40px); padding:8px 10px; border-radius:24px; gap:12px; justify-content:flex-start; overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling: touch; touch-action: pan-x; overscroll-behavior-x: contain; }
+      .socialBar{
+        width: calc(100vw - 40px);
+        padding:8px 10px;
+        border-radius:24px;
+        gap:12px;
+        justify-content:flex-start;
+        overflow-x:auto;
+        overflow-y:hidden;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-x;
+        overscroll-behavior-x: contain;
+      }
       .socialBar::-webkit-scrollbar{ height:0px; }
       .social{ min-width:64px; padding:6px 8px 6px; border-radius:16px; }
       .social i{ font-size:24px; }
@@ -204,31 +420,78 @@
         position:fixed;
         left:0; right:0;
         z-index:20;
-        /* 🟢 ОПУСТИЛ КОНТЕНТ, ЧТОБЫ НЕ ЗАДЕВАЛ SPOTIFY */
-        top: calc(98px + env(safe-area-inset-top));
-        /* 🟢 НИЖНЯЯ ГРАНИЦА — ОСТАВИЛ КАК БЫЛО */
+        top: calc(84px + env(safe-area-inset-top));
         bottom: calc(86px + env(safe-area-inset-bottom));
         overflow:hidden;
         padding: 0 14px;
         touch-action: none;
       }
 
-      .track{ height:100%; width:100%; will-change: transform; transform: translate3d(0,0,0); transition: transform .62s cubic-bezier(.2,.9,.18,1); }
-      .mPage{ height:100%; display:flex; align-items:center; justify-content:center; overflow:hidden; }
-      .inner{ width:100%; max-width:520px; display:flex; flex-direction:column; gap:14px; transform: translateZ(0); will-change: transform, opacity; transition: transform .62s cubic-bezier(.2,.9,.18,1), opacity .62s cubic-bezier(.2,.9,.18,1); }
+      .track{
+        height:100%;
+        width:100%;
+        will-change: transform;
+        transform: translate3d(0,0,0);
+        transition: transform .62s cubic-bezier(.2,.9,.18,1);
+      }
 
+      .mPage{
+        height:100%;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        overflow:hidden;
+      }
+
+      .inner{
+        width:100%;
+        max-width:520px;
+        display:flex;
+        flex-direction:column;
+        gap:14px;
+        transform: translateZ(0);
+        will-change: transform, opacity;
+        transition: transform .62s cubic-bezier(.2,.9,.18,1),
+                    opacity .62s cubic-bezier(.2,.9,.18,1);
+      }
+
+      /* ✅ important: корректная центровка + чтобы низ не резался */
       .inner.scrollable{
         height:100%;
         overflow-y:auto;
         -webkit-overflow-scrolling: touch;
-        /* 🟢 МНОГО ВОЗДУХА СНИЗУ */
-        padding-bottom: 80px;
+        padding-top: 10px;               /* опустили весь контент чуть ниже */
+        padding-bottom: 110px;           /* чтобы Dota и прочее не резалось снизу */
         overscroll-behavior: contain;
+        display:flex;                    /* для вертикальной центровки */
+        flex-direction:column;
+        align-items:center;
       }
       .inner.scrollable::-webkit-scrollbar{ width:0px; }
 
-      .mPage.inactive .inner{ opacity:0; transform: scale(.985) translateY(14px); pointer-events:none; }
-      .mPage.active .inner{ opacity:1; transform: scale(1) translateY(0); pointer-events:auto; }
+      /* ✅ контейнер вертикальной центровки */
+      .vCenter{
+        width:100%;
+        max-width:520px;
+        margin: auto 0;                  /* центр по вертикали, если контента мало */
+        display:flex;
+        flex-direction:column;
+        gap:12px;
+      }
+
+      /* Steam title чтобы не бился об край */
+      .inner.scrollable .pTitle{ margin-top: 6px; }
+
+      .mPage.inactive .inner{
+        opacity:0;
+        transform: scale(.985) translateY(14px);
+        pointer-events:none;
+      }
+      .mPage.active .inner{
+        opacity:1;
+        transform: scale(1) translateY(0);
+        pointer-events:auto;
+      }
 
       .avatarCard{ width: min(216px, 58vw); border-radius:22px; margin:0 auto; }
       .user{ font-size:28.8px; }
@@ -250,17 +513,25 @@
         backdrop-filter: blur(14px);
         -webkit-backdrop-filter: blur(14px);
       }
-      .dot{ width:7px;height:7px;border-radius:99px; background: rgba(255,255,255,.32); opacity:.35; transition:.25s ease; cursor: pointer; }
+      .dot{ width:7px;height:7px;border-radius:99px; background: rgba(255,255,255,.32); opacity:.35; transition:.25s ease; }
       .dot.active{ opacity:.95; background: rgba(255,255,255,.88); transform: scale(1.18); }
-
-      /* дополнительный отступ для последней игры */
-      .rgItem:last-child { margin-bottom: 24px; }
     }
 
-    .dockHidden{ opacity:0 !important; transform: translateX(-50%) translateY(14px) !important; pointer-events:none !important; transition: opacity .42s ease, transform .42s ease; }
-    .dockShown{ opacity:1 !important; transform: translateX(-50%) translateY(0) !important; pointer-events:auto !important; transition: opacity .42s ease, transform .42s ease; }
+    .dockHidden{
+      opacity:0 !important;
+      transform: translateX(-50%) translateY(14px) !important;
+      pointer-events:none !important;
+      transition: opacity .42s ease, transform .42s ease;
+    }
+    .dockShown{
+      opacity:1 !important;
+      transform: translateX(-50%) translateY(0) !important;
+      pointer-events:auto !important;
+      transition: opacity .42s ease, transform .42s ease;
+    }
   </style>
 </head>
+
 <body>
   <div class="bgWrap" aria-hidden="true">
     <div class="bgFallback"></div>
@@ -268,7 +539,9 @@
     <div class="bgLayer" id="bgB"></div>
     <div class="bgVignette"></div>
   </div>
+
   <div class="glow"></div>
+
   <svg width="0" height="0">
     <filter id="liquidFilter">
       <feTurbulence type="fractalNoise" baseFrequency="0.010" numOctaves="2" seed="8" result="noise">
@@ -277,6 +550,7 @@
       <feDisplacementMap in="SourceGraphic" in2="noise" scale="18" xChannelSelector="R" yChannelSelector="G"/>
     </filter>
   </svg>
+
   <div class="liquid"></div>
   <div class="grain"></div>
 
@@ -307,6 +581,7 @@
     <!-- Mobile pager -->
     <div class="pager" id="pager">
       <div class="track" id="track">
+
         <!-- Page 0 -->
         <section class="mPage active" data-index="0">
           <div class="inner">
@@ -315,83 +590,89 @@
               <div class="user">@s1deed</div>
               <div class="welcome"><i class="fa-solid fa-sparkles"></i> welcome to my bio</div>
             </div>
-            <div style="height: 40px; flex-shrink: 0;"></div>
           </div>
         </section>
 
         <!-- Page 1 (Steam) -->
         <section class="mPage inactive" data-index="1">
           <div class="inner scrollable">
-            <div class="pTitle"><i class="fa-brands fa-steam"></i><span>Steam</span></div>
-            <div class="stack">
-              <div class="steamCard glass shine">
-                <div class="steamTop">
-                  <div class="steamBrand">
-                    <div class="steamLogo"><i class="fa-brands fa-steam"></i></div>
-                    <div style="min-width:0">
-                      <div class="steamLabel">Steam</div>
-                      <div class="steamNameRow">
-                        <div class="steamPersona" id="steamPersonaM">Loading…</div>
-                        <a class="miniProfile" id="steamOpenM" href="https://steamcommunity.com/profiles/76561199064708359/" target="_blank" aria-label="Open profile">
-                          <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                        </a>
+            <div class="vCenter">
+              <div class="pTitle"><i class="fa-brands fa-steam"></i><span>Steam</span></div>
+
+              <div class="stack">
+                <div class="steamCard glass shine">
+                  <div class="steamTop">
+                    <div class="steamBrand">
+                      <div class="steamLogo"><i class="fa-brands fa-steam"></i></div>
+                      <div style="min-width:0">
+                        <div class="steamLabel">Steam</div>
+                        <div class="steamNameRow">
+                          <div class="steamPersona" id="steamPersonaM">Loading…</div>
+                          <a class="miniProfile" id="steamOpenM" href="https://steamcommunity.com/profiles/76561199064708359/" target="_blank" aria-label="Open profile">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                          </a>
+                        </div>
                       </div>
                     </div>
+
+                    <div class="steamStatus">
+                      <span class="sDot offline" id="steamDotM"></span>
+                      <span id="steamStatusTextM">…</span>
+                    </div>
                   </div>
-                  <div class="steamStatus">
-                    <span class="sDot offline" id="steamDotM"></span>
-                    <span id="steamStatusTextM">…</span>
+
+                  <div class="steamGame">
+                    <i class="fa-solid fa-gamepad"></i>
+                    <div class="steamGameText">
+                      <div class="steamGameTitle" id="steamGameTitleM">—</div>
+                      <div class="steamGameSub" id="steamGameSubM">Session: —</div>
+                    </div>
                   </div>
                 </div>
-                <div class="steamGame">
-                  <i class="fa-solid fa-gamepad"></i>
-                  <div class="steamGameText">
-                    <div class="steamGameTitle" id="steamGameTitleM">—</div>
-                    <div class="steamGameSub" id="steamGameSubM">Session: —</div>
-                  </div>
+
+                <div class="steamCard compact glass shine">
+                  <div class="pTitle" style="margin:0 0 6px;"><i class="fa-solid fa-clock-rotate-left"></i><span>Recently played</span></div>
+                  <div class="rgList" id="recentList"></div>
                 </div>
-              </div>
-              <div class="steamCard compact glass shine">
-                <div class="pTitle"><i class="fa-solid fa-clock-rotate-left"></i><span>Recently played</span></div>
-                <div class="rgList" id="recentList"></div>
               </div>
             </div>
-            <!-- 🟢 БОЛЬШАЯ РАСПОРКА — DOTA 2 ВИДНА -->
-            <div style="height: 80px; flex-shrink: 0;"></div>
           </div>
         </section>
 
         <!-- Page 2 (Test A) -->
         <section class="mPage inactive" data-index="2">
           <div class="inner scrollable">
-            <div class="pTitle"><i class="fa-solid fa-square"></i><span>Test page A</span></div>
-            <div class="stack">
-              <div class="phGrid">
-                <div class="ph">Block 1</div>
-                <div class="ph">Block 2</div>
-                <div class="ph">Block 3</div>
-                <div class="ph">Block 4</div>
+            <div class="vCenter">
+              <div class="pTitle"><i class="fa-solid fa-square"></i><span>Test page A</span></div>
+              <div class="stack">
+                <div class="phGrid">
+                  <div class="ph">Block 1</div>
+                  <div class="ph">Block 2</div>
+                  <div class="ph">Block 3</div>
+                  <div class="ph">Block 4</div>
+                </div>
               </div>
             </div>
-            <div style="height: 80px; flex-shrink: 0;"></div>
           </div>
         </section>
 
         <!-- Page 3 (Test B) -->
         <section class="mPage inactive" data-index="3">
           <div class="inner scrollable">
-            <div class="pTitle"><i class="fa-solid fa-square"></i><span>Test page B</span></div>
-            <div class="stack">
-              <div class="phGrid">
-                <div class="ph">Empty</div>
-                <div class="ph">Empty</div>
-                <div class="ph">Empty</div>
-                <div class="ph">Empty</div>
+            <div class="vCenter">
+              <div class="pTitle"><i class="fa-solid fa-square"></i><span>Test page B</span></div>
+              <div class="stack">
+                <div class="phGrid">
+                  <div class="ph">Empty</div>
+                  <div class="ph">Empty</div>
+                  <div class="ph">Empty</div>
+                  <div class="ph">Empty</div>
+                </div>
               </div>
             </div>
-            <div style="height: 80px; flex-shrink: 0;"></div>
           </div>
         </section>
+
       </div>
     </div>
 
@@ -409,7 +690,6 @@
   </div>
 
   <script>
-    // === Утилиты ===
     function setMotion(clientX, clientY){
       const x = (clientX / window.innerWidth - 0.5) * 18;
       const y = (clientY / window.innerHeight - 0.5) * 18;
@@ -430,22 +710,17 @@
       setTimeout(()=> el.classList.remove("sweepOnce"), 1100);
     }
 
-    // === ФОН SPOTIFY (ТОЧНО РАБОТАЕТ) ===
     const bgA = document.getElementById("bgA");
     const bgB = document.getElementById("bgB");
     let bgActive = "A";
     let lastBgUrl = "";
 
     function setBackgroundCrossfade(url){
-      if (!url || typeof url !== "string" || url.trim() === "") {
-        console.warn("⚠️ Empty cover, using default");
-        setDefaultBackground();
-        return;
-      }
-      if (url === lastBgUrl) return;
+      if(!url || typeof url !== "string") return;
+      if(url === lastBgUrl) return;
+      lastBgUrl = url;
 
       const img = new Image();
-      img.crossOrigin = "anonymous"; // важно для CORS
       img.decoding = "async";
       img.onload = () => {
         const next = (bgActive === "A") ? bgB : bgA;
@@ -454,21 +729,11 @@
         next.classList.add("active");
         prev.classList.remove("active");
         bgActive = (bgActive === "A") ? "B" : "A";
-        lastBgUrl = url;
-        console.log("✅ Background changed to:", url);
-      };
-      img.onerror = () => {
-        console.warn("⚠️ Failed to load background image, using default");
-        setDefaultBackground();
       };
       img.src = url;
     }
+    function setDefaultBackground(){ setBackgroundCrossfade("avatar.jpg"); }
 
-    function setDefaultBackground(){
-      setBackgroundCrossfade("avatar.jpg");
-    }
-
-    // === Spotify ===
     const spotifyCard = document.getElementById("spotifyCard");
     const cover = document.getElementById("cover");
     const titleEl = document.getElementById("title");
@@ -516,13 +781,7 @@
         const key = `${d.title}__${d.artist}__${d.cover}`;
         const changed = key !== lastKey;
 
-        // 🟢 Устанавливаем фон из обложки
-        if (d.cover && d.cover.trim() !== "") {
-          console.log("🎵 Spotify cover:", d.cover);
-          setBackgroundCrossfade(d.cover);
-        } else {
-          setDefaultBackground();
-        }
+        if (d.cover) setBackgroundCrossfade(d.cover);
 
         if(changed){
           cover.style.opacity = "0";
@@ -544,7 +803,6 @@
           openEl.style.display = "inline-flex";
         }
       }catch(e){
-        console.error("Spotify error:", e);
         await animateSwap(titleEl, "Spotify error");
         await animateSwap(artistEl, "");
         openEl.style.display = "none";
@@ -553,7 +811,6 @@
       }
     }
 
-    // === Steam ===
     const M = {
       persona: document.getElementById("steamPersonaM"),
       dot: document.getElementById("steamDotM"),
@@ -564,12 +821,7 @@
     };
     const recentList = document.getElementById("recentList");
 
-    function setDot(el, mode){
-      if(!el) return;
-      el.classList.remove('online','away','busy','offline');
-      el.classList.add(mode);
-    }
-
+    function setDot(el, mode){ if(!el) return; el.className = "sDot " + mode; }
     function mapDot(status, inGame){
       if (inGame) return "online";
       if (status === "Online" || status === "Play" || status === "Trade") return "online";
@@ -577,18 +829,15 @@
       if (status === "Busy") return "busy";
       return "offline";
     }
-
     function minsToHours(min){
       const h = min / 60;
       return (h >= 100 ? Math.round(h) : Math.round(h*10)/10) + "h";
     }
-
     function escapeHtml(str){
       return String(str).replace(/[&<>"']/g, s => ({
         "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
       }[s]));
     }
-
     function renderRecentInto(container, recent){
       if(!container) return;
       if(!Array.isArray(recent) || recent.length === 0){
@@ -620,7 +869,6 @@
       }).join("");
     }
 
-    // === Таймер сессии Steam ===
     let currentGameId = null;
     let sessionStart = null;
     let sessionTicker = null;
@@ -631,27 +879,23 @@
       const r = s%60;
       return `${m}:${String(r).padStart(2,"0")}`;
     }
-
-    function updateSessionDisplay(totalMin){
-      if (!sessionStart || !M.gSub) return;
-      const dur = Date.now() - sessionStart;
-      const total = (typeof totalMin === "number" && totalMin > 0) ? ` • Total: ${minsToHours(totalMin)}` : "";
-      M.gSub.textContent = `Session: ${fmtSession(dur)}${total}`;
-    }
-
     function stopSession(){
       currentGameId = null;
       sessionStart = null;
       if(sessionTicker) clearInterval(sessionTicker);
       sessionTicker = null;
     }
-
-    function startSession(gameId, totalMin){
+    function startSession(gameId){
       currentGameId = gameId;
       sessionStart = Date.now();
       if(sessionTicker) clearInterval(sessionTicker);
-      updateSessionDisplay(totalMin);
-      sessionTicker = setInterval(() => updateSessionDisplay(totalMin), 1000);
+      sessionTicker = setInterval(()=>{}, 1000);
+    }
+    function getSessionText(totalMinutes){
+      if(!sessionStart) return "Session: 0:00";
+      const dur = Date.now() - sessionStart;
+      const total = (typeof totalMinutes === "number" && totalMinutes > 0) ? ` • Total: ${minsToHours(totalMinutes)}` : "";
+      return `Session: ${fmtSession(dur)}${total}`;
     }
 
     function applySteam(d, sessionText){
@@ -688,35 +932,31 @@
         }
 
         if (d.isInGame && d.gameId){
-          if (currentGameId !== d.gameId) {
-            startSession(d.gameId, totalMin);
-          } else {
-            updateSessionDisplay(totalMin);
-          }
-        } else {
-          stopSession();
-        }
+          if (currentGameId !== d.gameId) startSession(d.gameId);
+        } else stopSession();
 
-        const sessionText = d.isInGame ? getSessionTextFallback(totalMin) : "Session: —";
+        const sessionText = d.isInGame ? getSessionText(totalMin) : "Session: —";
         applySteam(d, sessionText);
+
+        if (d.isInGame && sessionStart){
+          if(sessionTicker) clearInterval(sessionTicker);
+          sessionTicker = setInterval(()=>{
+            const txt = getSessionText(totalMin);
+            if (M.gSub) M.gSub.textContent = txt;
+          }, 1000);
+        } else {
+          if(sessionTicker) clearInterval(sessionTicker);
+          sessionTicker = null;
+        }
 
         renderRecentInto(recentList, d.recent || []);
       }catch(e){
-        console.error("Steam error:", e);
         applySteam({ personaName:"Steam", profileUrl:M.open?.href, status:"Error", isInGame:false }, "Session: —");
         renderRecentInto(recentList, []);
         stopSession();
       }
     }
 
-    function getSessionTextFallback(totalMin){
-      if (!sessionStart) return "Session: 0:00";
-      const dur = Date.now() - sessionStart;
-      const total = (typeof totalMin === "number" && totalMin > 0) ? ` • Total: ${minsToHours(totalMin)}` : "";
-      return `Session: ${fmtSession(dur)}${total}`;
-    }
-
-    // === Mobile Pager ===
     const pager = document.getElementById("pager");
     const track = document.getElementById("track");
     const pages = Array.from(document.querySelectorAll(".mPage"));
@@ -725,7 +965,6 @@
 
     let index = 0;
     let height = 1;
-    let lock = false;
 
     function buildDots(){
       if(!dotsWrap) return;
@@ -734,16 +973,11 @@
         const d = document.createElement("div");
         d.className = "dot" + (i===0 ? " active" : "");
         d.dataset.dot = String(i);
-        d.addEventListener("click", (e) => {
-          e.stopPropagation();
-          if (!lock) setActive(i);
-        });
         dotsWrap.appendChild(d);
       });
     }
     buildDots();
-
-    function dots() { return Array.from(document.querySelectorAll(".dot")); }
+    const dots = () => Array.from(document.querySelectorAll(".dot"));
 
     function isMobile(){ return window.matchMedia("(max-width: 620px)").matches; }
 
@@ -764,8 +998,6 @@
     }
 
     function setActive(i){
-      if (lock) return;
-      lock = true;
       index = Math.max(0, Math.min(pages.length-1, i));
       height = pager ? pager.clientHeight : window.innerHeight;
 
@@ -780,10 +1012,15 @@
 
       setDockVisible(index === 0);
 
+      pages.forEach(pg=>{
+        const inner = pg.querySelector(".inner");
+        if(!inner) return;
+        inner.style.opacity = "";
+        inner.style.transform = "";
+      });
+
       const activeInner = pages[index]?.querySelector(".inner.scrollable");
       if(activeInner) activeInner.scrollTop = 0;
-
-      setTimeout(() => { lock = false; }, 380);
     }
 
     function resize(){
@@ -793,17 +1030,20 @@
     }
     window.addEventListener("resize", resize);
 
-    let startY = 0, dragging = false, lastDy = 0, startT = 0;
+    let startY = 0, dragging = false, lastDy = 0, lock = false, startT = 0;
     const THRESH = 56;
     const VEL_TRIG = 0.38;
 
     function onDown(e){
       if(!pager || lock) return;
+
       dragging = true;
       lastDy = 0;
       startT = performance.now();
+
       const p = e.touches ? e.touches[0] : e;
       startY = p.clientY;
+
       track.style.transition = "none";
       pages.forEach(pg=> {
         const inner = pg.querySelector(".inner");
@@ -815,20 +1055,27 @@
       if(!dragging || !pager) return;
       const p = e.touches ? e.touches[0] : e;
       const dy = p.clientY - startY;
+
       const sc = e.target && e.target.closest ? e.target.closest(".inner.scrollable") : null;
       if(sc){
         const atTop = sc.scrollTop <= 0;
         const atBottom = sc.scrollTop + sc.clientHeight >= sc.scrollHeight - 1;
+
         if(dy > 0 && !atTop) return;
         if(dy < 0 && !atBottom) return;
       }
+
       e.preventDefault();
       lastDy = dy;
+
       height = pager.clientHeight || window.innerHeight;
+
       let y = translateFor(index, dy);
       if(index === 0 && dy > 0) y = translateFor(index, dy * 0.25);
       if(index === pages.length-1 && dy < 0) y = translateFor(index, dy * 0.25);
+
       track.style.transform = `translate3d(0, ${y}px, 0)`;
+
       const progress = Math.min(1, Math.abs(dy) / height);
       const cur = pages[index];
       if(cur){
@@ -843,17 +1090,24 @@
     function onUp(){
       if(!dragging || !pager) return;
       dragging = false;
+
       track.style.transition = "transform .62s cubic-bezier(.2,.9,.18,1)";
       pages.forEach(pg=> {
         const inner = pg.querySelector(".inner");
-        if(inner) inner.style.transition = "transform .62s cubic-bezier(.2,.9,.18,1), opacity .62s cubic-bezier(.2,.9,.18,1)";
+        if(inner) inner.style.transition =
+          "transform .62s cubic-bezier(.2,.9,.18,1), opacity .62s cubic-bezier(.2,.9,.18,1)";
       });
+
       const dt = Math.max(1, performance.now() - startT);
       const vel = (lastDy / dt);
+
       let next = index;
       if(lastDy <= -THRESH || vel <= -VEL_TRIG) next = index + 1;
       else if(lastDy >= THRESH || vel >= VEL_TRIG) next = index - 1;
+
+      lock = true;
       setActive(next);
+      setTimeout(()=>{ lock = false; }, 380);
     }
 
     if (pager){
@@ -862,7 +1116,6 @@
       pager.addEventListener("touchend", onUp, {passive:true});
     }
 
-    // === ИНИЦИАЛИЗАЦИЯ ===
     setDefaultBackground();
     getNowPlaying();
     getSteam();
