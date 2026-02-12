@@ -20,10 +20,12 @@
     :root{
       --accent: 155 81 255;
       --accent2: 80 220 255;
+
       --border: rgba(255,255,255,.16);
       --text: rgba(255,255,255,.92);
       --muted: rgba(255,255,255,.70);
       --shadow: 0 22px 70px rgba(0,0,0,.45);
+
       --mx: 0px;
       --my: 0px;
     }
@@ -31,6 +33,7 @@
     *{ box-sizing:border-box; margin:0; padding:0; }
     html,body{ height:100%; }
     html{ background:#07070b; overscroll-behavior:none; }
+
     body{
       font-family:-apple-system,BlinkMacSystemFont,"Inter",system-ui,sans-serif;
       color:var(--text);
@@ -38,13 +41,23 @@
       overflow:hidden;
       overscroll-behavior:none;
       padding:0;
+      position:relative; /* важно для слоёв */
     }
 
-    /* ===== 2-layer background for reliable crossfade ===== */
+    /* ===== НЕ ИСПОЛЬЗУЕМ отрицательные z-index (iOS bug) ===== */
     .bgWrap{
       position:fixed; inset:0;
-      z-index:-10;
+      z-index:0;                 /* было -10 → ломалось */
       background:#07070b;
+      pointer-events:none;
+    }
+    .bgFallback{
+      position:absolute; inset:0;
+      background:
+        radial-gradient(900px 650px at 20% 10%, rgba(var(--accent), .35), transparent 62%),
+        radial-gradient(850px 650px at 80% 20%, rgba(var(--accent2), .22), transparent 66%),
+        radial-gradient(900px 700px at 50% 90%, rgba(var(--accent), .18), transparent 70%),
+        linear-gradient(180deg, #07070b, #07070b);
     }
 
     .bgLayer{
@@ -60,28 +73,14 @@
     }
     .bgLayer.active{ opacity:1; }
 
-    /* fallback gradient (always visible under images) */
-    .bgFallback{
-      position:absolute; inset:0;
-      z-index:-11;
-      background:
-        radial-gradient(900px 650px at 20% 10%, rgba(var(--accent), .35), transparent 62%),
-        radial-gradient(850px 650px at 80% 20%, rgba(var(--accent2), .22), transparent 66%),
-        radial-gradient(900px 700px at 50% 90%, rgba(var(--accent), .18), transparent 70%),
-        linear-gradient(180deg, #07070b, #07070b);
-    }
-
-    /* overlay vignette so it looks “premium” */
     .bgVignette{
       position:absolute; inset:0;
-      pointer-events:none;
-      background:
-        radial-gradient(1200px 800px at 50% 50%, rgba(0,0,0,.03), rgba(0,0,0,.42));
+      background: radial-gradient(1200px 800px at 50% 50%, rgba(0,0,0,.03), rgba(0,0,0,.42));
     }
 
     .glow{
       position:fixed; inset:-90px;
-      z-index:-6;
+      z-index:1;
       pointer-events:none;
       background:
         radial-gradient(900px 650px at 18% 10%, rgba(var(--accent), .38), transparent 62%),
@@ -93,7 +92,7 @@
 
     .liquid{
       position:fixed; inset:0;
-      z-index:-5;
+      z-index:2;
       pointer-events:none;
       opacity:.95;
       filter:url(#liquidFilter);
@@ -113,10 +112,17 @@
 
     .grain{
       position:fixed; inset:0;
-      z-index:-4;
+      z-index:3;
       pointer-events:none;
       opacity:.08;
       background-image:url("https://grainy-gradients.vercel.app/noise.svg");
+    }
+
+    /* UI слой выше фона */
+    .ui{
+      position:relative;
+      z-index:10;
+      height:100%;
     }
 
     /* ===== Glass ===== */
@@ -129,7 +135,6 @@
       position: relative;
       overflow: hidden;
     }
-
     .shine::after{
       content:"";
       position:absolute;
@@ -158,7 +163,7 @@
       position:fixed;
       left:50%;
       transform:translateX(-50%);
-      z-index:10;
+      z-index:30;
       display:flex;
       align-items:center;
       gap:12px;
@@ -178,18 +183,16 @@
       box-shadow: 0 12px 32px rgba(0,0,0,.35);
       flex:0 0 auto;
       transition: opacity .25s ease, transform .25s ease;
-      z-index:1;
     }
-    .spotMeta{ min-width:0; display:flex; flex-direction:column; gap:3px; z-index:1; flex:1 1 auto; }
-    .spotTop{ display:flex; align-items:center; gap:8px; font-size:12px; color:rgba(255,255,255,.70); letter-spacing:.2px; }
+    .spotMeta{ min-width:0; display:flex; flex-direction:column; gap:3px; flex:1 1 auto; }
+    .spotTop{ display:flex; align-items:center; gap:8px; font-size:12px; color:rgba(255,255,255,.70); }
     .liveDot{ width:8px;height:8px;border-radius:99px; background:#34c759; box-shadow:0 0 18px rgba(52,199,89,.55); }
     .spotTitle{ font-weight:850; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:520px; }
     .spotArtist{ font-size:13px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:520px; }
     .swap-out{ opacity:0; transform: translateY(6px); filter: blur(2px); transition:.22s ease; }
     .swap-in{ opacity:1; transform: translateY(0); filter: blur(0); transition:.22s ease; }
 
-    .spotRight{ margin-left:auto; display:flex; align-items:center; gap:10px; z-index:1; flex:0 0 auto; }
-
+    .spotRight{ margin-left:auto; display:flex; align-items:center; gap:10px; flex:0 0 auto; }
     .eq{ width:34px; height:18px; display:flex; align-items:flex-end; gap:3px; opacity:.92; }
     .eq span{ width:4px; height:6px; border-radius:3px; background:rgba(255,255,255,.86); animation:bounce .9s ease-in-out infinite; transform-origin:bottom; }
     .eq span:nth-child(2){ animation-delay:.12s }
@@ -210,7 +213,6 @@
       background:rgba(255,255,255,.07);
       white-space:nowrap;
       transition:.18s ease;
-      z-index:1;
     }
     .spotBtn i{ color:#1DB954; }
     .spotBtn:hover{ transform: translateY(-1px); background:rgba(255,255,255,.10); }
@@ -236,7 +238,7 @@
       position:fixed;
       left:50%;
       transform:translateX(-50%);
-      z-index:10;
+      z-index:30;
       display:flex;
       align-items:center;
       gap:18px;
@@ -247,7 +249,6 @@
       width:min(1060px,92vw);
       padding:12px 14px;
     }
-
     .social{
       flex:0 0 auto;
       min-width:76px;
@@ -284,7 +285,6 @@
       display:flex;
       align-items:center;
       justify-content:center;
-      z-index:1;
     }
     .profileRow{
       width:min(980px,94vw);
@@ -301,17 +301,10 @@
       gap:10px;
       text-align:center;
     }
-    .rightCol{
-      display:flex;
-      flex-direction:column;
-      gap:14px;
-      align-items:stretch;
-    }
     .avatarCard{
       width:min(360px,86vw);
       border-radius:26px;
       overflow:hidden;
-      position:relative;
     }
     .avatarImg{ width:100%; display:block; object-fit:cover; transform: scale(1.01); }
     .user{ font-size:44px; font-weight:900; text-shadow: 0 12px 45px rgba(0,0,0,.6); }
@@ -326,95 +319,9 @@
       -webkit-backdrop-filter: blur(14px) saturate(150%);
     }
 
-    /* ===== Steam/recent ===== */
-    .steamCard{
-      width: min(340px, 90vw);
-      border-radius:24px;
-      padding:14px;
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-    }
-    .steamTop{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
-    .steamBrand{ display:flex; align-items:center; gap:10px; min-width:0; }
-    .steamLogo{
-      width:44px;height:44px;border-radius:14px;
-      display:grid; place-items:center;
-      background: rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.12);
-      flex:0 0 auto;
-    }
-    .steamLogo i{ color:#66C0F4; font-size:22px; }
-    .steamLabel{ font-size:12px; color:rgba(255,255,255,.70); }
-    .steamPersona{ font-size:14px; font-weight:850; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:230px; }
-    .steamStatus{ display:flex; align-items:center; gap:8px; color:rgba(255,255,255,.78); font-size:12px; }
-    .sDot{ width:8px;height:8px;border-radius:99px; background: rgba(255,255,255,.35); }
-    .sDot.online{ background:#34c759; box-shadow:0 0 18px rgba(52,199,89,.55); }
-    .sDot.away{ background:#ffd60a; box-shadow:0 0 18px rgba(255,214,10,.45); }
-    .sDot.busy{ background:#ff453a; box-shadow:0 0 18px rgba(255,69,58,.45); }
-    .sDot.offline{ background:rgba(255,255,255,.30); }
-
-    .steamGame{
-      padding:12px;
-      border-radius:18px;
-      background: rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.10);
-      display:flex;
-      align-items:center;
-      gap:10px;
-      min-height:54px;
-    }
-    .steamGameText{ min-width:0; display:flex; flex-direction:column; gap:2px; }
-    .steamGameTitle{ font-weight:900; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:290px; }
-    .steamGameSub{ font-size:12px; color:rgba(255,255,255,.70); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:290px; }
-    .steamBtn{
-      display:inline-flex; align-items:center; justify-content:center; gap:8px;
-      text-decoration:none; color:rgba(255,255,255,.92);
-      padding:10px 12px; border-radius:14px;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(255,255,255,.07);
-      transition:.18s ease;
-      width:100%;
-    }
-    .steamBtn i{ color:#66C0F4; }
-
-    .pTitle{
-      font-size:12px;
-      color: rgba(255,255,255,.70);
-      letter-spacing:.2px;
-      display:flex;
-      align-items:center;
-      gap:8px;
-      margin-bottom: 2px;
-    }
-
-    .rgList{ display:flex; flex-direction:column; gap:10px; }
-    .rgItem{
-      padding:12px;
-      border-radius:18px;
-      background: rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.10);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      overflow:hidden;
-    }
-    .rgLeft{ min-width:0; display:flex; flex-direction:column; gap:3px; }
-    .rgName{ font-weight:900; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width: 280px; }
-    .rgMeta{ font-size:12px; color: rgba(255,255,255,.70); display:flex; gap:10px; flex-wrap:wrap; }
-    .rgThumb{
-      width:92px; height:52px;
-      border-radius:12px;
-      object-fit:cover;
-      border:1px solid rgba(255,255,255,.12);
-      flex:0 0 auto;
-    }
-
-    /* ===== Mobile ===== */
+    /* Mobile pages (оставляю как было — если надо верну) */
     .scrollPages{ display:none; }
     .pageDots{ display:none; }
-    .pageInner{ will-change: transform, opacity, filter; }
 
     @media (max-width: 620px){
       .spotify{
@@ -450,48 +357,22 @@
         display:block;
         position:fixed;
         left:0; right:0;
+        z-index:20;
         top: calc(84px + env(safe-area-inset-top));
         bottom: calc(86px + env(safe-area-inset-bottom));
         padding: 0 14px;
         overflow-y:auto;
         -webkit-overflow-scrolling: touch;
-        scroll-snap-type: y mandatory;
-        scroll-snap-stop: always;
-        overscroll-behavior-y: contain;
       }
-      .scrollPages::-webkit-scrollbar{ width:0px; }
-      .page{ height:100%; display:flex; align-items:center; justify-content:center; scroll-snap-align:start; scroll-snap-stop: always; }
-      .pageInner{ width:100%; max-width:520px; display:flex; flex-direction:column; gap:14px; transform: translateY(1vh); }
 
-      .avatarCard{ width: min(216px, 58vw); border-radius:22px; margin:0 auto; }
       .user{ font-size:28.8px; }
       .welcome{ font-size:12px; padding:7px 11px; }
-      .steamCard{ width:100%; }
-
-      .pageDots{
-        display:flex;
-        position:fixed;
-        right:10px;
-        top:50%;
-        transform: translateY(-50%);
-        z-index:11;
-        flex-direction:column;
-        gap:10px;
-        padding:10px 8px;
-        border-radius:18px;
-        background: rgba(255,255,255,.06);
-        border:1px solid rgba(255,255,255,.10);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-      }
-      .dot{ width:8px;height:8px;border-radius:99px; background: rgba(255,255,255,.35); opacity:.45; transition:.2s ease; }
-      .dot.active{ opacity:1; background: rgba(255,255,255,.90); transform: scale(1.15); }
     }
   </style>
 </head>
 
 <body>
-  <!-- BG wrap with 2 layers -->
+  <!-- фон: БЕЗ отрицательных z-index -->
   <div class="bgWrap" aria-hidden="true">
     <div class="bgFallback"></div>
     <div class="bgLayer active" id="bgA"></div>
@@ -513,142 +394,53 @@
   <div class="liquid"></div>
   <div class="grain"></div>
 
-  <!-- Spotify fixed -->
-  <div class="spotify glass shine" id="spotifyCard">
-    <img id="cover" class="spotCover" alt="cover"/>
-    <div class="spotMeta">
-      <div class="spotTop"><span class="liveDot" id="liveDot"></span><span id="label">Now Playing</span></div>
-      <div class="spotTitle swap-in" id="title">Loading…</div>
-      <div class="spotArtist swap-in" id="artist"></div>
+  <div class="ui">
+    <!-- Spotify -->
+    <div class="spotify glass shine" id="spotifyCard">
+      <img id="cover" class="spotCover" alt="cover"/>
+      <div class="spotMeta">
+        <div class="spotTop"><span class="liveDot" id="liveDot"></span><span id="label">Now Playing</span></div>
+        <div class="spotTitle swap-in" id="title">Loading…</div>
+        <div class="spotArtist swap-in" id="artist"></div>
 
-      <div class="progressWrap" id="progressWrap">
-        <div class="progressTrack">
-          <div class="progressFill" id="progressFill"></div>
+        <div class="progressWrap" id="progressWrap">
+          <div class="progressTrack">
+            <div class="progressFill" id="progressFill"></div>
+          </div>
+          <div class="progressTime" id="progressTime">0:00 / 0:00</div>
         </div>
-        <div class="progressTime" id="progressTime">0:00 / 0:00</div>
+      </div>
+
+      <div class="spotRight">
+        <div class="eq" id="eq"><span></span><span></span><span></span><span></span></div>
+        <a class="spotBtn" id="open" href="#" target="_blank"><i class="fa-brands fa-spotify"></i><span>Open</span></a>
       </div>
     </div>
 
-    <div class="spotRight">
-      <div class="eq" id="eq"><span></span><span></span><span></span><span></span></div>
-      <a class="spotBtn" id="open" href="#" target="_blank"><i class="fa-brands fa-spotify"></i><span>Open</span></a>
-    </div>
-  </div>
-
-  <!-- Desktop layout -->
-  <div class="layout">
-    <div class="profileRow">
-      <div class="center">
-        <div class="avatarCard glass shine"><img class="avatarImg" src="avatar.jpg" alt="avatar"></div>
-        <div class="user">@s1deed</div>
-        <div class="welcome"><i class="fa-solid fa-sparkles"></i> welcome to my bio</div>
-      </div>
-
-      <div class="rightCol">
-        <div class="steamCard glass shine">
-          <div class="steamTop">
-            <div class="steamBrand">
-              <div class="steamLogo"><i class="fa-brands fa-steam"></i></div>
-              <div>
-                <div class="steamLabel">Steam</div>
-                <div class="steamPersona" id="steamPersonaD">Loading…</div>
-              </div>
-            </div>
-            <div class="steamStatus">
-              <span class="sDot offline" id="steamDotD"></span>
-              <span id="steamStatusTextD">…</span>
-            </div>
-          </div>
-
-          <div class="steamGame">
-            <i class="fa-solid fa-gamepad"></i>
-            <div class="steamGameText">
-              <div class="steamGameTitle" id="steamGameTitleD">—</div>
-              <div class="steamGameSub" id="steamGameSubD">Checking activity…</div>
-            </div>
-          </div>
-
-          <a class="steamBtn" id="steamOpenD" href="https://steamcommunity.com/profiles/76561199064708359/" target="_blank">
-            <i class="fa-brands fa-steam"></i><span>Open profile</span>
-          </a>
-        </div>
-
-        <div class="steamCard glass shine">
-          <div class="pTitle"><i class="fa-solid fa-clock-rotate-left"></i><span>Recently played</span></div>
-          <div class="rgList" id="recentListD"></div>
+    <!-- Desktop main -->
+    <div class="layout">
+      <div class="profileRow">
+        <div class="center">
+          <div class="avatarCard glass shine"><img class="avatarImg" src="avatar.jpg" alt="avatar"></div>
+          <div class="user">@s1deed</div>
+          <div class="welcome"><i class="fa-solid fa-sparkles"></i> welcome to my bio</div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Mobile pages -->
-  <div class="scrollPages" id="scrollPages">
-    <section class="page" data-index="0"><div class="pageInner">
-      <div class="center">
-        <div class="avatarCard glass shine"><img class="avatarImg" src="avatar.jpg" alt="avatar"></div>
-        <div class="user">@s1deed</div>
-        <div class="welcome"><i class="fa-solid fa-sparkles"></i> welcome to my bio</div>
-      </div>
-    </div></section>
-
-    <section class="page" data-index="1"><div class="pageInner">
-      <div class="pTitle"><i class="fa-brands fa-steam"></i><span>Steam activity</span></div>
-      <div class="steamCard glass shine">
-        <div class="steamTop">
-          <div class="steamBrand">
-            <div class="steamLogo"><i class="fa-brands fa-steam"></i></div>
-            <div>
-              <div class="steamLabel">Steam</div>
-              <div class="steamPersona" id="steamPersonaM">Loading…</div>
-            </div>
-          </div>
-          <div class="steamStatus">
-            <span class="sDot offline" id="steamDotM"></span>
-            <span id="steamStatusTextM">…</span>
-          </div>
-        </div>
-
-        <div class="steamGame">
-          <i class="fa-solid fa-gamepad"></i>
-          <div class="steamGameText">
-            <div class="steamGameTitle" id="steamGameTitleM">—</div>
-            <div class="steamGameSub" id="steamGameSubM">Session: 0:00</div>
-          </div>
-        </div>
-
-        <a class="steamBtn" id="steamOpenM" href="https://steamcommunity.com/profiles/76561199064708359/" target="_blank">
-          <i class="fa-brands fa-steam"></i><span>Open profile</span>
-        </a>
-      </div>
-    </div></section>
-
-    <section class="page" data-index="2"><div class="pageInner">
-      <div class="pTitle"><i class="fa-solid fa-clock-rotate-left"></i><span>Recently played</span></div>
-      <div class="steamCard glass shine">
-        <div class="rgList" id="recentList"></div>
-      </div>
-    </div></section>
-  </div>
-
-  <!-- Dots -->
-  <div class="pageDots" id="pageDots" aria-hidden="true">
-    <div class="dot active" data-dot="0"></div>
-    <div class="dot" data-dot="1"></div>
-    <div class="dot" data-dot="2"></div>
-  </div>
-
-  <!-- Dock -->
-  <div class="socialBar glass shine" id="socialBar">
-    <a class="social telegram" href="https://t.me/s1deed" target="_blank"><i class="fa-brands fa-telegram"></i><span>Telegram</span></a>
-    <a class="social tiktok" href="https://www.tiktok.com/@s1deeed?_r=1&_t=ZS-92QwHlSQe4j" target="_blank"><i class="fa-brands fa-tiktok"></i><span>TikTok</span></a>
-    <a class="social discord" href="https://discord.gg/DuJNA7z2" target="_blank"><i class="fa-brands fa-discord"></i><span>Discord</span></a>
-    <a class="social instagram" href="https://www.instagram.com/s1deed?igsh=MWg3N3Jmb3oyNnM0Ng%3D%3D&utm_source=qr" target="_blank"><i class="fa-brands fa-instagram"></i><span>Instagram</span></a>
-    <a class="social steam" href="https://steamcommunity.com/id/soogaci/" target="_blank"><i class="fa-brands fa-steam"></i><span>Steam</span></a>
-    <a class="social spotifyI" href="https://open.spotify.com/user/31uumxtifdbgfqvll2txasaipgcu" target="_blank"><i class="fa-brands fa-spotify"></i><span>Spotify</span></a>
+    <!-- Dock -->
+    <div class="socialBar glass shine" id="socialBar">
+      <a class="social telegram" href="https://t.me/s1deed" target="_blank"><i class="fa-brands fa-telegram"></i><span>Telegram</span></a>
+      <a class="social tiktok" href="https://www.tiktok.com/@s1deeed?_r=1&_t=ZS-92QwHlSQe4j" target="_blank"><i class="fa-brands fa-tiktok"></i><span>TikTok</span></a>
+      <a class="social discord" href="https://discord.gg/DuJNA7z2" target="_blank"><i class="fa-brands fa-discord"></i><span>Discord</span></a>
+      <a class="social instagram" href="https://www.instagram.com/s1deed?igsh=MWg3N3Jmb3oyNnM0Ng%3D%3D&utm_source=qr" target="_blank"><i class="fa-brands fa-instagram"></i><span>Instagram</span></a>
+      <a class="social steam" href="https://steamcommunity.com/id/soogaci/" target="_blank"><i class="fa-brands fa-steam"></i><span>Steam</span></a>
+      <a class="social spotifyI" href="https://open.spotify.com/user/31uumxtifdbgfqvll2txasaipgcu" target="_blank"><i class="fa-brands fa-spotify"></i><span>Spotify</span></a>
+    </div>
   </div>
 
   <script>
-    /* ===== mouse/touch motion ===== */
+    /* motion */
     function setMotion(clientX, clientY){
       const x = (clientX / window.innerWidth - 0.5) * 18;
       const y = (clientY / window.innerHeight - 0.5) * 18;
@@ -669,13 +461,12 @@
       setTimeout(()=> el.classList.remove("sweepOnce"), 1100);
     }
 
-    /* ===== RELIABLE BACKGROUND CROSSFADE ===== */
+    /* ===== Reliable BG crossfade (no negative z-index) ===== */
     const bgA = document.getElementById("bgA");
     const bgB = document.getElementById("bgB");
     let bgActive = "A";
     let lastBgUrl = "";
 
-    // preload + crossfade
     function setBackgroundCrossfade(url){
       if(!url || typeof url !== "string") return;
       if(url === lastBgUrl) return;
@@ -683,7 +474,6 @@
 
       const img = new Image();
       img.decoding = "async";
-      img.referrerPolicy = "no-referrer";
       img.onload = () => {
         const next = (bgActive === "A") ? bgB : bgA;
         const prev = (bgActive === "A") ? bgA : bgB;
@@ -694,13 +484,9 @@
 
         bgActive = (bgActive === "A") ? "B" : "A";
       };
-      img.onerror = () => {
-        // если картинка не загрузилась — просто не переключаем, но градиент останется (не будет чёрного)
-      };
+      img.onerror = () => {};
       img.src = url;
     }
-
-    // default avatar background (also through crossfade)
     function setDefaultBackground(){
       setBackgroundCrossfade("avatar.jpg");
     }
@@ -795,18 +581,14 @@
         const key = `${d.title}__${d.artist}__${d.cover}`;
         const changed = key !== lastKey;
 
-        // IMPORTANT: set background via crossfade always
+        // главное: фон ставим ВСЕГДА
         if (d.cover) setBackgroundCrossfade(d.cover);
 
         if(changed){
           cover.style.opacity = "0";
           cover.style.transform = "scale(0.98)";
           setTimeout(()=>{ cover.src = d.cover || ""; }, 120);
-
-          cover.onload = () => {
-            cover.style.opacity = "1";
-            cover.style.transform = "scale(1)";
-          };
+          cover.onload = () => { cover.style.opacity = "1"; cover.style.transform = "scale(1)"; };
 
           await animateSwap(titleEl, d.title || "Playing");
           await animateSwap(artistEl, d.artist || "");
@@ -831,177 +613,10 @@
       }
     }
 
-    /* ===== Steam (как у тебя) ===== */
-    const D = {
-      persona: document.getElementById("steamPersonaD"),
-      dot: document.getElementById("steamDotD"),
-      status: document.getElementById("steamStatusTextD"),
-      gTitle: document.getElementById("steamGameTitleD"),
-      gSub: document.getElementById("steamGameSubD"),
-      open: document.getElementById("steamOpenD"),
-    };
-    const M = {
-      persona: document.getElementById("steamPersonaM"),
-      dot: document.getElementById("steamDotM"),
-      status: document.getElementById("steamStatusTextM"),
-      gTitle: document.getElementById("steamGameTitleM"),
-      gSub: document.getElementById("steamGameSubM"),
-      open: document.getElementById("steamOpenM"),
-    };
-
-    const recentList = document.getElementById("recentList");
-    const recentListD = document.getElementById("recentListD");
-
-    function setDot(el, mode){ if(!el) return; el.className = "sDot " + mode; }
-    function mapDot(status, inGame){
-      if (inGame) return "online";
-      if (status === "Online" || status === "Play" || status === "Trade") return "online";
-      if (status === "Away" || status === "Snooze") return "away";
-      if (status === "Busy") return "busy";
-      return "offline";
-    }
-    function minsToHours(min){
-      const h = min / 60;
-      return (h >= 100 ? Math.round(h) : Math.round(h*10)/10) + "h";
-    }
-    function applySteamUI(target, d, sessionText){
-      if(!target.persona) return;
-      target.persona.textContent = d.personaName || "Steam";
-      target.open.href = d.profileUrl || target.open.href;
-      setDot(target.dot, mapDot(d.status, d.isInGame));
-      target.status.textContent = d.isInGame ? "Playing now" : (d.status || "—");
-      if (d.isInGame && d.gameName){
-        target.gTitle.textContent = d.gameName;
-        target.gSub.textContent = sessionText || "Session: 0:00";
-      } else {
-        target.gTitle.textContent = "Not in-game";
-        target.gSub.textContent = "Session: —";
-      }
-    }
-
-    let currentGameId = null;
-    let sessionStart = null;
-    let sessionTicker = null;
-    function fmtSession(ms){
-      const s = Math.max(0, Math.floor(ms/1000));
-      const m = Math.floor(s/60);
-      const r = s%60;
-      return `${m}:${String(r).padStart(2,"0")}`;
-    }
-    function stopSession(){
-      currentGameId = null;
-      sessionStart = null;
-      if(sessionTicker) clearInterval(sessionTicker);
-      sessionTicker = null;
-    }
-    function startSession(gameId){
-      currentGameId = gameId;
-      sessionStart = Date.now();
-      if(sessionTicker) clearInterval(sessionTicker);
-      sessionTicker = setInterval(()=>{}, 1000);
-    }
-    function getSessionText(totalMinutes){
-      if(!sessionStart) return "Session: 0:00";
-      const dur = Date.now() - sessionStart;
-      const total = (typeof totalMinutes === "number" && totalMinutes > 0) ? ` • Total: ${minsToHours(totalMinutes)}` : "";
-      return `Session: ${fmtSession(dur)}${total}`;
-    }
-
-    function escapeHtml(str){
-      return String(str).replace(/[&<>"']/g, s => ({
-        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-      }[s]));
-    }
-    function renderRecentInto(container, recent){
-      if(!container) return;
-      if(!Array.isArray(recent) || recent.length === 0){
-        container.innerHTML = `
-          <div class="rgItem">
-            <div class="rgLeft">
-              <div class="rgName">No recent games</div>
-              <div class="rgMeta"><span>Play something 🙂</span></div>
-            </div>
-            <div style="width:92px;height:52px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10)"></div>
-          </div>`;
-        return;
-      }
-      container.innerHTML = recent.map(g=>{
-        const twoWeeks = g.playtime_2weeks_min ? minsToHours(g.playtime_2weeks_min) : "0h";
-        const forever = g.playtime_forever_min ? minsToHours(g.playtime_forever_min) : "0h";
-        return `
-          <div class="rgItem">
-            <div class="rgLeft">
-              <div class="rgName">${escapeHtml(g.name || "Unknown")}</div>
-              <div class="rgMeta">
-                <span>2 weeks: ${twoWeeks}</span>
-                <span>All time: ${forever}</span>
-              </div>
-            </div>
-            <img class="rgThumb" src="${g.img}" alt="">
-          </div>
-        `;
-      }).join("");
-    }
-
-    async function getSteam(){
-      try{
-        const r = await fetch("/api/steam", { cache:"no-store" });
-        const d = await r.json();
-
-        if(!d || !d.ok){
-          applySteamUI(D, { personaName:"Steam", profileUrl:D.open?.href, status:"Unavailable", isInGame:false }, "Session: —");
-          applySteamUI(M, { personaName:"Steam", profileUrl:M.open?.href, status:"Unavailable", isInGame:false }, "Session: —");
-          renderRecentInto(recentList, []);
-          renderRecentInto(recentListD, []);
-          stopSession();
-          return;
-        }
-
-        let totalMin = null;
-        if (d.gameId && Array.isArray(d.recent)){
-          const match = d.recent.find(g => g.appid === d.gameId);
-          if (match) totalMin = match.playtime_forever_min;
-        }
-
-        if (d.isInGame && d.gameId){
-          if (currentGameId !== d.gameId) startSession(d.gameId);
-        } else stopSession();
-
-        const sessionText = d.isInGame ? getSessionText(totalMin) : "Session: —";
-        applySteamUI(D, d, sessionText);
-        applySteamUI(M, d, sessionText);
-
-        if (d.isInGame && sessionStart){
-          if(sessionTicker) clearInterval(sessionTicker);
-          sessionTicker = setInterval(()=>{
-            const txt = getSessionText(totalMin);
-            if (D.gSub) D.gSub.textContent = txt;
-            if (M.gSub) M.gSub.textContent = txt;
-          }, 1000);
-        } else {
-          if(sessionTicker) clearInterval(sessionTicker);
-          sessionTicker = null;
-        }
-
-        renderRecentInto(recentList, d.recent || []);
-        renderRecentInto(recentListD, d.recent || []);
-      }catch(e){
-        applySteamUI(D, { personaName:"Steam", profileUrl:D.open?.href, status:"Error", isInGame:false }, "Session: —");
-        applySteamUI(M, { personaName:"Steam", profileUrl:M.open?.href, status:"Error", isInGame:false }, "Session: —");
-        renderRecentInto(recentList, []);
-        renderRecentInto(recentListD, []);
-        stopSession();
-      }
-    }
-
-    /* ===== init ===== */
-    // сразу ставим дефолт фон (не будет черноты даже до Spotify)
+    // старт: чтобы не было чёрного до API
     setDefaultBackground();
-
     getNowPlaying();
-    getSteam();
     setInterval(getNowPlaying, 10000);
-    setInterval(getSteam, 12000);
   </script>
 </body>
 </html>
