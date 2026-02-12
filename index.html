@@ -28,11 +28,18 @@
 
       --mx: 0px;
       --my: 0px;
+
+      /* ✅ iOS fullscreen height helpers */
+      --vh: 100vh;
     }
 
     *{ box-sizing:border-box; margin:0; padding:0; }
-    html,body{ height:100%; }
-    html{ background:#07070b; overscroll-behavior:none; }
+
+    html,body{ height:100%; width:100%; }
+    html{
+      background:#07070b;
+      overscroll-behavior:none;
+    }
     body{
       font-family:-apple-system,BlinkMacSystemFont,"Inter",system-ui,sans-serif;
       color:var(--text);
@@ -41,10 +48,29 @@
       overscroll-behavior:none;
       position:relative;
       touch-action: manipulation;
+      width:100%;
+      min-height:100%;
+    }
+
+    /* ✅ Prefer modern iOS viewport units (no black bars) */
+    @supports (height: 100svh){
+      :root{ --vh: 100svh; }
+    }
+    @supports (height: 100dvh){
+      :root{ --vh: 100dvh; }
     }
 
     /* ===== Background ===== */
-    .bgWrap{ position:fixed; inset:0; z-index:0; background:#07070b; pointer-events:none; }
+    .bgWrap{
+      position:fixed;
+      inset:0;
+      z-index:0;
+      background:#07070b;
+      pointer-events:none;
+      width:100%;
+      height: var(--vh);
+      min-height: var(--vh);
+    }
     .bgFallback{
       position:absolute; inset:0;
       background:
@@ -102,7 +128,13 @@
       background-image:url("https://grainy-gradients.vercel.app/noise.svg");
     }
 
-    .ui{ position:relative; z-index:10; height:100%; }
+    .ui{
+      position:relative;
+      z-index:10;
+      height: var(--vh);
+      min-height: var(--vh);
+      width:100%;
+    }
 
     /* Glass */
     .glass{
@@ -238,7 +270,8 @@
     /* Desktop center */
     .layout{
       position:relative;
-      height:100vh;
+      height: var(--vh);
+      min-height: var(--vh);
       padding-top: 92px;
       padding-bottom: 108px;
       display:flex;
@@ -334,7 +367,9 @@
       margin: 2px 0 6px;
     }
 
+    /* Recently played compact */
     .steamCard.compact{ padding:12px; gap:10px; }
+
     .rgList{ display:flex; flex-direction:column; gap:10px; }
     .rgItem{
       padding:10px 10px;
@@ -369,18 +404,6 @@
       color:rgba(255,255,255,.65);
       font-weight:800;
       letter-spacing:.2px;
-    }
-
-    /* ✅ ровная подложка (без грязной тени снизу) */
-    .stack{
-      border-radius:28px;
-      padding:12px;
-      background: rgba(0,0,0,.10);
-      border:1px solid rgba(255,255,255,.10);
-      backdrop-filter: blur(18px) saturate(150%);
-      -webkit-backdrop-filter: blur(18px) saturate(150%);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
-      overflow:hidden;
     }
 
     /* ===== Mobile pager ===== */
@@ -420,10 +443,15 @@
         position:fixed;
         left:0; right:0;
         z-index:20;
+
+        /* ✅ important: full height container, not "letterboxed" */
+        height: calc(var(--vh) - (84px + env(safe-area-inset-top)) - (86px + env(safe-area-inset-bottom)));
         top: calc(84px + env(safe-area-inset-top));
         bottom: calc(86px + env(safe-area-inset-bottom));
+
         overflow:hidden;
         padding: 0 14px;
+
         touch-action: none;
       }
 
@@ -455,32 +483,14 @@
                     opacity .62s cubic-bezier(.2,.9,.18,1);
       }
 
-      /* ✅ important: корректная центровка + чтобы низ не резался */
       .inner.scrollable{
         height:100%;
         overflow-y:auto;
         -webkit-overflow-scrolling: touch;
-        padding-top: 10px;               /* опустили весь контент чуть ниже */
-        padding-bottom: 110px;           /* чтобы Dota и прочее не резалось снизу */
+        padding-bottom: 24px;
         overscroll-behavior: contain;
-        display:flex;                    /* для вертикальной центровки */
-        flex-direction:column;
-        align-items:center;
       }
       .inner.scrollable::-webkit-scrollbar{ width:0px; }
-
-      /* ✅ контейнер вертикальной центровки */
-      .vCenter{
-        width:100%;
-        max-width:520px;
-        margin: auto 0;                  /* центр по вертикали, если контента мало */
-        display:flex;
-        flex-direction:column;
-        gap:12px;
-      }
-
-      /* Steam title чтобы не бился об край */
-      .inner.scrollable .pTitle{ margin-top: 6px; }
 
       .mPage.inactive .inner{
         opacity:0;
@@ -505,16 +515,21 @@
         transform: translateY(-50%);
         z-index:31;
         flex-direction:column;
-        gap:9px;
-        padding:9px 7px;
-        border-radius:16px;
-        background: rgba(255,255,255,.045);
-        border:1px solid rgba(255,255,255,.08);
-        backdrop-filter: blur(14px);
-        -webkit-backdrop-filter: blur(14px);
+        gap:10px;
+        padding:10px 8px;
+        border-radius:18px;
+        background: rgba(255,255,255,.06);
+        border:1px solid rgba(255,255,255,.10);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
       }
-      .dot{ width:7px;height:7px;border-radius:99px; background: rgba(255,255,255,.32); opacity:.35; transition:.25s ease; }
-      .dot.active{ opacity:.95; background: rgba(255,255,255,.88); transform: scale(1.18); }
+      .dot{ width:8px;height:8px;border-radius:99px; background: rgba(255,255,255,.35); opacity:.45; transition:.25s ease; }
+      .dot.active{ opacity:1; background: rgba(255,255,255,.90); transform: scale(1.15); }
+
+      /* ✅ requested: a bit more spacing between Steam card and Recently played card */
+      .steamCard.compact{
+        margin-top: 8px;
+      }
     }
 
     .dockHidden{
@@ -581,7 +596,6 @@
     <!-- Mobile pager -->
     <div class="pager" id="pager">
       <div class="track" id="track">
-
         <!-- Page 0 -->
         <section class="mPage active" data-index="0">
           <div class="inner">
@@ -596,83 +610,78 @@
         <!-- Page 1 (Steam) -->
         <section class="mPage inactive" data-index="1">
           <div class="inner scrollable">
-            <div class="vCenter">
-              <div class="pTitle"><i class="fa-brands fa-steam"></i><span>Steam</span></div>
+            <div class="pTitle"><i class="fa-brands fa-steam"></i><span>Steam</span></div>
 
-              <div class="stack">
-                <div class="steamCard glass shine">
-                  <div class="steamTop">
-                    <div class="steamBrand">
-                      <div class="steamLogo"><i class="fa-brands fa-steam"></i></div>
-                      <div style="min-width:0">
-                        <div class="steamLabel">Steam</div>
-                        <div class="steamNameRow">
-                          <div class="steamPersona" id="steamPersonaM">Loading…</div>
-                          <a class="miniProfile" id="steamOpenM" href="https://steamcommunity.com/profiles/76561199064708359/" target="_blank" aria-label="Open profile">
-                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="steamStatus">
-                      <span class="sDot offline" id="steamDotM"></span>
-                      <span id="steamStatusTextM">…</span>
-                    </div>
-                  </div>
-
-                  <div class="steamGame">
-                    <i class="fa-solid fa-gamepad"></i>
-                    <div class="steamGameText">
-                      <div class="steamGameTitle" id="steamGameTitleM">—</div>
-                      <div class="steamGameSub" id="steamGameSubM">Session: —</div>
+            <div class="steamCard glass shine">
+              <div class="steamTop">
+                <div class="steamBrand">
+                  <div class="steamLogo"><i class="fa-brands fa-steam"></i></div>
+                  <div style="min-width:0">
+                    <div class="steamLabel">Steam</div>
+                    <div class="steamNameRow">
+                      <div class="steamPersona" id="steamPersonaM">Loading…</div>
+                      <a class="miniProfile" id="steamOpenM" href="https://steamcommunity.com/profiles/76561199064708359/" target="_blank" aria-label="Open profile">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                      </a>
                     </div>
                   </div>
                 </div>
 
-                <div class="steamCard compact glass shine">
-                  <div class="pTitle" style="margin:0 0 6px;"><i class="fa-solid fa-clock-rotate-left"></i><span>Recently played</span></div>
-                  <div class="rgList" id="recentList"></div>
+                <div class="steamStatus">
+                  <span class="sDot offline" id="steamDotM"></span>
+                  <span id="steamStatusTextM">…</span>
+                </div>
+              </div>
+
+              <div class="steamGame">
+                <i class="fa-solid fa-gamepad"></i>
+                <div class="steamGameText">
+                  <div class="steamGameTitle" id="steamGameTitleM">—</div>
+                  <div class="steamGameSub" id="steamGameSubM">Session: —</div>
                 </div>
               </div>
             </div>
+
+            <div class="steamCard compact glass shine">
+              <div class="pTitle" style="margin:0 0 6px;"><i class="fa-solid fa-clock-rotate-left"></i><span>Recently played</span></div>
+              <div class="rgList" id="recentList"></div>
+            </div>
+
+            <div style="height: 18px;"></div>
           </div>
         </section>
 
         <!-- Page 2 (Test A) -->
         <section class="mPage inactive" data-index="2">
           <div class="inner scrollable">
-            <div class="vCenter">
-              <div class="pTitle"><i class="fa-solid fa-square"></i><span>Test page A</span></div>
-              <div class="stack">
-                <div class="phGrid">
-                  <div class="ph">Block 1</div>
-                  <div class="ph">Block 2</div>
-                  <div class="ph">Block 3</div>
-                  <div class="ph">Block 4</div>
-                </div>
+            <div class="pTitle"><i class="fa-solid fa-square"></i><span>Test page A</span></div>
+            <div class="steamCard glass shine">
+              <div class="phGrid">
+                <div class="ph">Block 1</div>
+                <div class="ph">Block 2</div>
+                <div class="ph">Block 3</div>
+                <div class="ph">Block 4</div>
               </div>
             </div>
+            <div style="height: 18px;"></div>
           </div>
         </section>
 
         <!-- Page 3 (Test B) -->
         <section class="mPage inactive" data-index="3">
           <div class="inner scrollable">
-            <div class="vCenter">
-              <div class="pTitle"><i class="fa-solid fa-square"></i><span>Test page B</span></div>
-              <div class="stack">
-                <div class="phGrid">
-                  <div class="ph">Empty</div>
-                  <div class="ph">Empty</div>
-                  <div class="ph">Empty</div>
-                  <div class="ph">Empty</div>
-                </div>
+            <div class="pTitle"><i class="fa-solid fa-square"></i><span>Test page B</span></div>
+            <div class="steamCard glass shine">
+              <div class="phGrid">
+                <div class="ph">Empty</div>
+                <div class="ph">Empty</div>
+                <div class="ph">Empty</div>
+                <div class="ph">Empty</div>
               </div>
             </div>
+            <div style="height: 18px;"></div>
           </div>
         </section>
-
       </div>
     </div>
 
