@@ -65,13 +65,30 @@
     .spotTitle{ font-weight:850; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:420px; }
     .spotArtist{ font-size:13px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:420px; }
     .spotRight{ margin-left:auto; display:flex; align-items:center; gap:10px; }
+
+    /* mono eq */
     .eq{ width:34px; height:18px; display:flex; align-items:flex-end; gap:3px; }
     .eq span{ width:4px; height:6px; border-radius:3px; background:rgba(255,255,255,.86); animation:bounce .9s ease-in-out infinite; transform-origin:bottom; }
     .eq span:nth-child(2){ animation-delay:.12s } .eq span:nth-child(3){ animation-delay:.24s } .eq span:nth-child(4){ animation-delay:.36s }
     @keyframes bounce{0%,100%{height:6px;opacity:.6}50%{height:18px;opacity:1}}
     .eq.paused span{ animation:none; height:6px; opacity:.55 }
-    .spotBtn{ display:none; align-items:center; gap:8px; text-decoration:none; color:rgba(255,255,255,.9); padding:10px 12px; border-radius:14px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.07); }
+
+    /* Open button (icon + text) */
+    .spotBtn{
+      display:none;
+      align-items:center;
+      gap:8px;
+      text-decoration:none;
+      color:rgba(255,255,255,.9);
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.07);
+      white-space:nowrap;
+      transition:.2s ease;
+    }
     .spotBtn i{ color:#1DB954; }
+    .spotBtn:hover{ transform: translateY(-1px); background:rgba(255,255,255,.10); }
 
     /* Layout */
     .layout{
@@ -84,6 +101,7 @@
       width:min(520px,92vw);
       display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center;
     }
+
     .avatarCard{ width:min(360px,86vw); border-radius:26px; overflow:hidden; }
     .avatarImg{ width:100%; display:block; }
     .user{ font-size:44px; font-weight:900; }
@@ -96,21 +114,53 @@
       bottom: calc(14px + env(safe-area-inset-bottom));
       width:min(920px,96vw); padding:12px 14px; border-radius:28px;
       display:flex; justify-content:space-between; gap:18px; z-index:5;
+      overflow:auto;
     }
-    .social{ min-width:76px; display:flex; flex-direction:column; align-items:center; gap:6px; padding:10px 10px 8px; border-radius:18px; text-decoration:none; color:#fff; }
-    .telegram i{ color:#2AABEE } .tiktok i{ color:#FE2C55 } .discord i{ color:#5865F2 } .instagram i{ color:#E1306C } .steam i{ color:#66C0F4 } .spotifyI i{ color:#1DB954 }
+    .socialBar::-webkit-scrollbar{ height:0px; }
+    .social{
+      min-width:76px;
+      display:flex; flex-direction:column; align-items:center; gap:6px;
+      padding:10px 10px 8px; border-radius:18px;
+      text-decoration:none; color:#fff;
+    }
+    .social i{ font-size:28px; }
+    .social span{ font-size:12px; color:rgba(255,255,255,.75); }
 
-    /* PHONE ONLY: поднимаем центр и уменьшаем фото */
+    .telegram i{ color:#2AABEE } .tiktok i{ color:#FE2C55 } .discord i{ color:#5865F2 }
+    .instagram i{ color:#E1306C } .steam i{ color:#66C0F4 } .spotifyI i{ color:#1DB954 }
+
+    /* PHONE ONLY */
     @media (max-width: 620px){
-      .avatarCard{ width: min(200px, 58vw); }  /* фото меньше */
+      .spotify{ top: calc(12px + env(safe-area-inset-top)); width: calc(100vw - 24px); padding:12px 12px; border-radius:20px; }
+      .spotCover{ width:46px; height:46px; }
+      .spotTitle,.spotArtist{ max-width:190px; }
+      .spotTitle{ font-size:13px; }
+      .spotArtist{ font-size:12px; }
+      .eq{ width:30px; height:16px; }
+      .eq span{ width:3.5px; }
+      .spotBtn{ padding:9px 10px; }
+
+      .avatarCard{ width: min(200px, 58vw); border-radius:22px; }
+      .user{ font-size:34px; }
+      .welcome{ font-size:13px; }
+
+      /* было -8vh, теперь мягко: -3vh (примерно 3%) */
+      .center{ transform: translateY(-3vh); }
+
       .layout{
         padding-top: calc(86px + env(safe-area-inset-top));
         padding-bottom: calc(96px + env(safe-area-inset-bottom));
       }
-      .center{ transform: translateY(-8vh); }  /* ↑ поднимаем только на телефоне */
-      .user{ font-size:34px; }
-      .spotCover{ width:46px; height:46px; }
-      .spotTitle,.spotArtist{ max-width:190px; }
+
+      .socialBar{
+        width: calc(100vw - 24px);
+        border-radius:24px;
+        padding:10px 10px;
+        gap:14px;
+      }
+      .social{ min-width:66px; padding:8px 8px 6px; border-radius:16px; }
+      .social i{ font-size:26px; }
+      .social span{ font-size:11px; }
     }
   </style>
 </head>
@@ -163,31 +213,53 @@
     function avgColorFromImage(url){
       return new Promise((resolve)=>{
         const img=new Image(); img.crossOrigin="anonymous";
-        img.onload=()=>{const c=document.createElement("canvas"),x=c.getContext("2d");c.width=c.height=40;x.drawImage(img,0,0,40,40);const d=x.getImageData(0,0,40,40).data;let r=0,g=0,b=0,n=0;for(let i=0;i<d.length;i+=4){r+=d[i];g+=d[i+1];b+=d[i+2];n++}resolve([Math.round(r/n),Math.round(g/n),Math.round(b/n)])};
+        img.onload=()=>{const c=document.createElement("canvas"),x=c.getContext("2d");c.width=c.height=40;x.drawImage(img,0,0,40,40);
+          const d=x.getImageData(0,0,40,40).data;let r=0,g=0,b=0,n=0;
+          for(let i=0;i<d.length;i+=4){r+=d[i];g+=d[i+1];b+=d[i+2];n++}
+          resolve([Math.round(r/n),Math.round(g/n),Math.round(b/n)])};
         img.onerror=()=>resolve(null); img.src=url;
       });
     }
     function makeAccent2([r,g,b]){ return [Math.min(255,Math.round(r*.55+60)),Math.min(255,Math.round(g*.75+40)),Math.min(255,Math.round(b*1.05))] }
-    async function setTheme(url){ const rgb=await avgColorFromImage(url); if(!rgb) return; const rgb2=makeAccent2(rgb); document.documentElement.style.setProperty("--accent",`${rgb[0]} ${rgb[1]} ${rgb[2]}`); document.documentElement.style.setProperty("--accent2",`${rgb2[0]} ${rgb2[1]} ${rgb2[2]}`) }
+    async function setTheme(url){
+      const rgb=await avgColorFromImage(url); if(!rgb) return;
+      const rgb2=makeAccent2(rgb);
+      document.documentElement.style.setProperty("--accent",`${rgb[0]} ${rgb[1]} ${rgb[2]}`);
+      document.documentElement.style.setProperty("--accent2",`${rgb2[0]} ${rgb2[1]} ${rgb2[2]}`);
+    }
 
     async function getNowPlaying(){
       try{
         const r=await fetch("/api/spotify",{cache:"no-store"}); const d=await r.json();
         if(!d.isPlaying){
           titleEl.textContent="Nothing playing"; artistEl.textContent=""; openEl.style.display="none";
-          eq.classList.add("paused"); label.textContent="Spotify"; liveDot.style.background="rgba(255,255,255,.35)"; liveDot.style.boxShadow="none"; lastKey=""; return;
+          eq.classList.add("paused"); label.textContent="Spotify";
+          liveDot.style.background="rgba(255,255,255,.35)"; liveDot.style.boxShadow="none";
+          lastKey=""; return;
         }
-        label.textContent="Now Playing"; liveDot.style.background="#34c759"; liveDot.style.boxShadow="0 0 18px rgba(52,199,89,.55)"; eq.classList.remove("paused");
+        label.textContent="Now Playing";
+        liveDot.style.background="#34c759"; liveDot.style.boxShadow="0 0 18px rgba(52,199,89,.55)";
+        eq.classList.remove("paused");
+
         const key=`${d.title}__${d.artist}__${d.cover}`; const changed=key!==lastKey;
         if(changed){
           cover.style.opacity="0"; setTimeout(()=>cover.src=d.cover||"",120);
           cover.onload=async()=>{cover.style.opacity="1"; if(d.cover) await setTheme(d.cover)}
-          titleEl.textContent=d.title||"Playing"; artistEl.textContent=d.artist||""; openEl.href=d.url||"https://open.spotify.com"; openEl.style.display="inline-flex"; lastKey=key;
+          titleEl.textContent=d.title||"Playing";
+          artistEl.textContent=d.artist||"";
+          openEl.href=d.url||"https://open.spotify.com";
+          openEl.style.display="inline-flex";
+          lastKey=key;
         } else {
-          if(!cover.src&&d.cover) cover.src=d.cover; if(titleEl.textContent!==d.title) titleEl.textContent=d.title||"Playing"; if(artistEl.textContent!==d.artist) artistEl.textContent=d.artist||""; openEl.href=d.url||"https://open.spotify.com"; openEl.style.display="inline-flex";
+          if(!cover.src&&d.cover) cover.src=d.cover;
+          if(titleEl.textContent!==d.title) titleEl.textContent=d.title||"Playing";
+          if(artistEl.textContent!==d.artist) artistEl.textContent=d.artist||"";
+          openEl.href=d.url||"https://open.spotify.com";
+          openEl.style.display="inline-flex";
         }
       }catch(e){
-        titleEl.textContent="Spotify error"; artistEl.textContent=""; openEl.style.display="none"; eq.classList.add("paused");
+        titleEl.textContent="Spotify error"; artistEl.textContent=""; openEl.style.display="none";
+        eq.classList.add("paused");
       }
     }
     getNowPlaying(); setInterval(getNowPlaying,10000);
