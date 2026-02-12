@@ -9,8 +9,8 @@
 
   <style>
     :root{
-      --accent: 155 81 255;        /* будет меняться от трека */
-      --accent2: 80 220 255;       /* доп оттенок */
+      --accent: 155 81 255;
+      --accent2: 80 220 255;
       --glass: rgba(255,255,255,.10);
       --border: rgba(255,255,255,.16);
       --text: rgba(255,255,255,.92);
@@ -24,12 +24,12 @@
       font-family: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
       color: var(--text);
       overflow:hidden;
-      background: #07070b;
+      background:#07070b;
       padding-top: env(safe-area-inset-top);
       padding-bottom: env(safe-area-inset-bottom);
     }
 
-    /* BACKGROUND = avatar blurred + dynamic accent glow */
+    /* Background */
     .bg{
       position:fixed; inset:0;
       background:url("avatar.jpg") center/cover no-repeat;
@@ -38,7 +38,7 @@
       z-index:-4;
     }
     .glow{
-      position:fixed; inset:-80px;
+      position:fixed; inset:-90px;
       z-index:-3;
       pointer-events:none;
       background:
@@ -56,7 +56,6 @@
       background-image:url("https://grainy-gradients.vercel.app/noise.svg");
     }
 
-    /* liquid glass feel */
     .glass{
       background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.06));
       border: 1px solid var(--border);
@@ -65,19 +64,20 @@
       box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,.20);
     }
 
-    /* SPOTIFY CARD */
+    /* Spotify card */
     .spotify{
       position:absolute;
       top:14px;
       left:50%;
       transform:translateX(-50%);
-      width:min(720px, 96vw);
+      width:min(760px, 96vw);
       padding:14px 16px;
       border-radius:22px;
       display:flex;
       align-items:center;
       gap:12px;
       overflow:hidden;
+      z-index:5;
     }
     .spotify::before{
       content:"";
@@ -98,7 +98,6 @@
       flex: 0 0 auto;
       transition: opacity .25s ease, transform .25s ease;
     }
-
     .spotMeta{
       min-width:0;
       display:flex;
@@ -106,7 +105,6 @@
       gap:3px;
       z-index:1;
     }
-
     .spotTop{
       display:flex;
       align-items:center;
@@ -121,7 +119,7 @@
       box-shadow: 0 0 18px rgba(52,199,89,.55);
     }
     .spotTitle{
-      font-weight:800;
+      font-weight:850;
       font-size:15px;
       white-space:nowrap;
       overflow:hidden;
@@ -145,15 +143,6 @@
       z-index:1;
     }
 
-    .spotIcon{
-      width:38px; height:38px;
-      display:grid; place-items:center;
-      border-radius:14px;
-      background: rgba(255,255,255,.07);
-      border:1px solid rgba(255,255,255,.12);
-    }
-    .spotIcon i{ color:#1DB954; font-size:18px; }
-
     /* mono equalizer */
     .eq{
       width:34px;
@@ -161,56 +150,67 @@
       display:flex;
       align-items:flex-end;
       gap:3px;
-      opacity:.90;
+      opacity:.92;
     }
     .eq span{
       width:4px;
       height:6px;
       border-radius:3px;
-      background: rgba(255,255,255,.85); /* однотонный */
-      box-shadow: 0 10px 30px rgba(255,255,255,.12);
-      transform-origin: bottom;
+      background: rgba(255,255,255,.86); /* однотонный */
       animation: bounce 0.9s ease-in-out infinite;
+      transform-origin: bottom;
     }
     .eq span:nth-child(2){ animation-delay:.12s; }
     .eq span:nth-child(3){ animation-delay:.24s; }
     .eq span:nth-child(4){ animation-delay:.36s; }
-
     @keyframes bounce{
-      0%,100%{ height:6px; opacity:.65; }
+      0%,100%{ height:6px; opacity:.60; }
       50%{ height:18px; opacity:1; }
     }
     .eq.paused span{ animation:none; height:6px; opacity:.55; }
 
-    .spotOpen{
+    /* Open + Spotify icon in one button */
+    .spotBtn{
+      display:none;
+      align-items:center;
+      gap:8px;
       text-decoration:none;
-      color: rgba(255,255,255,.85);
+      color: rgba(255,255,255,.88);
       padding:10px 12px;
       border-radius:14px;
       background: rgba(255,255,255,.07);
       border:1px solid rgba(255,255,255,.12);
       transition:.2s ease;
-      display:none;
+      white-space:nowrap;
     }
-    .spotOpen:hover{ transform: translateY(-1px); background: rgba(255,255,255,.10); }
+    .spotBtn i{ color:#1DB954; }
+    .spotBtn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.10); }
 
-    /* CENTER CONTENT */
+    /* Layout container (prevents overlaps) */
+    .layout{
+      position:relative;
+      height:100vh;
+      padding-top: calc(92px + env(safe-area-inset-top)); /* место под spotify */
+      padding-bottom: calc(108px + env(safe-area-inset-bottom)); /* место под соцбар */
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    /* Center */
     .center{
-      position:absolute;
-      left:50%;
-      top:50%;
-      transform:translate(-50%,-50%);
       width:min(520px, 92vw);
       display:flex;
       flex-direction:column;
       align-items:center;
-      gap:12px;
+      gap:10px;
       text-align:center;
     }
 
+    /* avatar smaller by default a bit (prevents fullscreen PC issues too) */
     .avatarCard{
-      width:min(460px, 92vw);
-      border-radius:28px;
+      width:min(360px, 86vw); /* было больше — теперь стабильнее */
+      border-radius:26px;
       overflow:hidden;
       position:relative;
     }
@@ -219,7 +219,7 @@
       position:absolute;
       inset:-60px;
       background:
-        radial-gradient(520px 260px at 20% 10%, rgba(255,255,255,.20), transparent 60%),
+        radial-gradient(520px 260px at 20% 10%, rgba(255,255,255,.18), transparent 60%),
         radial-gradient(520px 260px at 80% 90%, rgba(var(--accent), .14), transparent 60%);
       pointer-events:none;
       opacity:.9;
@@ -245,11 +245,16 @@
     }
     .oldline{
       margin-top:2px;
-      color: rgba(255,255,255,.62);
+      color: rgba(255,255,255,.78); /* сильнее контраст, чтобы не "пропадало" */
       font-size:12px;
+      padding: 6px 10px;
+      border-radius: 14px;
+      background: rgba(0,0,0,.18);
+      border: 1px solid rgba(255,255,255,.10);
+      display:inline-block;
     }
 
-    /* SOCIAL BAR (like before) */
+    /* Social bar */
     .socialBar{
       position:absolute;
       left:50%;
@@ -262,6 +267,7 @@
       justify-content:space-between;
       gap:18px;
       overflow:auto;
+      z-index:5;
     }
     .socialBar::-webkit-scrollbar{ height:0px; }
 
@@ -298,7 +304,7 @@
     .steam i{ color:#66C0F4; }
     .spotifyI i{ color:#1DB954; }
 
-    /* RESPONSIVE FIXES */
+    /* Mobile (iPhone 16 Pro Max friendly) */
     @media (max-width: 620px){
       .spotify{
         top: calc(12px + env(safe-area-inset-top));
@@ -307,24 +313,25 @@
         border-radius:20px;
       }
       .spotCover{ width:46px; height:46px; border-radius:14px; }
-      .spotTitle, .spotArtist{ max-width: 210px; }
+      .spotTitle, .spotArtist{ max-width: 190px; }
       .spotTitle{ font-size:13px; }
       .spotArtist{ font-size:12px; }
-      .spotIcon{ width:36px; height:36px; border-radius:14px; }
       .eq{ width:30px; height:16px; }
       .eq span{ width:3.5px; }
+      .spotBtn{ padding:9px 10px; border-radius:14px; }
 
-      /* ключевой фикс: чуть меньше аватар + центр ниже */
-      .center{
-        top: 54%;
-        gap:10px;
-      }
+      /* the important part: avatar 1.5x smaller on phone */
       .avatarCard{
-        width: min(420px, 92vw);
-        border-radius:24px;
+        width: min(280px, 74vw);   /* ~в 1.5 раза меньше */
+        border-radius:22px;
       }
       .user{ font-size:34px; }
       .welcome{ font-size:13px; }
+
+      .layout{
+        padding-top: calc(86px + env(safe-area-inset-top));
+        padding-bottom: calc(96px + env(safe-area-inset-bottom));
+      }
 
       .socialBar{
         width: calc(100vw - 24px);
@@ -341,9 +348,12 @@
       .social span{ font-size:11px; }
     }
 
+    /* very short height screens (Safari bars) */
     @media (max-height: 760px){
-      /* если экран низкий (айфон с Safari панелями) — ещё чуть ниже центр */
-      .center{ top: 56%; }
+      .layout{
+        padding-top: calc(92px + env(safe-area-inset-top));
+        padding-bottom: calc(118px + env(safe-area-inset-bottom));
+      }
     }
   </style>
 </head>
@@ -354,7 +364,7 @@
   <div class="grain"></div>
 
   <!-- Spotify Card -->
-  <div class="spotify glass" id="spotifyCard">
+  <div class="spotify glass">
     <img id="cover" class="spotCover" alt="cover"/>
     <div class="spotMeta">
       <div class="spotTop"><span class="liveDot" id="liveDot"></span><span id="label">Now Playing</span></div>
@@ -363,22 +373,23 @@
     </div>
 
     <div class="spotRight">
-      <div class="eq" id="eq">
-        <span></span><span></span><span></span><span></span>
-      </div>
-      <div class="spotIcon" aria-hidden="true"><i class="fa-brands fa-spotify"></i></div>
-      <a class="spotOpen" id="open" href="#" target="_blank">Open</a>
+      <div class="eq" id="eq"><span></span><span></span><span></span><span></span></div>
+      <a class="spotBtn" id="open" href="#" target="_blank">
+        <i class="fa-brands fa-spotify"></i><span>Open</span>
+      </a>
     </div>
   </div>
 
-  <!-- Center -->
-  <div class="center">
-    <div class="avatarCard glass">
-      <img class="avatarImg" src="avatar.jpg" alt="avatar">
+  <!-- Layout wrapper prevents overlap -->
+  <div class="layout">
+    <div class="center">
+      <div class="avatarCard glass">
+        <img class="avatarImg" src="avatar.jpg" alt="avatar">
+      </div>
+      <div class="user">@s1deed</div>
+      <div class="welcome">welcome to my bio:</div>
+      <div class="oldline">старый юз: @soogaci</div>
     </div>
-    <div class="user">@s1deed</div>
-    <div class="welcome">welcome to my bio:</div>
-    <div class="oldline">старый юз: @soogaci</div>
   </div>
 
   <!-- Social Bar -->
@@ -414,7 +425,6 @@
 
     let lastKey = "";
 
-    // average color -> [r,g,b]
     function avgColorFromImage(url){
       return new Promise((resolve) => {
         const img = new Image();
@@ -437,9 +447,7 @@
       });
     }
 
-    // build accent2 as a slightly shifted color
     function makeAccent2([r,g,b]){
-      // простая "сдвижка" чтобы получить второй оттенок
       const rr = Math.min(255, Math.round(r * 0.55 + 60));
       const gg = Math.min(255, Math.round(g * 0.75 + 40));
       const bb = Math.min(255, Math.round(b * 1.05));
@@ -459,7 +467,6 @@
         const r = await fetch("/api/spotify", { cache:"no-store" });
         const d = await r.json();
 
-        // nothing playing
         if(!d.isPlaying){
           titleEl.textContent = "Nothing playing";
           artistEl.textContent = "";
@@ -472,7 +479,6 @@
           return;
         }
 
-        // playing
         label.textContent = "Now Playing";
         liveDot.style.background = "#34c759";
         liveDot.style.boxShadow = "0 0 18px rgba(52,199,89,.55)";
@@ -482,12 +488,9 @@
         const changed = key !== lastKey;
 
         if (changed){
-          // cover fade
           cover.style.opacity = "0";
           cover.style.transform = "scale(0.98)";
-          setTimeout(() => {
-            cover.src = d.cover || "";
-          }, 140);
+          setTimeout(() => { cover.src = d.cover || ""; }, 140);
 
           cover.onload = async () => {
             cover.style.opacity = "1";
@@ -498,16 +501,14 @@
           titleEl.textContent = d.title || "Playing";
           artistEl.textContent = d.artist || "";
           openEl.href = d.url || "https://open.spotify.com";
-          openEl.style.display = "inline-block";
-
+          openEl.style.display = "inline-flex";
           lastKey = key;
         } else {
-          // same track
           if (!cover.src && d.cover) cover.src = d.cover;
           if (titleEl.textContent !== d.title) titleEl.textContent = d.title || "Playing";
           if (artistEl.textContent !== d.artist) artistEl.textContent = d.artist || "";
           openEl.href = d.url || "https://open.spotify.com";
-          openEl.style.display = "inline-block";
+          openEl.style.display = "inline-flex";
         }
       }catch(e){
         titleEl.textContent = "Spotify error";
@@ -522,3 +523,4 @@
   </script>
 </body>
 </html>
+
