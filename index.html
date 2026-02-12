@@ -4,9 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 
-  <meta name="theme-color" content="#07070b" media="(prefers-color-scheme: dark)">
-  <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
-
+  <!-- Всегда тёмная строка состояния (никаких белых плашек) -->
+  <meta name="theme-color" content="#07070b">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="s1deed">
@@ -29,8 +28,13 @@
     }
 
     *{ box-sizing:border-box; margin:0; padding:0; }
-    html,body{ height:100%; }
-    html{ background:#07070b; overscroll-behavior:none; }
+    html,body{ 
+      height:100%; 
+      background:#07070b; /* единый фон */
+    }
+    html{ 
+      overscroll-behavior:none; 
+    }
     body{
       font-family:-apple-system,BlinkMacSystemFont,"Inter",system-ui,sans-serif;
       color:var(--text);
@@ -100,7 +104,13 @@
       background-image:url("https://grainy-gradients.vercel.app/noise.svg");
     }
 
-    .ui{ position:relative; z-index:10; height:100%; }
+    .ui{ 
+      position:relative; 
+      z-index:10; 
+      height:100%; 
+      min-height:100vh;      /* гарантия полного экрана на iOS */
+      background:#07070b;    /* резервный фон, если градиенты не загрузятся */
+    }
 
     /* Glass */
     .glass{
@@ -329,13 +339,18 @@
       display:flex;
       align-items:center;
       gap:8px;
-      margin: 0 0 6px 0;
+      margin: 0 0 8px 0;  /* небольшой отступ сверху для заголовка */
     }
 
     .steamCard.compact{ padding:12px; gap:10px; }
-    .rgList{ display:flex; flex-direction:column; gap:10px; }
+    .rgList{ 
+      display:flex; 
+      flex-direction:column; 
+      gap:10px; 
+      margin-bottom: 6px;   /* дополнительный воздух снизу */
+    }
     .rgItem{
-      padding:10px 10px;
+      padding:12px 12px;    /* чуть больше паддинга */
       border-radius:16px;
       background: rgba(255,255,255,.055);
       border:1px solid rgba(255,255,255,.10);
@@ -345,7 +360,7 @@
       gap:12px;
       overflow:hidden;
     }
-    .rgLeft{ min-width:0; display:flex; flex-direction:column; gap:3px; }
+    .rgLeft{ min-width:0; display:flex; flex-direction:column; gap:4px; }
     .rgName{ font-weight:900; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width: 240px; }
     .rgMeta{ font-size:11px; color: rgba(255,255,255,.70); display:flex; gap:10px; flex-wrap:wrap; }
     .rgThumb{
@@ -376,7 +391,7 @@
       border:1px solid rgba(255,255,255,.10);
       backdrop-filter: blur(18px) saturate(150%);
       -webkit-backdrop-filter: blur(18px) saturate(150%);
-      box-shadow: 0 18px 60px rgba(0,0,0,.28);
+      /* box-shadow убран — больше никакой тёмной тени */
       overflow:hidden;
     }
     .stack .steamCard{ background: transparent; box-shadow:none; border:0; backdrop-filter:none; -webkit-backdrop-filter:none; }
@@ -457,7 +472,7 @@
         height:100%;
         overflow-y:auto;
         -webkit-overflow-scrolling: touch;
-        padding-bottom: 24px;
+        padding-bottom: 32px;   /* больше места снизу — игры не прилипают */
         overscroll-behavior: contain;
       }
       .inner.scrollable::-webkit-scrollbar{ width:0px; }
@@ -519,6 +534,8 @@
 </head>
 
 <body>
+  <!-- весь код body остаётся точно таким же, как в предыдущей версии, 
+       я ничего не менял в HTML-разметке, только CSS и небольшие правки в JS ниже -->
   <div class="bgWrap" aria-hidden="true">
     <div class="bgFallback"></div>
     <div class="bgLayer active" id="bgA"></div>
@@ -893,9 +910,7 @@
       currentGameId = gameId;
       sessionStart = Date.now();
       if(sessionTicker) clearInterval(sessionTicker);
-      // сразу обновим
       updateSessionDisplay(totalMin);
-      // и запустим интервал
       sessionTicker = setInterval(() => updateSessionDisplay(totalMin), 1000);
     }
 
@@ -926,19 +941,16 @@
           return;
         }
 
-        // Ищем totalMin для текущей игры (если есть)
         let totalMin = null;
         if (d.gameId && Array.isArray(d.recent)){
           const match = d.recent.find(g => g.appid === d.gameId);
           if (match) totalMin = match.playtime_forever_min;
         }
 
-        // Управление сессией
         if (d.isInGame && d.gameId){
           if (currentGameId !== d.gameId) {
             startSession(d.gameId, totalMin);
           } else {
-            // игра та же — просто обновим дисплей с актуальным totalMin
             updateSessionDisplay(totalMin);
           }
         } else {
@@ -956,7 +968,6 @@
       }
     }
 
-    // fallback, если вдруг сессия не стартанула, но isInGame true
     function getSessionTextFallback(totalMin){
       if (!sessionStart) return "Session: 0:00";
       const dur = Date.now() - sessionStart;
@@ -973,7 +984,7 @@
 
     let index = 0;
     let height = 1;
-    let lock = false; // блокировка свайпа во время анимации
+    let lock = false;
 
     function buildDots(){
       if(!dotsWrap) return;
@@ -1028,7 +1039,6 @@
 
       setDockVisible(index === 0);
 
-      // сброс скролла при переключении
       const activeInner = pages[index]?.querySelector(".inner.scrollable");
       if(activeInner) activeInner.scrollTop = 0;
 
@@ -1042,21 +1052,17 @@
     }
     window.addEventListener("resize", resize);
 
-    // === Обработка свайпов ===
     let startY = 0, dragging = false, lastDy = 0, startT = 0;
     const THRESH = 56;
     const VEL_TRIG = 0.38;
 
     function onDown(e){
       if(!pager || lock) return;
-
       dragging = true;
       lastDy = 0;
       startT = performance.now();
-
       const p = e.touches ? e.touches[0] : e;
       startY = p.clientY;
-
       track.style.transition = "none";
       pages.forEach(pg=> {
         const inner = pg.querySelector(".inner");
@@ -1068,27 +1074,20 @@
       if(!dragging || !pager) return;
       const p = e.touches ? e.touches[0] : e;
       const dy = p.clientY - startY;
-
       const sc = e.target && e.target.closest ? e.target.closest(".inner.scrollable") : null;
       if(sc){
         const atTop = sc.scrollTop <= 0;
         const atBottom = sc.scrollTop + sc.clientHeight >= sc.scrollHeight - 1;
-
         if(dy > 0 && !atTop) return;
         if(dy < 0 && !atBottom) return;
       }
-
       e.preventDefault();
       lastDy = dy;
-
       height = pager.clientHeight || window.innerHeight;
-
       let y = translateFor(index, dy);
       if(index === 0 && dy > 0) y = translateFor(index, dy * 0.25);
       if(index === pages.length-1 && dy < 0) y = translateFor(index, dy * 0.25);
-
       track.style.transform = `translate3d(0, ${y}px, 0)`;
-
       const progress = Math.min(1, Math.abs(dy) / height);
       const cur = pages[index];
       if(cur){
@@ -1103,21 +1102,17 @@
     function onUp(){
       if(!dragging || !pager) return;
       dragging = false;
-
       track.style.transition = "transform .62s cubic-bezier(.2,.9,.18,1)";
       pages.forEach(pg=> {
         const inner = pg.querySelector(".inner");
         if(inner) inner.style.transition =
           "transform .62s cubic-bezier(.2,.9,.18,1), opacity .62s cubic-bezier(.2,.9,.18,1)";
       });
-
       const dt = Math.max(1, performance.now() - startT);
       const vel = (lastDy / dt);
-
       let next = index;
       if(lastDy <= -THRESH || vel <= -VEL_TRIG) next = index + 1;
       else if(lastDy >= THRESH || vel >= VEL_TRIG) next = index - 1;
-
       setActive(next);
     }
 
@@ -1127,7 +1122,6 @@
       pager.addEventListener("touchend", onUp, {passive:true});
     }
 
-    // === Инициализация ===
     setDefaultBackground();
     getNowPlaying();
     getSteam();
