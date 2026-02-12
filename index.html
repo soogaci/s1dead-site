@@ -15,14 +15,19 @@
       /* динамический фон: по умолчанию аватарка */
       --bg: url("avatar.jpg");
 
-      --glass: rgba(255,255,255,.10);
       --border: rgba(255,255,255,.16);
       --text: rgba(255,255,255,.92);
       --muted: rgba(255,255,255,.70);
       --shadow: 0 22px 70px rgba(0,0,0,.45);
 
+      /* liquid motion */
       --mx: 0px;
       --my: 0px;
+
+      /* avatar tilt */
+      --tiltX: 0deg;
+      --tiltY: 0deg;
+      --tiltZ: 0px;
     }
 
     *{ box-sizing:border-box; margin:0; padding:0; }
@@ -98,6 +103,39 @@
       backdrop-filter: blur(22px) saturate(160%);
       -webkit-backdrop-filter: blur(22px) saturate(160%);
       box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,.20);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* (4) Glass highlight sweep */
+    .shine::after{
+      content:"";
+      position:absolute;
+      inset:-120px;
+      background:
+        linear-gradient(110deg,
+          transparent 30%,
+          rgba(255,255,255,.18) 45%,
+          rgba(255,255,255,.06) 55%,
+          transparent 70%);
+      transform: translateX(-60%) rotate(8deg);
+      opacity:0;
+      pointer-events:none;
+    }
+    @media (hover:hover){
+      .shine:hover::after{
+        opacity:1;
+        animation: sweep 1.05s ease;
+      }
+    }
+    .shine.sweepOnce::after{
+      opacity:1;
+      animation: sweep 1.05s ease;
+    }
+    @keyframes sweep{
+      0%{ transform: translateX(-70%) rotate(8deg); opacity:0; }
+      15%{ opacity:1; }
+      100%{ transform: translateX(70%) rotate(8deg); opacity:0; }
     }
 
     /* ===== Spotify card ===== */
@@ -113,7 +151,6 @@
       align-items:center;
       gap:12px;
       z-index:6;
-      overflow:hidden;
     }
     .spotify::before{
       content:"";
@@ -144,6 +181,7 @@
       flex-direction:column;
       gap:3px;
       z-index:1;
+      flex: 1 1 auto;
     }
 
     .spotTop{
@@ -188,6 +226,7 @@
       align-items:center;
       gap:10px;
       z-index:1;
+      flex: 0 0 auto;
     }
 
     /* mono equalizer */
@@ -228,10 +267,44 @@
       border:1px solid rgba(255,255,255,.12);
       background:rgba(255,255,255,.07);
       white-space:nowrap;
-      transition:.2s ease;
+      transition:.18s ease;
     }
     .spotBtn i{ color:#1DB954; }
     .spotBtn:hover{ transform: translateY(-1px); background:rgba(255,255,255,.10); }
+
+    /* (7) Progress bar (hidden unless API provides data) */
+    .progressWrap{
+      margin-top:8px;
+      height:10px;
+      display:none;
+      align-items:center;
+      gap:10px;
+    }
+    .progressTrack{
+      position:relative;
+      height:6px;
+      width: min(520px, 62vw);
+      border-radius:999px;
+      background: rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.10);
+      overflow:hidden;
+    }
+    .progressFill{
+      position:absolute;
+      left:0; top:0; bottom:0;
+      width:0%;
+      border-radius:999px;
+      background: rgba(255,255,255,.78);
+      box-shadow: 0 10px 30px rgba(255,255,255,.14);
+      transition: width .35s ease;
+    }
+    .progressTime{
+      font-size:11px;
+      color: rgba(255,255,255,.65);
+      min-width: 84px;
+      text-align:right;
+      font-variant-numeric: tabular-nums;
+    }
 
     /* ===== Layout ===== */
     .layout{
@@ -259,6 +332,10 @@
       border-radius:26px;
       overflow:hidden;
       position:relative;
+      transform-style: preserve-3d;
+      will-change: transform;
+      transform: perspective(900px) rotateX(var(--tiltX)) rotateY(var(--tiltY)) translateZ(var(--tiltZ));
+      transition: transform .12s ease;
     }
     .avatarCard::before{
       content:"";
@@ -304,11 +381,11 @@
       z-index:6;
 
       display:flex;
-      justify-content:space-between;  /* на ПК: как раньше */
+      justify-content:space-between;  /* ПК: на всю ширину */
       align-items:center;
       gap:18px;
 
-      overflow:hidden; /* на ПК без скролла */
+      overflow:hidden;
     }
 
     .social{
@@ -323,11 +400,19 @@
       text-decoration:none;
       color:#fff;
       transition: transform .18s ease, background .18s ease;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
     }
     .social:hover{
       transform: translateY(-3px);
       background: rgba(255,255,255,.08);
     }
+    /* (6) tap animation */
+    .social.tap{
+      transform: translateY(0) scale(.965);
+      background: rgba(255,255,255,.10);
+    }
+
     .social i{
       font-size:28px;
       filter: drop-shadow(0 8px 18px rgba(0,0,0,.35));
@@ -360,6 +445,9 @@
       .eq span{ width:3.5px; }
       .spotBtn{ padding:9px 10px; border-radius:14px; }
 
+      .progressTrack{ width: min(330px, 56vw); }
+      .progressTime{ min-width: 70px; }
+
       .layout{
         padding-top: calc(86px + env(safe-area-inset-top));
         padding-bottom: calc(96px + env(safe-area-inset-bottom));
@@ -371,6 +459,9 @@
       }
       .user{ font-size:34px; }
       .welcome{ font-size:13px; }
+
+      /* чуть-чуть повыше на iPhone (как ты просил) */
+      .center{ transform: translateY(-1.6vh); }
 
       /* док на телефоне: скролл */
       .socialBar{
@@ -419,13 +510,22 @@
   <div class="grain"></div>
 
   <!-- Spotify Card -->
-  <div class="spotify glass">
+  <div class="spotify glass shine" id="spotifyCard">
     <img id="cover" class="spotCover" alt="cover"/>
     <div class="spotMeta">
       <div class="spotTop"><span class="liveDot" id="liveDot"></span><span id="label">Now Playing</span></div>
       <div class="spotTitle swap-in" id="title">Loading…</div>
       <div class="spotArtist swap-in" id="artist"></div>
+
+      <!-- (7) progress (optional) -->
+      <div class="progressWrap" id="progressWrap">
+        <div class="progressTrack">
+          <div class="progressFill" id="progressFill"></div>
+        </div>
+        <div class="progressTime" id="progressTime">0:00 / 0:00</div>
+      </div>
     </div>
+
     <div class="spotRight">
       <div class="eq" id="eq"><span></span><span></span><span></span><span></span></div>
       <a class="spotBtn" id="open" href="#" target="_blank"><i class="fa-brands fa-spotify"></i><span>Open</span></a>
@@ -434,7 +534,7 @@
 
   <div class="layout">
     <div class="center">
-      <div class="avatarCard glass">
+      <div class="avatarCard glass shine" id="avatarCard">
         <img class="avatarImg" src="avatar.jpg" alt="avatar">
       </div>
       <div class="user">@s1deed</div>
@@ -443,7 +543,7 @@
   </div>
 
   <!-- Social dock -->
-  <div class="socialBar glass" id="socialBar">
+  <div class="socialBar glass shine" id="socialBar">
     <a class="social telegram" href="https://t.me/s1deed" target="_blank"><i class="fa-brands fa-telegram"></i><span>Telegram</span></a>
     <a class="social tiktok" href="https://www.tiktok.com/@s1deeed?_r=1&_t=ZS-92QwHlSQe4j" target="_blank"><i class="fa-brands fa-tiktok"></i><span>TikTok</span></a>
     <a class="social discord" href="https://discord.gg/DuJNA7z2" target="_blank"><i class="fa-brands fa-discord"></i><span>Discord</span></a>
@@ -453,6 +553,16 @@
   </div>
 
   <script>
+    // ===== (4) Trigger shine on tap (mobile) =====
+    function sweepOnce(el){
+      if(!el) return;
+      el.classList.remove("sweepOnce");
+      // force reflow
+      void el.offsetWidth;
+      el.classList.add("sweepOnce");
+      setTimeout(()=> el.classList.remove("sweepOnce"), 1100);
+    }
+
     // ===== liquid movement (mouse + touch) =====
     function setMotion(clientX, clientY){
       const x = (clientX / window.innerWidth - 0.5) * 18;
@@ -466,6 +576,63 @@
       setMotion(e.touches[0].clientX, e.touches[0].clientY);
     }, {passive:true});
 
+    // ===== (3) Avatar tilt/parallax =====
+    const avatarCard = document.getElementById("avatarCard");
+
+    function setTiltFromPoint(x, y){
+      const rect = avatarCard.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const dx = (x - cx) / rect.width;   // -0.5..0.5-ish
+      const dy = (y - cy) / rect.height;
+      const max = 8; // degrees
+      const tiltY = dx * max;     // rotateY
+      const tiltX = -dy * max;    // rotateX
+      document.documentElement.style.setProperty("--tiltX", tiltX.toFixed(2) + "deg");
+      document.documentElement.style.setProperty("--tiltY", tiltY.toFixed(2) + "deg");
+      document.documentElement.style.setProperty("--tiltZ", "6px");
+    }
+
+    function resetTilt(){
+      document.documentElement.style.setProperty("--tiltX", "0deg");
+      document.documentElement.style.setProperty("--tiltY", "0deg");
+      document.documentElement.style.setProperty("--tiltZ", "0px");
+    }
+
+    if (avatarCard){
+      // desktop
+      avatarCard.addEventListener("mousemove", (e)=> setTiltFromPoint(e.clientX, e.clientY));
+      avatarCard.addEventListener("mouseleave", resetTilt);
+
+      // mobile touch (soft)
+      avatarCard.addEventListener("touchstart", ()=> { sweepOnce(avatarCard); }, {passive:true});
+      avatarCard.addEventListener("touchmove", (e)=>{
+        if(!e.touches || !e.touches[0]) return;
+        setTiltFromPoint(e.touches[0].clientX, e.touches[0].clientY);
+      }, {passive:true});
+      avatarCard.addEventListener("touchend", resetTilt, {passive:true});
+    }
+
+    // ===== (6) Tap animation + optional haptic on socials =====
+    const socials = document.querySelectorAll(".social");
+    socials.forEach(a=>{
+      a.addEventListener("pointerdown", ()=>{
+        a.classList.add("tap");
+        // optional haptic (works on some devices)
+        if (navigator.vibrate) navigator.vibrate(12);
+      }, {passive:true});
+      const clear = ()=> a.classList.remove("tap");
+      a.addEventListener("pointerup", clear, {passive:true});
+      a.addEventListener("pointercancel", clear, {passive:true});
+      a.addEventListener("touchstart", ()=> sweepOnce(document.getElementById("socialBar")), {passive:true});
+    });
+
+    // shine on spotify tap too
+    const spotifyCard = document.getElementById("spotifyCard");
+    if (spotifyCard){
+      spotifyCard.addEventListener("touchstart", ()=> sweepOnce(spotifyCard), {passive:true});
+    }
+
     // ===== Spotify Now Playing + dynamic theme + dynamic background =====
     const cover = document.getElementById("cover");
     const titleEl = document.getElementById("title");
@@ -475,7 +642,14 @@
     const liveDot = document.getElementById("liveDot");
     const label = document.getElementById("label");
 
+    // (7) progress elements
+    const progressWrap = document.getElementById("progressWrap");
+    const progressFill = document.getElementById("progressFill");
+    const progressTime = document.getElementById("progressTime");
+
     let lastKey = "";
+    let tickTimer = null;
+    let progressState = null; // {startTs, progressMs, durationMs}
     const DEFAULT_BG = 'url("avatar.jpg")';
 
     function avgColorFromImage(url){
@@ -513,10 +687,8 @@
 
     function setBackground(urlOrNull){
       if(urlOrNull){
-        // фон = обложка
         document.documentElement.style.setProperty("--bg", `url("${urlOrNull}")`);
       } else {
-        // fallback фон = аватарка
         document.documentElement.style.setProperty("--bg", DEFAULT_BG);
       }
     }
@@ -529,6 +701,45 @@
       el.textContent = newText;
       el.classList.remove("swap-out");
       el.classList.add("swap-in");
+    }
+
+    function fmt(ms){
+      if (typeof ms !== "number" || !isFinite(ms)) return "0:00";
+      const s = Math.max(0, Math.floor(ms/1000));
+      const m = Math.floor(s/60);
+      const r = s%60;
+      return `${m}:${String(r).padStart(2,"0")}`;
+    }
+
+    function stopProgressTicker(){
+      if (tickTimer) clearInterval(tickTimer);
+      tickTimer = null;
+      progressState = null;
+      if (progressWrap) progressWrap.style.display = "none";
+    }
+
+    function startProgressTicker(progressMs, durationMs){
+      if (!progressWrap || !progressFill || !progressTime) return;
+      if (typeof progressMs !== "number" || typeof durationMs !== "number" || durationMs <= 0) {
+        progressWrap.style.display = "none";
+        return;
+      }
+
+      progressWrap.style.display = "flex";
+      progressState = { startTs: Date.now(), progressMs, durationMs };
+
+      const render = ()=>{
+        if (!progressState) return;
+        const elapsed = Date.now() - progressState.startTs;
+        const cur = Math.min(progressState.durationMs, progressState.progressMs + elapsed);
+        const pct = Math.max(0, Math.min(100, (cur / progressState.durationMs) * 100));
+        progressFill.style.width = pct.toFixed(2) + "%";
+        progressTime.textContent = `${fmt(cur)} / ${fmt(progressState.durationMs)}`;
+      };
+
+      render();
+      if (tickTimer) clearInterval(tickTimer);
+      tickTimer = setInterval(render, 400);
     }
 
     async function getNowPlaying(){
@@ -546,7 +757,8 @@
           liveDot.style.boxShadow = "none";
           lastKey = "";
           cover.removeAttribute("src");
-          setBackground(null); // возвращаем аватар как фон
+          setBackground(null);
+          stopProgressTicker();
           return;
         }
 
@@ -558,6 +770,14 @@
         const key = `${d.title}__${d.artist}__${d.cover}`;
         const changed = key !== lastKey;
 
+        // (7) progress — only if your API returns progressMs & durationMs
+        // if not present -> hidden automatically
+        if (typeof d.progressMs === "number" && typeof d.durationMs === "number"){
+          startProgressTicker(d.progressMs, d.durationMs);
+        } else {
+          stopProgressTicker();
+        }
+
         if(changed){
           cover.style.opacity = "0";
           cover.style.transform = "scale(0.98)";
@@ -567,8 +787,8 @@
             cover.style.opacity = "1";
             cover.style.transform = "scale(1)";
             if(d.cover){
-              setBackground(d.cover);        // ✅ фон = обложка
-              await setThemeFromCover(d.cover); // ✅ акценты = обложка
+              setBackground(d.cover);
+              await setThemeFromCover(d.cover);
             }
           };
 
@@ -578,6 +798,9 @@
           openEl.href = d.url || "https://open.spotify.com";
           openEl.style.display = "inline-flex";
           lastKey = key;
+
+          // small shine on track change
+          sweepOnce(spotifyCard);
         } else {
           if(!cover.src && d.cover) cover.src = d.cover;
           if(titleEl.textContent !== d.title) titleEl.textContent = d.title || "Playing";
@@ -591,7 +814,8 @@
         await animateSwap(artistEl, "");
         openEl.style.display = "none";
         eq.classList.add("paused");
-        setBackground(null); // fallback на аватар
+        setBackground(null);
+        stopProgressTicker();
       }
     }
 
