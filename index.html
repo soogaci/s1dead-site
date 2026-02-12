@@ -285,7 +285,6 @@
     .steamLogo i{ color:#66C0F4; font-size:22px; }
     .steamLabel{ font-size:12px; color:rgba(255,255,255,.70); }
 
-    /* ✅ ник + мини кнопка рядом */
     .steamNameRow{ display:flex; align-items:center; gap:10px; min-width:0; }
     .steamPersona{ font-size:14px; font-weight:850; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:210px; }
 
@@ -335,7 +334,7 @@
       margin: 2px 0 6px;
     }
 
-    /* ✅ Recently played compact */
+    /* Recently played compact */
     .steamCard.compact{ padding:12px; gap:10px; }
     .rgList{ display:flex; flex-direction:column; gap:10px; }
     .rgItem{
@@ -414,8 +413,6 @@
         bottom: calc(86px + env(safe-area-inset-bottom));
         overflow:hidden;
         padding: 0 14px;
-
-        /* ✅ swipe reliable iOS */
         touch-action: none;
       }
 
@@ -447,12 +444,22 @@
                     opacity .62s cubic-bezier(.2,.9,.18,1);
       }
 
+      /* ✅ СДВИНУЛ ВСЕ СТРИМ/ТЕСТ-СТРАНИЦЫ НИЖЕ, ЧТОБ НЕ СЪЕДАЛОСЬ */
+      .mPage[data-index="1"] .inner,
+      .mPage[data-index="2"] .inner,
+      .mPage[data-index="3"] .inner{
+        padding-top: 10px; /* было 0 — теперь ниже */
+      }
+
       .inner.scrollable{
         height:100%;
         overflow-y:auto;
         -webkit-overflow-scrolling: touch;
         padding-bottom: 24px;
         overscroll-behavior: contain;
+
+        /* ✅ чтобы iOS-оверлей справа меньше бросался в глаза */
+        padding-right: 18px;
       }
       .inner.scrollable::-webkit-scrollbar{ width:0px; }
 
@@ -471,6 +478,7 @@
       .user{ font-size:28.8px; }
       .welcome{ font-size:12px; padding:7px 11px; }
 
+      /* ✅ ВАЖНО: УБРАЛ ПОЛНОСТЬЮ "ПЛАШКУ/ФОН" У ТОЧЕК (это и было затемнение) */
       .pageDots{
         display:flex;
         position:fixed;
@@ -479,16 +487,28 @@
         transform: translateY(-50%);
         z-index:31;
         flex-direction:column;
-        gap:10px;
-        padding:10px 8px;
-        border-radius:18px;
-        background: rgba(255,255,255,.06);
-        border:1px solid rgba(255,255,255,.10);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
+        gap:9px;
+        padding:0;
+        border-radius:0;
+        background: transparent;
+        border: none;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        pointer-events:none;
       }
-      .dot{ width:8px;height:8px;border-radius:99px; background: rgba(255,255,255,.35); opacity:.45; transition:.25s ease; }
-      .dot.active{ opacity:1; background: rgba(255,255,255,.90); transform: scale(1.15); }
+
+      /* ✅ точки меньше + прозрачнее */
+      .dot{
+        width:6px;height:6px;border-radius:99px;
+        background: rgba(255,255,255,.60);
+        opacity:.20;
+        transition:.25s ease;
+      }
+      .dot.active{
+        opacity:.70;
+        background: rgba(255,255,255,.92);
+        transform: scale(1.12);
+      }
     }
 
     .dockHidden{
@@ -960,7 +980,6 @@
       }
     }
 
-    /* ✅ УБРАЛИ “peek” полностью: шаг = ровно высота контейнера */
     function translateFor(i, extraDy=0){
       const step = Math.max(1, height);
       return (-i * step) + extraDy;
