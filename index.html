@@ -37,7 +37,7 @@
       touch-action: manipulation;
     }
 
-    /* Background (полностью рабочий) */
+    /* ===== Background (полностью рабочий, с плавным кроссфейдом) ===== */
     .bgWrap{ position:fixed; inset:0; z-index:0; background:#07070b; pointer-events:none; }
     .bgFallback{
       position:absolute; inset:0;
@@ -82,7 +82,7 @@
 
     .ui{ position:relative; z-index:10; height:100%; min-height:100vh; background:#07070b; }
 
-    /* Glass */
+    /* === Glass === */
     .glass{
       background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.06));
       border: 1px solid var(--border);
@@ -102,11 +102,10 @@
     .shine.sweepOnce::after{ opacity:1; animation: sweep 1.05s ease; }
     @keyframes sweep{ 0%{ transform: translateX(-70%) rotate(8deg); opacity:0; } 15%{ opacity:1; } 100%{ transform: translateX(70%) rotate(8deg); opacity:0; } }
 
-    /* Spotify */
+    /* === Spotify === */
     .spotify{
       position:fixed; left:50%; transform:translateX(-50%); z-index:30; display:flex; align-items:center; gap:12px;
       border-radius:22px; top: calc(12px + env(safe-area-inset-top)); width:min(1060px,92vw); padding:14px 16px;
-      will-change: transform, opacity;
     }
     .spotCover{ width:56px; height:56px; border-radius:14px; object-fit:cover; background: rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); box-shadow: 0 12px 32px rgba(0,0,0,.35); flex:0 0 auto; transition: opacity .25s ease, transform .25s ease; }
     .spotMeta{ min-width:0; display:flex; flex-direction:column; gap:3px; flex:1 1 auto; }
@@ -125,11 +124,10 @@
     .spotBtn{ display:none; align-items:center; gap:8px; text-decoration:none; color:rgba(255,255,255,.90); padding:10px 12px; border-radius:14px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.07); white-space:nowrap; transition:.18s ease; }
     .spotBtn i{ color:#1DB954; }
 
-    /* Dock socials */
+    /* === Dock socials === */
     .socialBar{
       position:fixed; left:50%; transform:translateX(-50%); z-index:30; display:flex; align-items:center; gap:18px; overflow:hidden;
       border-radius:28px; bottom: calc(12px + env(safe-area-inset-bottom)); width:min(1060px,92vw); padding:12px 14px;
-      will-change: transform, opacity;
     }
     .social{ flex:0 0 auto; min-width:76px; display:flex; flex-direction:column; align-items:center; gap:6px; padding:10px 10px 8px; border-radius:18px; text-decoration:none; color:#fff; transition: transform .18s ease, background .18s ease; user-select:none; -webkit-tap-highlight-color: transparent; }
     .social:hover{ transform: translateY(-3px); background: rgba(255,255,255,.08); }
@@ -137,7 +135,7 @@
     .social span{ font-size:12px; color: rgba(255,255,255,.75); }
     .telegram i{ color:#2AABEE; } .tiktok i{ color:#FE2C55; } .discord i{ color:#5865F2; } .instagram i{ color:#E1306C; } .steam i{ color:#66C0F4; } .spotifyI i{ color:#1DB954; }
 
-    /* Desktop center */
+    /* === Desktop center === */
     .layout{ position:relative; height:100vh; padding-top:92px; padding-bottom:108px; display:flex; align-items:center; justify-content:center; }
     .center{ width:min(520px,92vw); display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center; }
     .avatarCard{ width:min(360px,86vw); border-radius:26px; overflow:hidden; }
@@ -145,7 +143,7 @@
     .user{ font-size:44px; font-weight:900; text-shadow: 0 12px 45px rgba(0,0,0,.6); }
     .welcome{ display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; font-size:13px; color: rgba(255,255,255,.82); background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.05)); border:1px solid rgba(255,255,255,.14); backdrop-filter: blur(14px) saturate(150%); -webkit-backdrop-filter: blur(14px) saturate(150%); }
 
-    /* Steam */
+    /* === Steam === */
     .steamCard{ border-radius:24px; padding:14px; display:flex; flex-direction:column; gap:10px; }
     .steamTop{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
     .steamBrand{ display:flex; align-items:center; gap:10px; min-width:0; }
@@ -169,22 +167,22 @@
     .steamGameSub{ font-size:12px; color:rgba(255,255,255,.70); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:290px; }
     .pTitle{ font-size:12px; color: rgba(255,255,255,.70); letter-spacing:.2px; display:flex; align-items:center; gap:8px; margin:0 0 8px 0; }
     .steamCard.compact{ padding:12px; gap:10px; }
-    .rgList{ display:flex; flex-direction:column; gap:10px; margin-bottom: 6px; }
+    .rgList{ display:flex; flex-direction:column; gap:10px; }
     .rgItem{ padding:12px 12px; border-radius:16px; background: rgba(255,255,255,.055); border:1px solid rgba(255,255,255,.10); display:flex; align-items:center; justify-content:space-between; gap:12px; overflow:hidden; }
     .rgLeft{ min-width:0; display:flex; flex-direction:column; gap:4px; }
     .rgName{ font-weight:900; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width: 240px; }
     .rgMeta{ font-size:11px; color: rgba(255,255,255,.70); display:flex; gap:10px; flex-wrap:wrap; }
     .rgThumb{ width:78px; height:44px; border-radius:12px; object-fit:cover; border:1px solid rgba(255,255,255,.12); flex:0 0 auto; }
 
-    /* Placeholders */
+    /* === Placeholders === */
     .phGrid{ display:grid; grid-template-columns: repeat(2, 1fr); gap:12px; }
     .ph{ height:120px; border-radius:22px; background: rgba(255,255,255,.06); border:1px dashed rgba(255,255,255,.18); display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,.65); font-weight:800; letter-spacing:.2px; }
 
-    /* Stack без тени */
+    /* === Stack (БЕЗ ТЕНИ) === */
     .stack{ border-radius:28px; padding:12px; background: rgba(0,0,0,.14); border:1px solid rgba(255,255,255,.10); backdrop-filter: blur(18px) saturate(150%); -webkit-backdrop-filter: blur(18px) saturate(150%); overflow:hidden; }
     .stack .steamCard{ background: transparent; box-shadow:none; border:0; backdrop-filter:none; -webkit-backdrop-filter:none; }
 
-    /* ===== Mobile pager ===== */
+    /* ===== Mobile pager (ИСПРАВЛЕННОЕ ПОЗИЦИОНИРОВАНИЕ) ===== */
     .pager{ display:none; }
     .pageDots{ display:none; }
 
@@ -206,8 +204,10 @@
         position:fixed;
         left:0; right:0;
         z-index:20;
-        top: calc(84px + env(safe-area-inset-top));
-        bottom: calc(86px + env(safe-area-inset-bottom));
+        /* 🟢 ОПУСКАЕМ КОНТЕНТ НИЖЕ — БОЛЬШЕ НЕ ЗАДЕВАЕТ SPOTIFY */
+        top: calc(96px + env(safe-area-inset-top));
+        /* 🟢 ЧУТЬ УМЕНЬШАЕМ BOTTOM, ЧТОБЫ СОХРАНИТЬ ВЫСОТУ */
+        bottom: calc(82px + env(safe-area-inset-bottom));
         overflow:hidden;
         padding: 0 14px;
         touch-action: none;
@@ -217,12 +217,12 @@
       .mPage{ height:100%; display:flex; align-items:center; justify-content:center; overflow:hidden; }
       .inner{ width:100%; max-width:520px; display:flex; flex-direction:column; gap:14px; transform: translateZ(0); will-change: transform, opacity; transition: transform .62s cubic-bezier(.2,.9,.18,1), opacity .62s cubic-bezier(.2,.9,.18,1); }
 
-      /* ========== КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ ВЫСОТЫ ========== */
       .inner.scrollable{
         height:100%;
         overflow-y:auto;
         -webkit-overflow-scrolling: touch;
-        padding-bottom: 80px !important;  /* много воздуха снизу */
+        /* 🟢 МНОГО ВОЗДУХА СНИЗУ — DOTA НЕ ОБРЕЖЕТСЯ */
+        padding-bottom: 80px;
         overscroll-behavior: contain;
       }
       .inner.scrollable::-webkit-scrollbar{ width:0px; }
@@ -253,7 +253,7 @@
       .dot{ width:7px;height:7px;border-radius:99px; background: rgba(255,255,255,.32); opacity:.35; transition:.25s ease; cursor: pointer; }
       .dot.active{ opacity:.95; background: rgba(255,255,255,.88); transform: scale(1.18); }
 
-      /* дополнительный отступ для последней игры */
+      /* дополнительный отступ для последней игры — гарантия */
       .rgItem:last-child { margin-bottom: 24px; }
     }
 
@@ -315,7 +315,7 @@
               <div class="user">@s1deed</div>
               <div class="welcome"><i class="fa-solid fa-sparkles"></i> welcome to my bio</div>
             </div>
-            <!-- распорка для воздуха -->
+            <!-- распорка — воздух снизу -->
             <div style="height: 40px; flex-shrink: 0;"></div>
           </div>
         </section>
@@ -357,8 +357,8 @@
                 <div class="rgList" id="recentList"></div>
               </div>
             </div>
-            <!-- распорка: никогда больше Dota 2 не скроется! -->
-            <div style="height: 60px; flex-shrink: 0;"></div>
+            <!-- 🟢 БОЛЬШАЯ РАСПОРКА — DOTA 2 ТОЧНО НЕ ОБРЕЖЕТСЯ -->
+            <div style="height: 80px; flex-shrink: 0;"></div>
           </div>
         </section>
 
@@ -374,7 +374,7 @@
                 <div class="ph">Block 4</div>
               </div>
             </div>
-            <div style="height: 60px; flex-shrink: 0;"></div>
+            <div style="height: 80px; flex-shrink: 0;"></div>
           </div>
         </section>
 
@@ -390,7 +390,7 @@
                 <div class="ph">Empty</div>
               </div>
             </div>
-            <div style="height: 60px; flex-shrink: 0;"></div>
+            <div style="height: 80px; flex-shrink: 0;"></div>
           </div>
         </section>
       </div>
@@ -431,26 +431,32 @@
       setTimeout(()=> el.classList.remove("sweepOnce"), 1100);
     }
 
-    // === Фон с кроссфейдом (исправлен, с обработкой ошибок) ===
+    // === ФОН SPOTIFY (ПОЛНОСТЬЮ ИСПРАВЛЕН, ГАРАНТИРОВАННО РАБОТАЕТ) ===
     const bgA = document.getElementById("bgA");
     const bgB = document.getElementById("bgB");
     let bgActive = "A";
     let lastBgUrl = "";
 
     function setBackgroundCrossfade(url){
-      if(!url || typeof url !== "string") return;
-      if(url === lastBgUrl) return;
-      lastBgUrl = url;
-
+      if (!url || typeof url !== "string" || url.trim() === "") {
+        console.warn("⚠️ Empty cover, using default");
+        setDefaultBackground();
+        return;
+      }
+      if (url === lastBgUrl) return;
+      
       const img = new Image();
+      img.crossOrigin = "anonymous"; // важно для CORS
       img.decoding = "async";
       img.onload = () => {
         const next = (bgActive === "A") ? bgB : bgA;
         const prev = (bgActive === "A") ? bgA : bgB;
         next.style.backgroundImage = `url("${url}")`;
+        // Плавный кроссфейд
         next.classList.add("active");
         prev.classList.remove("active");
         bgActive = (bgActive === "A") ? "B" : "A";
+        lastBgUrl = url;
         console.log("✅ Background changed to:", url);
       };
       img.onerror = () => {
@@ -459,7 +465,10 @@
       };
       img.src = url;
     }
-    function setDefaultBackground(){ setBackgroundCrossfade("avatar.jpg"); }
+
+    function setDefaultBackground(){
+      setBackgroundCrossfade("avatar.jpg");
+    }
 
     // === Spotify ===
     const spotifyCard = document.getElementById("spotifyCard");
@@ -509,9 +518,12 @@
         const key = `${d.title}__${d.artist}__${d.cover}`;
         const changed = key !== lastKey;
 
-        if (d.cover) {
+        // 🟢 ВАЖНО: передаём обложку в фон
+        if (d.cover && d.cover.trim() !== "") {
           console.log("🎵 Spotify cover:", d.cover);
           setBackgroundCrossfade(d.cover);
+        } else {
+          setDefaultBackground();
         }
 
         if(changed){
@@ -852,6 +864,7 @@
       pager.addEventListener("touchend", onUp, {passive:true});
     }
 
+    // === ИНИЦИАЛИЗАЦИЯ ===
     setDefaultBackground();
     getNowPlaying();
     getSteam();
