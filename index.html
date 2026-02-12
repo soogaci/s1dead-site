@@ -20,11 +20,9 @@
       --muted: rgba(255,255,255,.70);
       --shadow: 0 22px 70px rgba(0,0,0,.45);
 
-      /* liquid motion */
       --mx: 0px;
       --my: 0px;
 
-      /* avatar tilt */
       --tiltX: 0deg;
       --tiltY: 0deg;
       --tiltZ: 0px;
@@ -41,7 +39,7 @@
       padding-bottom: env(safe-area-inset-bottom);
     }
 
-    /* ===== Background (NOW dynamic) ===== */
+    /* ===== Background (dynamic) ===== */
     .bg{
       position:fixed; inset:0;
       background-image: var(--bg);
@@ -54,7 +52,6 @@
       transition: filter .35s ease;
     }
 
-    /* dynamic glow (from accent vars) */
     .glow{
       position:fixed; inset:-90px;
       z-index:-4;
@@ -107,7 +104,7 @@
       overflow: hidden;
     }
 
-    /* (4) Glass highlight sweep */
+    /* glass highlight sweep */
     .shine::after{
       content:"";
       position:absolute;
@@ -272,7 +269,7 @@
     .spotBtn i{ color:#1DB954; }
     .spotBtn:hover{ transform: translateY(-1px); background:rgba(255,255,255,.10); }
 
-    /* (7) Progress bar (hidden unless API provides data) */
+    /* ===== Progress bar (ALWAYS shows when playing) ===== */
     .progressWrap{
       margin-top:8px;
       height:10px;
@@ -297,6 +294,17 @@
       background: rgba(255,255,255,.78);
       box-shadow: 0 10px 30px rgba(255,255,255,.14);
       transition: width .35s ease;
+    }
+    .progressFill.indeterminate{
+      width:40%;
+      left:-40%;
+      animation: indet 1.25s ease-in-out infinite;
+      transition:none;
+    }
+    @keyframes indet{
+      0%{ left:-45%; opacity:.55; }
+      40%{ opacity:1; }
+      100%{ left:105%; opacity:.55; }
     }
     .progressTime{
       font-size:11px;
@@ -381,7 +389,7 @@
       z-index:6;
 
       display:flex;
-      justify-content:space-between;  /* ПК: на всю ширину */
+      justify-content:space-between;
       align-items:center;
       gap:18px;
 
@@ -407,7 +415,6 @@
       transform: translateY(-3px);
       background: rgba(255,255,255,.08);
     }
-    /* (6) tap animation */
     .social.tap{
       transform: translateY(0) scale(.965);
       background: rgba(255,255,255,.10);
@@ -460,7 +467,7 @@
       .user{ font-size:34px; }
       .welcome{ font-size:13px; }
 
-      /* чуть-чуть повыше на iPhone (как ты просил) */
+      /* базово чуть выше */
       .center{ transform: translateY(-1.6vh); }
 
       /* док на телефоне: скролл */
@@ -489,6 +496,13 @@
       .social i{ font-size:26px; }
       .social span{ font-size:11px; }
     }
+
+    /* ===== iPhone ONLY: поднять в 2 раза сильнее (как ты сказал) =====
+       У iPhone 16 Pro Max ширина ~430-460 и высокая высота.
+    */
+    @media (max-width: 460px) and (min-height: 880px){
+      .center{ transform: translateY(-3.2vh); }
+    }
   </style>
 </head>
 
@@ -496,7 +510,6 @@
   <div class="bg"></div>
   <div class="glow"></div>
 
-  <!-- liquid svg filter -->
   <svg width="0" height="0">
     <filter id="liquidFilter">
       <feTurbulence type="fractalNoise" baseFrequency="0.010" numOctaves="2" seed="8" result="noise">
@@ -517,12 +530,11 @@
       <div class="spotTitle swap-in" id="title">Loading…</div>
       <div class="spotArtist swap-in" id="artist"></div>
 
-      <!-- (7) progress (optional) -->
       <div class="progressWrap" id="progressWrap">
         <div class="progressTrack">
           <div class="progressFill" id="progressFill"></div>
         </div>
-        <div class="progressTime" id="progressTime">0:00 / 0:00</div>
+        <div class="progressTime" id="progressTime">LIVE</div>
       </div>
     </div>
 
@@ -542,7 +554,6 @@
     </div>
   </div>
 
-  <!-- Social dock -->
   <div class="socialBar glass shine" id="socialBar">
     <a class="social telegram" href="https://t.me/s1deed" target="_blank"><i class="fa-brands fa-telegram"></i><span>Telegram</span></a>
     <a class="social tiktok" href="https://www.tiktok.com/@s1deeed?_r=1&_t=ZS-92QwHlSQe4j" target="_blank"><i class="fa-brands fa-tiktok"></i><span>TikTok</span></a>
@@ -553,17 +564,16 @@
   </div>
 
   <script>
-    // ===== (4) Trigger shine on tap (mobile) =====
+    // shine on tap
     function sweepOnce(el){
       if(!el) return;
       el.classList.remove("sweepOnce");
-      // force reflow
       void el.offsetWidth;
       el.classList.add("sweepOnce");
       setTimeout(()=> el.classList.remove("sweepOnce"), 1100);
     }
 
-    // ===== liquid movement (mouse + touch) =====
+    // liquid motion
     function setMotion(clientX, clientY){
       const x = (clientX / window.innerWidth - 0.5) * 18;
       const y = (clientY / window.innerHeight - 0.5) * 18;
@@ -576,35 +586,29 @@
       setMotion(e.touches[0].clientX, e.touches[0].clientY);
     }, {passive:true});
 
-    // ===== (3) Avatar tilt/parallax =====
+    // avatar tilt
     const avatarCard = document.getElementById("avatarCard");
-
     function setTiltFromPoint(x, y){
       const rect = avatarCard.getBoundingClientRect();
       const cx = rect.left + rect.width / 2;
       const cy = rect.top + rect.height / 2;
-      const dx = (x - cx) / rect.width;   // -0.5..0.5-ish
+      const dx = (x - cx) / rect.width;
       const dy = (y - cy) / rect.height;
-      const max = 8; // degrees
-      const tiltY = dx * max;     // rotateY
-      const tiltX = -dy * max;    // rotateX
+      const max = 8;
+      const tiltY = dx * max;
+      const tiltX = -dy * max;
       document.documentElement.style.setProperty("--tiltX", tiltX.toFixed(2) + "deg");
       document.documentElement.style.setProperty("--tiltY", tiltY.toFixed(2) + "deg");
       document.documentElement.style.setProperty("--tiltZ", "6px");
     }
-
     function resetTilt(){
       document.documentElement.style.setProperty("--tiltX", "0deg");
       document.documentElement.style.setProperty("--tiltY", "0deg");
       document.documentElement.style.setProperty("--tiltZ", "0px");
     }
-
     if (avatarCard){
-      // desktop
       avatarCard.addEventListener("mousemove", (e)=> setTiltFromPoint(e.clientX, e.clientY));
       avatarCard.addEventListener("mouseleave", resetTilt);
-
-      // mobile touch (soft)
       avatarCard.addEventListener("touchstart", ()=> { sweepOnce(avatarCard); }, {passive:true});
       avatarCard.addEventListener("touchmove", (e)=>{
         if(!e.touches || !e.touches[0]) return;
@@ -613,12 +617,11 @@
       avatarCard.addEventListener("touchend", resetTilt, {passive:true});
     }
 
-    // ===== (6) Tap animation + optional haptic on socials =====
+    // tap animation on socials
     const socials = document.querySelectorAll(".social");
     socials.forEach(a=>{
       a.addEventListener("pointerdown", ()=>{
         a.classList.add("tap");
-        // optional haptic (works on some devices)
         if (navigator.vibrate) navigator.vibrate(12);
       }, {passive:true});
       const clear = ()=> a.classList.remove("tap");
@@ -627,11 +630,8 @@
       a.addEventListener("touchstart", ()=> sweepOnce(document.getElementById("socialBar")), {passive:true});
     });
 
-    // shine on spotify tap too
     const spotifyCard = document.getElementById("spotifyCard");
-    if (spotifyCard){
-      spotifyCard.addEventListener("touchstart", ()=> sweepOnce(spotifyCard), {passive:true});
-    }
+    if (spotifyCard) spotifyCard.addEventListener("touchstart", ()=> sweepOnce(spotifyCard), {passive:true});
 
     // ===== Spotify Now Playing + dynamic theme + dynamic background =====
     const cover = document.getElementById("cover");
@@ -642,14 +642,13 @@
     const liveDot = document.getElementById("liveDot");
     const label = document.getElementById("label");
 
-    // (7) progress elements
     const progressWrap = document.getElementById("progressWrap");
     const progressFill = document.getElementById("progressFill");
     const progressTime = document.getElementById("progressTime");
 
     let lastKey = "";
     let tickTimer = null;
-    let progressState = null; // {startTs, progressMs, durationMs}
+    let progressState = null;
     const DEFAULT_BG = 'url("avatar.jpg")';
 
     function avgColorFromImage(url){
@@ -716,30 +715,41 @@
       tickTimer = null;
       progressState = null;
       if (progressWrap) progressWrap.style.display = "none";
+      if (progressFill) progressFill.classList.remove("indeterminate");
     }
 
     function startProgressTicker(progressMs, durationMs){
       if (!progressWrap || !progressFill || !progressTime) return;
-      if (typeof progressMs !== "number" || typeof durationMs !== "number" || durationMs <= 0) {
-        progressWrap.style.display = "none";
+
+      // if real data exists -> real progress
+      if (typeof progressMs === "number" && typeof durationMs === "number" && durationMs > 0){
+        progressWrap.style.display = "flex";
+        progressFill.classList.remove("indeterminate");
+        progressState = { startTs: Date.now(), progressMs, durationMs };
+
+        const render = ()=>{
+          if (!progressState) return;
+          const elapsed = Date.now() - progressState.startTs;
+          const cur = Math.min(progressState.durationMs, progressState.progressMs + elapsed);
+          const pct = Math.max(0, Math.min(100, (cur / progressState.durationMs) * 100));
+          progressFill.style.width = pct.toFixed(2) + "%";
+          progressTime.textContent = `${fmt(cur)} / ${fmt(progressState.durationMs)}`;
+        };
+
+        render();
+        if (tickTimer) clearInterval(tickTimer);
+        tickTimer = setInterval(render, 400);
         return;
       }
 
+      // else -> indeterminate "LIVE" bar (always visible)
       progressWrap.style.display = "flex";
-      progressState = { startTs: Date.now(), progressMs, durationMs };
-
-      const render = ()=>{
-        if (!progressState) return;
-        const elapsed = Date.now() - progressState.startTs;
-        const cur = Math.min(progressState.durationMs, progressState.progressMs + elapsed);
-        const pct = Math.max(0, Math.min(100, (cur / progressState.durationMs) * 100));
-        progressFill.style.width = pct.toFixed(2) + "%";
-        progressTime.textContent = `${fmt(cur)} / ${fmt(progressState.durationMs)}`;
-      };
-
-      render();
+      progressFill.style.width = "40%";
+      progressFill.classList.add("indeterminate");
+      progressTime.textContent = "LIVE";
       if (tickTimer) clearInterval(tickTimer);
-      tickTimer = setInterval(render, 400);
+      tickTimer = null;
+      progressState = null;
     }
 
     async function getNowPlaying(){
@@ -767,16 +777,11 @@
         liveDot.style.boxShadow = "0 0 18px rgba(52,199,89,.55)";
         eq.classList.remove("paused");
 
+        // progress: real if available, else indeterminate
+        startProgressTicker(d.progressMs, d.durationMs);
+
         const key = `${d.title}__${d.artist}__${d.cover}`;
         const changed = key !== lastKey;
-
-        // (7) progress — only if your API returns progressMs & durationMs
-        // if not present -> hidden automatically
-        if (typeof d.progressMs === "number" && typeof d.durationMs === "number"){
-          startProgressTicker(d.progressMs, d.durationMs);
-        } else {
-          stopProgressTicker();
-        }
 
         if(changed){
           cover.style.opacity = "0";
@@ -799,7 +804,6 @@
           openEl.style.display = "inline-flex";
           lastKey = key;
 
-          // small shine on track change
           sweepOnce(spotifyCard);
         } else {
           if(!cover.src && d.cover) cover.src = d.cover;
