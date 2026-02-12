@@ -29,35 +29,27 @@
       --mx: 0px;
       --my: 0px;
 
-      /* ✅ iOS fullscreen height helpers */
-      --vh: 100vh;
+      /* ✅ реальная высота экрана iOS (ставим из JS) */
+      --appH: 100vh;
     }
 
     *{ box-sizing:border-box; margin:0; padding:0; }
-
-    html,body{ height:100%; width:100%; }
+    html,body{ height:100%; }
     html{
       background:#07070b;
       overscroll-behavior:none;
+      /* ✅ чтобы не было “пустых” зон из-за 100vh */
+      min-height: var(--appH);
     }
     body{
       font-family:-apple-system,BlinkMacSystemFont,"Inter",system-ui,sans-serif;
       color:var(--text);
-      background:#07070b;
+      background:transparent;
       overflow:hidden;
       overscroll-behavior:none;
       position:relative;
       touch-action: manipulation;
-      width:100%;
-      min-height:100%;
-    }
-
-    /* ✅ Prefer modern iOS viewport units (no black bars) */
-    @supports (height: 100svh){
-      :root{ --vh: 100svh; }
-    }
-    @supports (height: 100dvh){
-      :root{ --vh: 100dvh; }
+      min-height: var(--appH);
     }
 
     /* ===== Background ===== */
@@ -67,9 +59,8 @@
       z-index:0;
       background:#07070b;
       pointer-events:none;
-      width:100%;
-      height: var(--vh);
-      min-height: var(--vh);
+      /* ✅ фикс “чёрных рамок” */
+      height: var(--appH);
     }
     .bgFallback{
       position:absolute; inset:0;
@@ -97,7 +88,8 @@
     }
 
     .glow{
-      position:fixed; inset:-90px;
+      position:fixed;
+      inset:-90px;
       z-index:1;
       pointer-events:none;
       background:
@@ -106,9 +98,16 @@
         radial-gradient(900px 700px at 50% 92%, rgba(var(--accent), .18), transparent 70%);
       filter: blur(10px);
       transition: background .35s ease;
+      /* ✅ */
+      height: calc(var(--appH) + 180px);
     }
 
-    .liquid{ position:fixed; inset:0; z-index:2; pointer-events:none; opacity:.95; filter:url(#liquidFilter); }
+    .liquid{
+      position:fixed; inset:0; z-index:2; pointer-events:none;
+      opacity:.95; filter:url(#liquidFilter);
+      /* ✅ */
+      height: var(--appH);
+    }
     .liquid::before{
       content:"";
       position:absolute; inset:-80px;
@@ -126,14 +125,14 @@
       z-index:3; pointer-events:none;
       opacity:.08;
       background-image:url("https://grainy-gradients.vercel.app/noise.svg");
+      /* ✅ */
+      height: var(--appH);
     }
 
     .ui{
       position:relative;
       z-index:10;
-      height: var(--vh);
-      min-height: var(--vh);
-      width:100%;
+      height: var(--appH); /* ✅ */
     }
 
     /* Glass */
@@ -270,8 +269,7 @@
     /* Desktop center */
     .layout{
       position:relative;
-      height: var(--vh);
-      min-height: var(--vh);
+      height: var(--appH); /* ✅ */
       padding-top: 92px;
       padding-bottom: 108px;
       display:flex;
@@ -369,7 +367,6 @@
 
     /* Recently played compact */
     .steamCard.compact{ padding:12px; gap:10px; }
-
     .rgList{ display:flex; flex-direction:column; gap:10px; }
     .rgItem{
       padding:10px 10px;
@@ -406,7 +403,7 @@
       letter-spacing:.2px;
     }
 
-    /* ===== Mobile pager ===== */
+    /* Mobile pager */
     .pager{ display:none; }
     .pageDots{ display:none; }
 
@@ -443,15 +440,10 @@
         position:fixed;
         left:0; right:0;
         z-index:20;
-
-        /* ✅ important: full height container, not "letterboxed" */
-        height: calc(var(--vh) - (84px + env(safe-area-inset-top)) - (86px + env(safe-area-inset-bottom)));
         top: calc(84px + env(safe-area-inset-top));
         bottom: calc(86px + env(safe-area-inset-bottom));
-
         overflow:hidden;
         padding: 0 14px;
-
         touch-action: none;
       }
 
@@ -526,10 +518,8 @@
       .dot{ width:8px;height:8px;border-radius:99px; background: rgba(255,255,255,.35); opacity:.45; transition:.25s ease; }
       .dot.active{ opacity:1; background: rgba(255,255,255,.90); transform: scale(1.15); }
 
-      /* ✅ requested: a bit more spacing between Steam card and Recently played card */
-      .steamCard.compact{
-        margin-top: 8px;
-      }
+      /* ✅ FIX #1: чуть больше отступ между Steam блоком и Recently played */
+      .steamCard.compact{ margin-top: 10px; }
     }
 
     .dockHidden{
@@ -699,6 +689,15 @@
   </div>
 
   <script>
+    /* ✅ FIX #2: реальная высота окна iOS (убирает “чёрные рамки” сверху/снизу) */
+    function setAppHeight(){
+      // innerHeight в iOS = реальная видимая область (без странностей 100vh)
+      document.documentElement.style.setProperty('--appH', window.innerHeight + 'px');
+    }
+    setAppHeight();
+    window.addEventListener('resize', setAppHeight);
+    window.addEventListener('orientationchange', () => setTimeout(setAppHeight, 50));
+
     function setMotion(clientX, clientY){
       const x = (clientX / window.innerWidth - 0.5) * 18;
       const y = (clientY / window.innerHeight - 0.5) * 18;
@@ -987,7 +986,6 @@
     }
     buildDots();
     const dots = () => Array.from(document.querySelectorAll(".dot"));
-
     function isMobile(){ return window.matchMedia("(max-width: 620px)").matches; }
 
     function setDockVisible(isVisible){
