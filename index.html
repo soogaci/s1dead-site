@@ -20,20 +20,16 @@
     :root{
       --accent: 155 81 255;
       --accent2: 80 220 255;
-      --bg: url("avatar.jpg");
-
       --border: rgba(255,255,255,.16);
       --text: rgba(255,255,255,.92);
       --muted: rgba(255,255,255,.70);
       --shadow: 0 22px 70px rgba(0,0,0,.45);
-
       --mx: 0px;
       --my: 0px;
     }
 
     *{ box-sizing:border-box; margin:0; padding:0; }
     html,body{ height:100%; }
-
     html{ background:#07070b; overscroll-behavior:none; }
     body{
       font-family:-apple-system,BlinkMacSystemFont,"Inter",system-ui,sans-serif;
@@ -44,28 +40,48 @@
       padding:0;
     }
 
-    /* ===== Background (dynamic image) ===== */
-    .bg{
+    /* ===== 2-layer background for reliable crossfade ===== */
+    .bgWrap{
       position:fixed; inset:0;
-      background-image: var(--bg);
+      z-index:-10;
+      background:#07070b;
+    }
+
+    .bgLayer{
+      position:absolute; inset:0;
       background-position:center;
       background-size:cover;
       background-repeat:no-repeat;
-      filter: blur(26px) saturate(135%) brightness(.72);
       transform: scale(1.14);
-      z-index:-6;
-      transition: background-image .35s ease, filter .35s ease;
+      filter: blur(26px) saturate(135%) brightness(.72);
+      transition: opacity .55s ease;
+      opacity:0;
+      will-change: opacity;
     }
-    .bg::after{
-      content:"";
+    .bgLayer.active{ opacity:1; }
+
+    /* fallback gradient (always visible under images) */
+    .bgFallback{
       position:absolute; inset:0;
-      background: radial-gradient(1200px 800px at 50% 50%, rgba(0,0,0,.05), rgba(0,0,0,.35));
+      z-index:-11;
+      background:
+        radial-gradient(900px 650px at 20% 10%, rgba(var(--accent), .35), transparent 62%),
+        radial-gradient(850px 650px at 80% 20%, rgba(var(--accent2), .22), transparent 66%),
+        radial-gradient(900px 700px at 50% 90%, rgba(var(--accent), .18), transparent 70%),
+        linear-gradient(180deg, #07070b, #07070b);
+    }
+
+    /* overlay vignette so it looks “premium” */
+    .bgVignette{
+      position:absolute; inset:0;
       pointer-events:none;
+      background:
+        radial-gradient(1200px 800px at 50% 50%, rgba(0,0,0,.03), rgba(0,0,0,.42));
     }
 
     .glow{
       position:fixed; inset:-90px;
-      z-index:-5;
+      z-index:-6;
       pointer-events:none;
       background:
         radial-gradient(900px 650px at 18% 10%, rgba(var(--accent), .38), transparent 62%),
@@ -77,7 +93,7 @@
 
     .liquid{
       position:fixed; inset:0;
-      z-index:-4;
+      z-index:-5;
       pointer-events:none;
       opacity:.95;
       filter:url(#liquidFilter);
@@ -97,7 +113,7 @@
 
     .grain{
       position:fixed; inset:0;
-      z-index:-3;
+      z-index:-4;
       pointer-events:none;
       opacity:.08;
       background-image:url("https://grainy-gradients.vercel.app/noise.svg");
@@ -106,13 +122,14 @@
     /* ===== Glass ===== */
     .glass{
       background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.06));
-      border: 1px solid rgba(255,255,255,.16);
+      border: 1px solid var(--border);
       backdrop-filter: blur(22px) saturate(160%);
       -webkit-backdrop-filter: blur(22px) saturate(160%);
       box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,.20);
       position: relative;
       overflow: hidden;
     }
+
     .shine::after{
       content:"";
       position:absolute;
@@ -167,7 +184,7 @@
     .spotTop{ display:flex; align-items:center; gap:8px; font-size:12px; color:rgba(255,255,255,.70); letter-spacing:.2px; }
     .liveDot{ width:8px;height:8px;border-radius:99px; background:#34c759; box-shadow:0 0 18px rgba(52,199,89,.55); }
     .spotTitle{ font-weight:850; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:520px; }
-    .spotArtist{ font-size:13px; color:rgba(255,255,255,.70); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:520px; }
+    .spotArtist{ font-size:13px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:520px; }
     .swap-out{ opacity:0; transform: translateY(6px); filter: blur(2px); transition:.22s ease; }
     .swap-in{ opacity:1; transform: translateY(0); filter: blur(0); transition:.22s ease; }
 
@@ -214,7 +231,7 @@
       min-width:84px; text-align:right; font-variant-numeric: tabular-nums;
     }
 
-    /* ===== Dock fixed ===== */
+    /* ===== Dock ===== */
     .socialBar{
       position:fixed;
       left:50%;
@@ -230,6 +247,7 @@
       width:min(1060px,92vw);
       padding:12px 14px;
     }
+
     .social{
       flex:0 0 auto;
       min-width:76px;
@@ -308,7 +326,7 @@
       -webkit-backdrop-filter: blur(14px) saturate(150%);
     }
 
-    /* ===== Steam / recent ===== */
+    /* ===== Steam/recent ===== */
     .steamCard{
       width: min(340px, 90vw);
       border-radius:24px;
@@ -393,7 +411,7 @@
       flex:0 0 auto;
     }
 
-    /* ===== Mobile pages ===== */
+    /* ===== Mobile ===== */
     .scrollPages{ display:none; }
     .pageDots{ display:none; }
     .pageInner{ will-change: transform, opacity, filter; }
@@ -473,7 +491,14 @@
 </head>
 
 <body>
-  <div class="bg"></div>
+  <!-- BG wrap with 2 layers -->
+  <div class="bgWrap" aria-hidden="true">
+    <div class="bgFallback"></div>
+    <div class="bgLayer active" id="bgA"></div>
+    <div class="bgLayer" id="bgB"></div>
+    <div class="bgVignette"></div>
+  </div>
+
   <div class="glow"></div>
 
   <svg width="0" height="0">
@@ -520,7 +545,7 @@
       </div>
 
       <div class="rightCol">
-        <div class="steamCard glass shine" id="steamCardDesktop">
+        <div class="steamCard glass shine">
           <div class="steamTop">
             <div class="steamBrand">
               <div class="steamLogo"><i class="fa-brands fa-steam"></i></div>
@@ -550,15 +575,7 @@
 
         <div class="steamCard glass shine">
           <div class="pTitle"><i class="fa-solid fa-clock-rotate-left"></i><span>Recently played</span></div>
-          <div class="rgList" id="recentListD">
-            <div class="rgItem">
-              <div class="rgLeft">
-                <div class="rgName">Loading…</div>
-                <div class="rgMeta"><span>—</span></div>
-              </div>
-              <div style="width:92px;height:52px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10)"></div>
-            </div>
-          </div>
+          <div class="rgList" id="recentListD"></div>
         </div>
       </div>
     </div>
@@ -576,7 +593,7 @@
 
     <section class="page" data-index="1"><div class="pageInner">
       <div class="pTitle"><i class="fa-brands fa-steam"></i><span>Steam activity</span></div>
-      <div class="steamCard glass shine" id="steamCardMobile">
+      <div class="steamCard glass shine">
         <div class="steamTop">
           <div class="steamBrand">
             <div class="steamLogo"><i class="fa-brands fa-steam"></i></div>
@@ -608,15 +625,7 @@
     <section class="page" data-index="2"><div class="pageInner">
       <div class="pTitle"><i class="fa-solid fa-clock-rotate-left"></i><span>Recently played</span></div>
       <div class="steamCard glass shine">
-        <div class="rgList" id="recentList">
-          <div class="rgItem">
-            <div class="rgLeft">
-              <div class="rgName">Loading…</div>
-              <div class="rgMeta"><span>—</span></div>
-            </div>
-            <div style="width:92px;height:52px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10)"></div>
-          </div>
-        </div>
+        <div class="rgList" id="recentList"></div>
       </div>
     </div></section>
   </div>
@@ -639,15 +648,7 @@
   </div>
 
   <script>
-    /* ===== visuals helpers ===== */
-    function sweepOnce(el){
-      if(!el) return;
-      el.classList.remove("sweepOnce");
-      void el.offsetWidth;
-      el.classList.add("sweepOnce");
-      setTimeout(()=> el.classList.remove("sweepOnce"), 1100);
-    }
-
+    /* ===== mouse/touch motion ===== */
     function setMotion(clientX, clientY){
       const x = (clientX / window.innerWidth - 0.5) * 18;
       const y = (clientY / window.innerHeight - 0.5) * 18;
@@ -660,21 +661,52 @@
       setMotion(e.touches[0].clientX, e.touches[0].clientY);
     }, {passive:true});
 
-    document.querySelectorAll(".social").forEach(a=>{
-      a.addEventListener("pointerdown", ()=>{
-        a.classList.add("tap");
-        if (navigator.vibrate) navigator.vibrate(12);
-      }, {passive:true});
-      const clear = ()=> a.classList.remove("tap");
-      a.addEventListener("pointerup", clear, {passive:true});
-      a.addEventListener("pointercancel", clear, {passive:true});
-      a.addEventListener("touchstart", ()=> sweepOnce(document.getElementById("socialBar")), {passive:true});
-    });
+    function sweepOnce(el){
+      if(!el) return;
+      el.classList.remove("sweepOnce");
+      void el.offsetWidth;
+      el.classList.add("sweepOnce");
+      setTimeout(()=> el.classList.remove("sweepOnce"), 1100);
+    }
 
-    const spotifyCard = document.getElementById("spotifyCard");
-    if (spotifyCard) spotifyCard.addEventListener("touchstart", ()=> sweepOnce(spotifyCard), {passive:true});
+    /* ===== RELIABLE BACKGROUND CROSSFADE ===== */
+    const bgA = document.getElementById("bgA");
+    const bgB = document.getElementById("bgB");
+    let bgActive = "A";
+    let lastBgUrl = "";
+
+    // preload + crossfade
+    function setBackgroundCrossfade(url){
+      if(!url || typeof url !== "string") return;
+      if(url === lastBgUrl) return;
+      lastBgUrl = url;
+
+      const img = new Image();
+      img.decoding = "async";
+      img.referrerPolicy = "no-referrer";
+      img.onload = () => {
+        const next = (bgActive === "A") ? bgB : bgA;
+        const prev = (bgActive === "A") ? bgA : bgB;
+
+        next.style.backgroundImage = `url("${url}")`;
+        next.classList.add("active");
+        prev.classList.remove("active");
+
+        bgActive = (bgActive === "A") ? "B" : "A";
+      };
+      img.onerror = () => {
+        // если картинка не загрузилась — просто не переключаем, но градиент останется (не будет чёрного)
+      };
+      img.src = url;
+    }
+
+    // default avatar background (also through crossfade)
+    function setDefaultBackground(){
+      setBackgroundCrossfade("avatar.jpg");
+    }
 
     /* ===== Spotify ===== */
+    const spotifyCard = document.getElementById("spotifyCard");
     const cover = document.getElementById("cover");
     const titleEl = document.getElementById("title");
     const artistEl = document.getElementById("artist");
@@ -690,11 +722,6 @@
     let lastKey = "";
     let tickTimer = null;
     let progressState = null;
-
-    function setBackground(urlOrNull){
-      // ВАЖНО: всегда ставим картинку (это работает даже без CORS)
-      document.documentElement.style.setProperty("--bg", urlOrNull ? `url("${urlOrNull}")` : `url("avatar.jpg")`);
-    }
 
     async function animateSwap(el, newText){
       if(!el) return;
@@ -754,7 +781,7 @@
           liveDot.style.boxShadow = "none";
           lastKey = "";
           cover.removeAttribute("src");
-          setBackground(null);   // вернём avatar.jpg
+          setDefaultBackground();
           stopProgress();
           return;
         }
@@ -768,8 +795,8 @@
         const key = `${d.title}__${d.artist}__${d.cover}`;
         const changed = key !== lastKey;
 
-        // СРАЗУ ставим фон на обложку, не ждём onload и canvas
-        if (d.cover) setBackground(d.cover);
+        // IMPORTANT: set background via crossfade always
+        if (d.cover) setBackgroundCrossfade(d.cover);
 
         if(changed){
           cover.style.opacity = "0";
@@ -799,12 +826,12 @@
         await animateSwap(artistEl, "");
         openEl.style.display = "none";
         eq.classList.add("paused");
-        setBackground(null);
+        setDefaultBackground();
         stopProgress();
       }
     }
 
-    /* ===== Steam (как было) ===== */
+    /* ===== Steam (как у тебя) ===== */
     const D = {
       persona: document.getElementById("steamPersonaD"),
       dot: document.getElementById("steamDotD"),
@@ -967,7 +994,10 @@
       }
     }
 
-    /* init */
+    /* ===== init ===== */
+    // сразу ставим дефолт фон (не будет черноты даже до Spotify)
+    setDefaultBackground();
+
     getNowPlaying();
     getSteam();
     setInterval(getNowPlaying, 10000);
