@@ -28,8 +28,6 @@
 
       --mx: 0px;
       --my: 0px;
-
-      --peek: 0px;
     }
 
     *{ box-sizing:border-box; margin:0; padding:0; }
@@ -286,7 +284,26 @@
     }
     .steamLogo i{ color:#66C0F4; font-size:22px; }
     .steamLabel{ font-size:12px; color:rgba(255,255,255,.70); }
-    .steamPersona{ font-size:14px; font-weight:850; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:240px; }
+
+    /* ✅ ник + мини кнопка рядом */
+    .steamNameRow{ display:flex; align-items:center; gap:10px; min-width:0; }
+    .steamPersona{ font-size:14px; font-weight:850; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:210px; }
+
+    .miniProfile{
+      flex:0 0 auto;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:34px; height:34px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.07);
+      text-decoration:none;
+      transition:.18s ease;
+    }
+    .miniProfile i{ color:#66C0F4; font-size:16px; }
+    .miniProfile:active{ transform: scale(.98); }
+
     .steamStatus{ display:flex; align-items:center; gap:8px; color:rgba(255,255,255,.78); font-size:12px; }
     .sDot{ width:8px;height:8px;border-radius:99px; background: rgba(255,255,255,.35); }
     .sDot.online{ background:#34c759; box-shadow:0 0 18px rgba(52,199,89,.55); }
@@ -308,17 +325,6 @@
     .steamGameTitle{ font-weight:900; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:290px; }
     .steamGameSub{ font-size:12px; color:rgba(255,255,255,.70); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:290px; }
 
-    .steamBtn{
-      display:inline-flex; align-items:center; justify-content:center; gap:8px;
-      text-decoration:none; color:rgba(255,255,255,.92);
-      padding:10px 12px; border-radius:14px;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(255,255,255,.07);
-      transition:.18s ease;
-      width:100%;
-    }
-    .steamBtn i{ color:#66C0F4; }
-
     .pTitle{
       font-size:12px;
       color: rgba(255,255,255,.70);
@@ -329,11 +335,13 @@
       margin: 2px 0 6px;
     }
 
+    /* ✅ Recently played compact */
+    .steamCard.compact{ padding:12px; gap:10px; }
     .rgList{ display:flex; flex-direction:column; gap:10px; }
     .rgItem{
-      padding:12px;
-      border-radius:18px;
-      background: rgba(255,255,255,.06);
+      padding:10px 10px;
+      border-radius:16px;
+      background: rgba(255,255,255,.055);
       border:1px solid rgba(255,255,255,.10);
       display:flex;
       align-items:center;
@@ -342,10 +350,10 @@
       overflow:hidden;
     }
     .rgLeft{ min-width:0; display:flex; flex-direction:column; gap:3px; }
-    .rgName{ font-weight:900; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width: 260px; }
-    .rgMeta{ font-size:12px; color: rgba(255,255,255,.70); display:flex; gap:10px; flex-wrap:wrap; }
+    .rgName{ font-weight:900; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width: 240px; }
+    .rgMeta{ font-size:11px; color: rgba(255,255,255,.70); display:flex; gap:10px; flex-wrap:wrap; }
     .rgThumb{
-      width:92px; height:52px;
+      width:78px; height:44px;
       border-radius:12px;
       object-fit:cover;
       border:1px solid rgba(255,255,255,.12);
@@ -353,19 +361,13 @@
     }
 
     /* Placeholders */
-    .phGrid{
-      display:grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap:12px;
-    }
+    .phGrid{ display:grid; grid-template-columns: repeat(2, 1fr); gap:12px; }
     .ph{
       height:120px;
       border-radius:22px;
       background: rgba(255,255,255,.06);
       border:1px dashed rgba(255,255,255,.18);
-      display:flex;
-      align-items:center;
-      justify-content:center;
+      display:flex; align-items:center; justify-content:center;
       color:rgba(255,255,255,.65);
       font-weight:800;
       letter-spacing:.2px;
@@ -413,7 +415,7 @@
         overflow:hidden;
         padding: 0 14px;
 
-        /* ✅ FIX: iOS swipe reliable */
+        /* ✅ swipe reliable iOS */
         touch-action: none;
       }
 
@@ -454,7 +456,6 @@
       }
       .inner.scrollable::-webkit-scrollbar{ width:0px; }
 
-      /* ✅ FIX: no blur/filter on iOS for pages */
       .mPage.inactive .inner{
         opacity:0;
         transform: scale(.985) translateY(14px);
@@ -574,11 +575,17 @@
               <div class="steamTop">
                 <div class="steamBrand">
                   <div class="steamLogo"><i class="fa-brands fa-steam"></i></div>
-                  <div>
+                  <div style="min-width:0">
                     <div class="steamLabel">Steam</div>
-                    <div class="steamPersona" id="steamPersonaM">Loading…</div>
+                    <div class="steamNameRow">
+                      <div class="steamPersona" id="steamPersonaM">Loading…</div>
+                      <a class="miniProfile" id="steamOpenM" href="https://steamcommunity.com/profiles/76561199064708359/" target="_blank" aria-label="Open profile">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                      </a>
+                    </div>
                   </div>
                 </div>
+
                 <div class="steamStatus">
                   <span class="sDot offline" id="steamDotM"></span>
                   <span id="steamStatusTextM">…</span>
@@ -592,13 +599,9 @@
                   <div class="steamGameSub" id="steamGameSubM">Session: —</div>
                 </div>
               </div>
-
-              <a class="steamBtn" id="steamOpenM" href="https://steamcommunity.com/profiles/76561199064708359/" target="_blank">
-                <i class="fa-brands fa-steam"></i><span>Open profile</span>
-              </a>
             </div>
 
-            <div class="steamCard glass shine">
+            <div class="steamCard compact glass shine">
               <div class="pTitle" style="margin:0 0 6px;"><i class="fa-solid fa-clock-rotate-left"></i><span>Recently played</span></div>
               <div class="rgList" id="recentList"></div>
             </div>
@@ -812,7 +815,7 @@
               <div class="rgName">No recent games</div>
               <div class="rgMeta"><span>Play something 🙂</span></div>
             </div>
-            <div style="width:92px;height:52px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10)"></div>
+            <div style="width:78px;height:44px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10)"></div>
           </div>`;
         return;
       }
@@ -866,7 +869,7 @@
     function applySteam(d, sessionText){
       if(!M.persona) return;
       M.persona.textContent = d.personaName || "Steam";
-      M.open.href = d.profileUrl || M.open.href;
+      if (M.open && d.profileUrl) M.open.href = d.profileUrl;
       setDot(M.dot, mapDot(d.status, d.isInGame));
       M.status.textContent = d.isInGame ? "Playing now" : (d.status || "—");
       if (d.isInGame && d.gameName){
@@ -957,15 +960,9 @@
       }
     }
 
-    function setPeekForIndex(i){
-      const peek = (i === 0) ? 0 : 28;
-      document.documentElement.style.setProperty("--peek", peek + "px");
-      return peek;
-    }
-
+    /* ✅ УБРАЛИ “peek” полностью: шаг = ровно высота контейнера */
     function translateFor(i, extraDy=0){
-      const peekPx = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--peek")) || 0;
-      const step = Math.max(1, height - peekPx);
+      const step = Math.max(1, height);
       return (-i * step) + extraDy;
     }
 
@@ -973,7 +970,6 @@
       index = Math.max(0, Math.min(pages.length-1, i));
       height = pager ? pager.clientHeight : window.innerHeight;
 
-      setPeekForIndex(index);
       const y = translateFor(index, 0);
       track.style.transform = `translate3d(0, ${y}px, 0)`;
 
