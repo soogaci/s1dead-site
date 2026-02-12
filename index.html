@@ -43,13 +43,8 @@
       touch-action: manipulation;
     }
 
-    /* ===== Background (iOS-safe) ===== */
-    .bgWrap{
-      position:fixed; inset:0;
-      z-index:0;
-      background:#07070b;
-      pointer-events:none;
-    }
+    /* ===== Background ===== */
+    .bgWrap{ position:fixed; inset:0; z-index:0; background:#07070b; pointer-events:none; }
     .bgFallback{
       position:absolute; inset:0;
       background:
@@ -87,17 +82,10 @@
       transition: background .35s ease;
     }
 
-    .liquid{
-      position:fixed; inset:0;
-      z-index:2;
-      pointer-events:none;
-      opacity:.95;
-      filter:url(#liquidFilter);
-    }
+    .liquid{ position:fixed; inset:0; z-index:2; pointer-events:none; opacity:.95; filter:url(#liquidFilter); }
     .liquid::before{
       content:"";
-      position:absolute;
-      inset:-80px;
+      position:absolute; inset:-80px;
       background:
         radial-gradient(900px 600px at 20% 10%, rgba(var(--accent), .22), transparent 60%),
         radial-gradient(800px 560px at 80% 30%, rgba(255,255,255,.10), transparent 60%),
@@ -109,18 +97,12 @@
 
     .grain{
       position:fixed; inset:0;
-      z-index:3;
-      pointer-events:none;
+      z-index:3; pointer-events:none;
       opacity:.08;
       background-image:url("https://grainy-gradients.vercel.app/noise.svg");
     }
 
-    /* UI */
-    .ui{
-      position:relative;
-      z-index:10;
-      height:100%;
-    }
+    .ui{ position:relative; z-index:10; height:100%; }
 
     /* Glass */
     .glass{
@@ -155,7 +137,7 @@
       100%{ transform: translateX(70%) rotate(8deg); opacity:0; }
     }
 
-    /* Spotify fixed */
+    /* Spotify */
     .spotify{
       position:fixed;
       left:50%;
@@ -212,7 +194,7 @@
     }
     .spotBtn i{ color:#1DB954; }
 
-    /* Dock */
+    /* Dock socials */
     .socialBar{
       position:fixed;
       left:50%;
@@ -253,7 +235,7 @@
     .steam i{ color:#66C0F4; }
     .spotifyI i{ color:#1DB954; }
 
-    /* Desktop */
+    /* Desktop center */
     .layout{
       position:relative;
       height:100vh;
@@ -262,13 +244,6 @@
       display:flex;
       align-items:center;
       justify-content:center;
-    }
-    .profileRow{
-      width:min(980px,94vw);
-      display:flex;
-      align-items:flex-start;
-      justify-content:center;
-      gap:18px;
     }
     .center{
       width:min(520px,92vw);
@@ -296,14 +271,8 @@
       -webkit-backdrop-filter: blur(14px) saturate(150%);
     }
 
-    /* Steam blocks */
-    .steamCard{
-      border-radius:24px;
-      padding:14px;
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-    }
+    /* Steam + stats */
+    .steamCard{ border-radius:24px; padding:14px; display:flex; flex-direction:column; gap:10px; }
     .steamTop{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
     .steamBrand{ display:flex; align-items:center; gap:10px; min-width:0; }
     .steamLogo{
@@ -355,8 +324,19 @@
       display:flex;
       align-items:center;
       gap:8px;
-      margin-bottom: 2px;
+      margin: 2px 0 6px;
     }
+
+    .split{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+      align-items:start;
+    }
+    @media (max-width: 620px){
+      .split{ grid-template-columns: 1fr; }
+    }
+
     .rgList{ display:flex; flex-direction:column; gap:10px; }
     .rgItem{
       padding:12px;
@@ -378,6 +358,25 @@
       object-fit:cover;
       border:1px solid rgba(255,255,255,.12);
       flex:0 0 auto;
+    }
+
+    /* Placeholders grid */
+    .phGrid{
+      display:grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap:12px;
+    }
+    .ph{
+      height:120px;
+      border-radius:22px;
+      background: rgba(255,255,255,.06);
+      border:1px dashed rgba(255,255,255,.18);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:rgba(255,255,255,.65);
+      font-weight:800;
+      letter-spacing:.2px;
     }
 
     /* ===== Mobile pager (iron swipe) ===== */
@@ -489,7 +488,7 @@
       .dot.active{ opacity:1; background: rgba(255,255,255,.90); transform: scale(1.15); }
     }
 
-    /* Dock show/hide (mobile) */
+    /* Dock show/hide */
     .dockHidden{
       opacity:0 !important;
       transform: translateX(-50%) translateY(14px) !important;
@@ -543,20 +542,19 @@
       </div>
     </div>
 
-    <!-- Desktop -->
+    <!-- Desktop center -->
     <div class="layout">
-      <div class="profileRow">
-        <div class="center">
-          <div class="avatarCard glass shine"><img class="avatarImg" src="avatar.jpg" alt="avatar"></div>
-          <div class="user">@s1deed</div>
-          <div class="welcome"><i class="fa-solid fa-sparkles"></i> welcome to my bio</div>
-        </div>
+      <div class="center">
+        <div class="avatarCard glass shine"><img class="avatarImg" src="avatar.jpg" alt="avatar"></div>
+        <div class="user">@s1deed</div>
+        <div class="welcome"><i class="fa-solid fa-sparkles"></i> welcome to my bio</div>
       </div>
     </div>
 
     <!-- Mobile pager -->
     <div class="pager" id="pager">
       <div class="track" id="track">
+        <!-- Page 0 -->
         <section class="mPage active" data-index="0">
           <div class="inner">
             <div class="center">
@@ -567,55 +565,83 @@
           </div>
         </section>
 
+        <!-- Page 1 (Steam activity + stats together) -->
         <section class="mPage inactive" data-index="1">
           <div class="inner">
-            <div class="pTitle"><i class="fa-brands fa-steam"></i><span>Steam activity</span></div>
-            <div class="steamCard glass shine">
-              <div class="steamTop">
-                <div class="steamBrand">
-                  <div class="steamLogo"><i class="fa-brands fa-steam"></i></div>
-                  <div>
-                    <div class="steamLabel">Steam</div>
-                    <div class="steamPersona" id="steamPersonaM">Loading…</div>
+            <div class="pTitle"><i class="fa-brands fa-steam"></i><span>Steam</span></div>
+
+            <div class="split">
+              <div class="steamCard glass shine">
+                <div class="steamTop">
+                  <div class="steamBrand">
+                    <div class="steamLogo"><i class="fa-brands fa-steam"></i></div>
+                    <div>
+                      <div class="steamLabel">Steam</div>
+                      <div class="steamPersona" id="steamPersonaM">Loading…</div>
+                    </div>
+                  </div>
+                  <div class="steamStatus">
+                    <span class="sDot offline" id="steamDotM"></span>
+                    <span id="steamStatusTextM">…</span>
                   </div>
                 </div>
-                <div class="steamStatus">
-                  <span class="sDot offline" id="steamDotM"></span>
-                  <span id="steamStatusTextM">…</span>
+
+                <div class="steamGame">
+                  <i class="fa-solid fa-gamepad"></i>
+                  <div class="steamGameText">
+                    <div class="steamGameTitle" id="steamGameTitleM">—</div>
+                    <div class="steamGameSub" id="steamGameSubM">Session: 0:00</div>
+                  </div>
                 </div>
+
+                <a class="steamBtn" id="steamOpenM" href="https://steamcommunity.com/profiles/76561199064708359/" target="_blank">
+                  <i class="fa-brands fa-steam"></i><span>Open profile</span>
+                </a>
               </div>
 
-              <div class="steamGame">
-                <i class="fa-solid fa-gamepad"></i>
-                <div class="steamGameText">
-                  <div class="steamGameTitle" id="steamGameTitleM">—</div>
-                  <div class="steamGameSub" id="steamGameSubM">Session: 0:00</div>
-                </div>
+              <div class="steamCard glass shine">
+                <div class="pTitle" style="margin:0 0 6px;"><i class="fa-solid fa-clock-rotate-left"></i><span>Recently played</span></div>
+                <div class="rgList" id="recentList"></div>
               </div>
-
-              <a class="steamBtn" id="steamOpenM" href="https://steamcommunity.com/profiles/76561199064708359/" target="_blank">
-                <i class="fa-brands fa-steam"></i><span>Open profile</span>
-              </a>
             </div>
           </div>
         </section>
 
+        <!-- Page 2 (Placeholder test) -->
         <section class="mPage inactive" data-index="2">
           <div class="inner">
-            <div class="pTitle"><i class="fa-solid fa-clock-rotate-left"></i><span>Recently played</span></div>
+            <div class="pTitle"><i class="fa-solid fa-square"></i><span>Test page A</span></div>
             <div class="steamCard glass shine">
-              <div class="rgList" id="recentList"></div>
+              <div class="phGrid">
+                <div class="ph">Block 1</div>
+                <div class="ph">Block 2</div>
+                <div class="ph">Block 3</div>
+                <div class="ph">Block 4</div>
+              </div>
             </div>
           </div>
         </section>
+
+        <!-- Page 3 (Placeholder test) -->
+        <section class="mPage inactive" data-index="3">
+          <div class="inner">
+            <div class="pTitle"><i class="fa-solid fa-square"></i><span>Test page B</span></div>
+            <div class="steamCard glass shine">
+              <div class="phGrid">
+                <div class="ph">Empty</div>
+                <div class="ph">Empty</div>
+                <div class="ph">Empty</div>
+                <div class="ph">Empty</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
       </div>
     </div>
 
-    <div class="pageDots" id="pageDots" aria-hidden="true">
-      <div class="dot active" data-dot="0"></div>
-      <div class="dot" data-dot="1"></div>
-      <div class="dot" data-dot="2"></div>
-    </div>
+    <!-- Dots (auto) -->
+    <div class="pageDots" id="pageDots" aria-hidden="true"></div>
 
     <!-- Dock -->
     <div class="socialBar glass shine dockShown" id="socialBar">
@@ -666,11 +692,9 @@
       img.onload = () => {
         const next = (bgActive === "A") ? bgB : bgA;
         const prev = (bgActive === "A") ? bgA : bgB;
-
         next.style.backgroundImage = `url("${url}")`;
         next.classList.add("active");
         prev.classList.remove("active");
-
         bgActive = (bgActive === "A") ? "B" : "A";
       };
       img.src = url;
@@ -902,28 +926,55 @@
       }
     }
 
-    /* ===== Iron swipe pager + Dock only on page 0 ===== */
+    /* ===== Iron swipe pager + FIX blur "stuck" + dots auto + dock only page 0 ===== */
     const pager = document.getElementById("pager");
     const track = document.getElementById("track");
     const pages = Array.from(document.querySelectorAll(".mPage"));
-    const dots = Array.from(document.querySelectorAll(".dot"));
     const dock = document.getElementById("socialBar");
+    const dotsWrap = document.getElementById("pageDots");
 
     let index = 0;
     let height = 1;
 
+    function buildDots(){
+      if(!dotsWrap) return;
+      dotsWrap.innerHTML = "";
+      pages.forEach((_, i)=>{
+        const d = document.createElement("div");
+        d.className = "dot" + (i===0 ? " active" : "");
+        d.dataset.dot = String(i);
+        dotsWrap.appendChild(d);
+      });
+    }
+    buildDots();
+    const dots = () => Array.from(document.querySelectorAll(".dot"));
+
+    function isMobile(){
+      return window.matchMedia("(max-width: 620px)").matches;
+    }
+
     function setDockVisible(isVisible){
       if(!dock) return;
-      // Only apply on mobile
-      if (!window.matchMedia("(max-width: 620px)").matches) return;
+      if(!isMobile()) return;
 
       if(isVisible){
         dock.classList.remove("dockHidden");
         dock.classList.add("dockShown");
-      }else{
+      } else {
         dock.classList.remove("dockShown");
         dock.classList.add("dockHidden");
       }
+    }
+
+    // FIX: reset temporary drag styles so blur never "stuck"
+    function resetInnerStyles(){
+      pages.forEach(pg=>{
+        const inner = pg.querySelector(".inner");
+        if(!inner) return;
+        inner.style.opacity = "";
+        inner.style.filter = "";
+        inner.style.transform = "";
+      });
     }
 
     function setActive(i){
@@ -937,10 +988,13 @@
         p.classList.toggle("active", pi===index);
         p.classList.toggle("inactive", pi!==index);
       });
-      dots.forEach((d,di)=> d.classList.toggle("active", di===index));
+      dots().forEach((d,di)=> d.classList.toggle("active", di===index));
 
       // Dock ONLY on page 0
       setDockVisible(index === 0);
+
+      // FIX
+      resetInnerStyles();
     }
 
     function resize(){
@@ -953,21 +1007,21 @@
     // Touch swipe: one gesture = one page
     let startY = 0, startX = 0, dragging = false, lastDy = 0, lock = false, startT = 0;
 
-    const THRESH = 56;     // px
-    const VEL_TRIG = 0.38; // px/ms
+    const THRESH = 56;      // px
+    const VEL_TRIG = 0.38;  // px/ms
 
     function onDown(e){
       if(!pager || lock) return;
       dragging = true;
       lastDy = 0;
       startT = performance.now();
+
       const p = e.touches ? e.touches[0] : e;
       startY = p.clientY;
       startX = p.clientX;
 
       track.style.transition = "none";
       pages.forEach(pg=> pg.querySelector(".inner").style.transition = "none");
-      // IMPORTANT: dock transition stays (no manual opacity while dragging) -> no jitter
     }
 
     function onMove(e){
@@ -976,7 +1030,7 @@
       const dy = p.clientY - startY;
       const dx = p.clientX - startX;
 
-      // Let horizontal gestures go to dock scroll
+      // horizontal = allow dock scroll
       if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 10) return;
 
       e.preventDefault();
@@ -991,7 +1045,7 @@
 
       track.style.transform = `translate3d(0, ${y}px, 0)`;
 
-      // Smooth dissolve current page (no dock dissolve here)
+      // dissolve current page only
       const progress = Math.min(1, Math.abs(dy) / height);
       const cur = pages[index];
       if(cur){
@@ -1018,6 +1072,9 @@
       if(lastDy <= -THRESH || vel <= -VEL_TRIG) next = index + 1;
       else if(lastDy >= THRESH || vel >= VEL_TRIG) next = index - 1;
 
+      // FIX
+      resetInnerStyles();
+
       lock = true;
       setActive(next);
       setTimeout(()=>{ lock = false; }, 380);
@@ -1037,7 +1094,7 @@
     setInterval(getSteam, 12000);
 
     setTimeout(()=>{
-      if (window.matchMedia("(max-width: 620px)").matches) {
+      if (isMobile()) {
         setActive(0);
         setDockVisible(true);
       }
