@@ -11,8 +11,6 @@
     :root{
       --accent: 155 81 255;
       --accent2: 80 220 255;
-
-      /* динамический фон: по умолчанию аватарка */
       --bg: url("avatar.jpg");
 
       --border: rgba(255,255,255,.16);
@@ -26,6 +24,9 @@
       --tiltX: 0deg;
       --tiltY: 0deg;
       --tiltZ: 0px;
+
+      /* for scroll animation */
+      --collapse: 0; /* 0..1 */
     }
 
     *{ box-sizing:border-box; margin:0; padding:0; }
@@ -51,7 +52,6 @@
       z-index:-5;
       transition: filter .35s ease;
     }
-
     .glow{
       position:fixed; inset:-90px;
       z-index:-4;
@@ -64,7 +64,6 @@
       transition: background .35s ease;
     }
 
-    /* liquid overlay */
     .liquid{
       position:fixed; inset:0;
       z-index:-3;
@@ -93,7 +92,6 @@
       background-image:url("https://grainy-gradients.vercel.app/noise.svg");
     }
 
-    /* ===== Glass ===== */
     .glass{
       background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.06));
       border: 1px solid var(--border);
@@ -104,14 +102,12 @@
       overflow: hidden;
     }
 
-    /* glass highlight sweep */
     .shine::after{
       content:"";
       position:absolute;
       inset:-120px;
       background:
-        linear-gradient(110deg,
-          transparent 30%,
+        linear-gradient(110deg, transparent 30%,
           rgba(255,255,255,.18) 45%,
           rgba(255,255,255,.06) 55%,
           transparent 70%);
@@ -129,9 +125,9 @@
       100%{ transform: translateX(70%) rotate(8deg); opacity:0; }
     }
 
-    /* ===== Spotify card ===== */
+    /* ===== Spotify fixed ===== */
     .spotify{
-      position:absolute;
+      position:fixed;
       top:14px;
       left:50%;
       transform:translateX(-50%);
@@ -141,7 +137,7 @@
       display:flex;
       align-items:center;
       gap:12px;
-      z-index:6;
+      z-index:10;
     }
     .spotify::before{
       content:"";
@@ -165,76 +161,19 @@
       transition: opacity .25s ease, transform .25s ease;
       z-index:1;
     }
+    .spotMeta{ min-width:0; display:flex; flex-direction:column; gap:3px; z-index:1; flex:1 1 auto; }
+    .spotTop{ display:flex; align-items:center; gap:8px; font-size:12px; color:rgba(255,255,255,.70); letter-spacing:.2px; }
+    .liveDot{ width:8px;height:8px;border-radius:99px; background:#34c759; box-shadow:0 0 18px rgba(52,199,89,.55); }
 
-    .spotMeta{
-      min-width:0;
-      display:flex;
-      flex-direction:column;
-      gap:3px;
-      z-index:1;
-      flex: 1 1 auto;
-    }
-
-    .spotTop{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      font-size:12px;
-      color:rgba(255,255,255,.70);
-      letter-spacing:.2px;
-    }
-    .liveDot{
-      width:8px;height:8px;border-radius:99px;
-      background:#34c759;
-      box-shadow:0 0 18px rgba(52,199,89,.55);
-    }
-
-    .spotTitle{
-      font-weight:850;
-      font-size:15px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      max-width:520px;
-      will-change: opacity, transform, filter;
-    }
-    .spotArtist{
-      font-size:13px;
-      color:var(--muted);
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      max-width:520px;
-      will-change: opacity, transform, filter;
-    }
-
+    .spotTitle{ font-weight:850; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:520px; will-change:opacity,transform,filter; }
+    .spotArtist{ font-size:13px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:520px; will-change:opacity,transform,filter; }
     .swap-out{ opacity:0; transform: translateY(6px); filter: blur(2px); transition:.22s ease; }
     .swap-in{ opacity:1; transform: translateY(0); filter: blur(0); transition:.22s ease; }
 
-    .spotRight{
-      margin-left:auto;
-      display:flex;
-      align-items:center;
-      gap:10px;
-      z-index:1;
-      flex: 0 0 auto;
-    }
+    .spotRight{ margin-left:auto; display:flex; align-items:center; gap:10px; z-index:1; flex:0 0 auto; }
 
-    /* mono equalizer */
-    .eq{
-      width:34px; height:18px;
-      display:flex;
-      align-items:flex-end;
-      gap:3px;
-      opacity:.92;
-    }
-    .eq span{
-      width:4px; height:6px;
-      border-radius:3px;
-      background:rgba(255,255,255,.86);
-      animation:bounce .9s ease-in-out infinite;
-      transform-origin:bottom;
-    }
+    .eq{ width:34px; height:18px; display:flex; align-items:flex-end; gap:3px; opacity:.92; }
+    .eq span{ width:4px; height:6px; border-radius:3px; background:rgba(255,255,255,.86); animation:bounce .9s ease-in-out infinite; transform-origin:bottom; }
     .eq span:nth-child(2){ animation-delay:.12s }
     .eq span:nth-child(3){ animation-delay:.24s }
     .eq span:nth-child(4){ animation-delay:.36s }
@@ -257,41 +196,23 @@
     .spotBtn i{ color:#1DB954; }
     .spotBtn:hover{ transform: translateY(-1px); background:rgba(255,255,255,.10); }
 
-    /* ===== Progress bar ===== */
-    .progressWrap{
-      margin-top:8px;
-      height:10px;
-      display:none;
-      align-items:center;
-      gap:10px;
-    }
+    .progressWrap{ margin-top:8px; height:10px; display:none; align-items:center; gap:10px; }
     .progressTrack{
-      position:relative;
-      height:6px;
-      width: min(520px, 62vw);
-      border-radius:999px;
-      background: rgba(255,255,255,.10);
-      border:1px solid rgba(255,255,255,.10);
-      overflow:hidden;
+      position:relative; height:6px; width:min(520px, 62vw);
+      border-radius:999px; background:rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.10); overflow:hidden;
     }
     .progressFill{
-      position:absolute;
-      left:0; top:0; bottom:0;
-      width:0%;
-      border-radius:999px;
-      background: rgba(255,255,255,.78);
-      box-shadow: 0 10px 30px rgba(255,255,255,.14);
-      transition: width .35s ease;
+      position:absolute; left:0; top:0; bottom:0; width:0%;
+      border-radius:999px; background:rgba(255,255,255,.78);
+      box-shadow:0 10px 30px rgba(255,255,255,.14); transition: width .35s ease;
     }
     .progressTime{
-      font-size:11px;
-      color: rgba(255,255,255,.65);
-      min-width: 84px;
-      text-align:right;
-      font-variant-numeric: tabular-nums;
+      font-size:11px; color:rgba(255,255,255,.65);
+      min-width:84px; text-align:right; font-variant-numeric: tabular-nums;
     }
 
-    /* ===== Layout ===== */
+    /* ===== Desktop layout remains centered ===== */
     .layout{
       position:relative;
       height:100vh;
@@ -303,7 +224,6 @@
       z-index:1;
     }
 
-    /* NEW: profile row (avatar left, steam card right) */
     .profileRow{
       width:min(980px,94vw);
       display:flex;
@@ -345,45 +265,24 @@
     }
     .avatarImg{ width:100%; display:block; object-fit:cover; transform: scale(1.01); }
 
-    .user{
-      font-size:44px;
-      font-weight:900;
-      letter-spacing:.3px;
-      text-shadow: 0 12px 45px rgba(0,0,0,.6);
-    }
-    .welcome{
-      margin-top:-6px;
-      color:var(--muted);
-      font-size:14px;
-    }
+    .user{ font-size:44px; font-weight:900; letter-spacing:.3px; text-shadow: 0 12px 45px rgba(0,0,0,.6); }
+    .welcome{ margin-top:-6px; color:var(--muted); font-size:14px; }
 
-    /* ===== STEAM CARD (right of avatar) ===== */
+    /* ===== Steam card ===== */
     .steamCard{
       width: min(340px, 90vw);
       border-radius:24px;
-      padding:14px 14px;
+      padding:14px;
       display:flex;
       flex-direction:column;
       gap:10px;
       align-self:flex-start;
     }
-    .steamTop{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-    }
-    .steamBrand{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      min-width:0;
-    }
+    .steamTop{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .steamBrand{ display:flex; align-items:center; gap:10px; min-width:0; }
     .steamLogo{
-      width:44px;height:44px;
-      border-radius:14px;
-      display:grid;
-      place-items:center;
+      width:44px;height:44px;border-radius:14px;
+      display:grid; place-items:center;
       background: rgba(255,255,255,.08);
       border:1px solid rgba(255,255,255,.12);
       box-shadow: 0 12px 30px rgba(0,0,0,.28);
@@ -391,40 +290,18 @@
     }
     .steamLogo i{ color:#66C0F4; font-size:22px; }
     .steamTitleWrap{ min-width:0; }
-    .steamLabel{
-      font-size:12px;
-      color:rgba(255,255,255,.70);
-      letter-spacing:.2px;
-    }
-    .steamPersona{
-      font-size:14px;
-      font-weight:850;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      max-width:230px;
-    }
+    .steamLabel{ font-size:12px; color:rgba(255,255,255,.70); letter-spacing:.2px; }
+    .steamPersona{ font-size:14px; font-weight:850; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:230px; }
 
-    .steamStatus{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      color:rgba(255,255,255,.78);
-      font-size:12px;
-      flex:0 0 auto;
-    }
-    .sDot{
-      width:8px;height:8px;border-radius:99px;
-      background: rgba(255,255,255,.35);
-      box-shadow:none;
-    }
+    .steamStatus{ display:flex; align-items:center; gap:8px; color:rgba(255,255,255,.78); font-size:12px; }
+    .sDot{ width:8px;height:8px;border-radius:99px; background: rgba(255,255,255,.35); box-shadow:none; }
     .sDot.online{ background:#34c759; box-shadow:0 0 18px rgba(52,199,89,.55); }
     .sDot.away{ background:#ffd60a; box-shadow:0 0 18px rgba(255,214,10,.45); }
     .sDot.busy{ background:#ff453a; box-shadow:0 0 18px rgba(255,69,58,.45); }
-    .sDot.offline{ background:rgba(255,255,255,.30); box-shadow:none; }
+    .sDot.offline{ background:rgba(255,255,255,.30); }
 
     .steamGame{
-      padding:12px 12px;
+      padding:12px;
       border-radius:18px;
       background: rgba(255,255,255,.06);
       border:1px solid rgba(255,255,255,.10);
@@ -435,32 +312,13 @@
     }
     .steamGame i{ color:rgba(255,255,255,.75); }
     .steamGameText{ min-width:0; display:flex; flex-direction:column; gap:2px; }
-    .steamGameTitle{
-      font-weight:900;
-      font-size:14px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      max-width:290px;
-    }
-    .steamGameSub{
-      font-size:12px;
-      color:rgba(255,255,255,.70);
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      max-width:290px;
-    }
+    .steamGameTitle{ font-weight:900; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:290px; }
+    .steamGameSub{ font-size:12px; color:rgba(255,255,255,.70); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:290px; }
 
     .steamBtn{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:8px;
-      text-decoration:none;
-      color:rgba(255,255,255,.92);
-      padding:10px 12px;
-      border-radius:14px;
+      display:inline-flex; align-items:center; justify-content:center; gap:8px;
+      text-decoration:none; color:rgba(255,255,255,.92);
+      padding:10px 12px; border-radius:14px;
       border:1px solid rgba(255,255,255,.12);
       background:rgba(255,255,255,.07);
       transition:.18s ease;
@@ -469,23 +327,22 @@
     .steamBtn i{ color:#66C0F4; }
     .steamBtn:hover{ transform: translateY(-1px); background:rgba(255,255,255,.10); }
 
-    /* ===== Social dock ===== */
+    /* ===== Dock fixed ===== */
     .socialBar{
-      position:absolute;
+      position:fixed;
       left:50%;
       transform:translateX(-50%);
       bottom: calc(14px + env(safe-area-inset-bottom));
       width:min(1060px,96vw);
       padding:12px 14px;
       border-radius:28px;
-      z-index:6;
+      z-index:10;
       display:flex;
       justify-content:space-between;
       align-items:center;
       gap:18px;
       overflow:hidden;
     }
-
     .social{
       flex:0 0 auto;
       min-width:76px;
@@ -506,7 +363,6 @@
 
     .social i{ font-size:28px; filter: drop-shadow(0 8px 18px rgba(0,0,0,.35)); }
     .social span{ font-size:12px; color: rgba(255,255,255,.75); }
-
     .telegram i{ color:#2AABEE; }
     .tiktok i{ color:#FE2C55; }
     .discord i{ color:#5865F2; }
@@ -514,12 +370,15 @@
     .steam i{ color:#66C0F4; }
     .spotifyI i{ color:#1DB954; }
 
-    /* ===== Phone ===== */
+    /* ===== MOBILE SCROLL MODE ===== */
+    .scrollArea{ display:none; }
+
     @media (max-width: 620px){
+      /* mobile spotify */
       .spotify{
         top: calc(12px + env(safe-area-inset-top));
         width: calc(100vw - 24px);
-        padding:12px 12px;
+        padding:12px;
         border-radius:20px;
       }
       .spotCover{ width:46px; height:46px; border-radius:14px; }
@@ -529,43 +388,14 @@
       .eq{ width:30px; height:16px; }
       .eq span{ width:3.5px; }
       .spotBtn{ padding:9px 10px; border-radius:14px; }
-
       .progressTrack{ width: min(330px, 56vw); }
       .progressTime{ min-width: 70px; }
 
-      .layout{
-        padding-top: calc(86px + env(safe-area-inset-top));
-        padding-bottom: calc(96px + env(safe-area-inset-bottom));
-      }
-
-      /* mobile layout: stack */
-      .profileRow{
-        flex-direction:column;
-        align-items:center;
-        gap:14px;
-      }
-
-      /* center немного выше/меньше как ты настраивал раньше */
-      .center{
-        transform: translateY(-8vh) scale(.88);
-        transform-origin: center;
-      }
-      .avatarCard{
-        width: min(220px, 60vw);
-        border-radius:22px;
-      }
-      .user{ font-size:32px; }
-      .welcome{ font-size:13px; }
-
-      .steamCard{
-        width: min(520px, 92vw);
-      }
-
-      /* dock scroll */
+      /* mobile dock scroll */
       .socialBar{
         width: calc(100vw - 24px);
         border-radius:24px;
-        padding:10px 10px;
+        padding:10px;
         gap:14px;
 
         justify-content:flex-start;
@@ -577,15 +407,57 @@
         scroll-snap-type: x proximity;
       }
       .socialBar::-webkit-scrollbar{ height:0px; }
-
-      .social{
-        min-width:66px;
-        padding:8px 8px 6px;
-        border-radius:16px;
-        scroll-snap-align: start;
-      }
+      .social{ min-width:66px; padding:8px 8px 6px; border-radius:16px; scroll-snap-align:start; }
       .social i{ font-size:26px; }
       .social span{ font-size:11px; }
+
+      /* enable scroll area between fixed spotify and dock */
+      .layout{ display:none; } /* hide desktop layout */
+      .scrollArea{
+        display:block;
+        position:fixed;
+        left:0; right:0;
+        top: calc(92px + env(safe-area-inset-top)); /* below spotify */
+        bottom: calc(96px + env(safe-area-inset-bottom)); /* above dock */
+        padding: 14px 14px 24px;
+        overflow-y:auto;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+      }
+
+      .mStack{
+        width:100%;
+        max-width: 520px;
+        margin: 0 auto;
+        display:flex;
+        flex-direction:column;
+        gap:14px;
+      }
+
+      /* collapsing header effect: profile shrinks and fades as you scroll */
+      .mProfile{
+        transform:
+          translateY(calc(var(--collapse) * -10px))
+          scale(calc(1 - (var(--collapse) * .12)));
+        opacity: calc(1 - (var(--collapse) * .75));
+        transform-origin: top center;
+        transition: opacity .04s linear, transform .04s linear;
+        will-change: transform, opacity;
+      }
+
+      /* steam rises a bit as scroll increases */
+      .mSteam{
+        transform: translateY(calc((1 - var(--collapse)) * 10px));
+        transition: transform .04s linear;
+        will-change: transform;
+      }
+
+      /* profile sizes */
+      .avatarCard{ width: min(240px, 64vw); border-radius:22px; margin: 0 auto; }
+      .user{ font-size:32px; }
+      .welcome{ font-size:13px; }
+
+      .steamCard{ width: 100%; }
     }
   </style>
 </head>
@@ -606,7 +478,7 @@
   <div class="liquid"></div>
   <div class="grain"></div>
 
-  <!-- Spotify Card -->
+  <!-- Spotify fixed -->
   <div class="spotify glass shine" id="spotifyCard">
     <img id="cover" class="spotCover" alt="cover"/>
     <div class="spotMeta">
@@ -628,7 +500,7 @@
     </div>
   </div>
 
-  <!-- Center area: avatar + Steam card -->
+  <!-- Desktop layout -->
   <div class="layout">
     <div class="profileRow">
       <div class="center">
@@ -639,38 +511,85 @@
         <div class="welcome">welcome to my bio:</div>
       </div>
 
-      <!-- Steam Card -->
-      <div class="steamCard glass shine" id="steamCard">
+      <div class="steamCard glass shine" id="steamCardDesktop">
         <div class="steamTop">
           <div class="steamBrand">
             <div class="steamLogo"><i class="fa-brands fa-steam"></i></div>
             <div class="steamTitleWrap">
               <div class="steamLabel">Steam</div>
-              <div class="steamPersona" id="steamPersona">Loading…</div>
+              <div class="steamPersona" id="steamPersonaD">Loading…</div>
             </div>
           </div>
           <div class="steamStatus">
-            <span class="sDot offline" id="steamDot"></span>
-            <span id="steamStatusText">…</span>
+            <span class="sDot offline" id="steamDotD"></span>
+            <span id="steamStatusTextD">…</span>
           </div>
         </div>
 
-        <div class="steamGame" id="steamGameBox">
+        <div class="steamGame">
           <i class="fa-solid fa-gamepad"></i>
           <div class="steamGameText">
-            <div class="steamGameTitle" id="steamGameTitle">—</div>
-            <div class="steamGameSub" id="steamGameSub">Checking activity…</div>
+            <div class="steamGameTitle" id="steamGameTitleD">—</div>
+            <div class="steamGameSub" id="steamGameSubD">Checking activity…</div>
           </div>
         </div>
 
-        <a class="steamBtn" id="steamOpen" href="https://steamcommunity.com/profiles/76561199064708359/" target="_blank">
+        <a class="steamBtn" id="steamOpenD" href="https://steamcommunity.com/profiles/76561199064708359/" target="_blank">
           <i class="fa-brands fa-steam"></i><span>Open profile</span>
         </a>
       </div>
     </div>
   </div>
 
-  <!-- Social dock -->
+  <!-- Mobile scroll area -->
+  <div class="scrollArea" id="scrollArea">
+    <div class="mStack">
+      <div class="mProfile" id="mProfile">
+        <div class="center">
+          <div class="avatarCard glass shine" id="avatarCardM">
+            <img class="avatarImg" src="avatar.jpg" alt="avatar">
+          </div>
+          <div class="user">@s1deed</div>
+          <div class="welcome">welcome to my bio:</div>
+        </div>
+      </div>
+
+      <div class="mSteam" id="mSteam">
+        <div class="steamCard glass shine" id="steamCardMobile">
+          <div class="steamTop">
+            <div class="steamBrand">
+              <div class="steamLogo"><i class="fa-brands fa-steam"></i></div>
+              <div class="steamTitleWrap">
+                <div class="steamLabel">Steam</div>
+                <div class="steamPersona" id="steamPersonaM">Loading…</div>
+              </div>
+            </div>
+            <div class="steamStatus">
+              <span class="sDot offline" id="steamDotM"></span>
+              <span id="steamStatusTextM">…</span>
+            </div>
+          </div>
+
+          <div class="steamGame">
+            <i class="fa-solid fa-gamepad"></i>
+            <div class="steamGameText">
+              <div class="steamGameTitle" id="steamGameTitleM">—</div>
+              <div class="steamGameSub" id="steamGameSubM">Checking activity…</div>
+            </div>
+          </div>
+
+          <a class="steamBtn" id="steamOpenM" href="https://steamcommunity.com/profiles/76561199064708359/" target="_blank">
+            <i class="fa-brands fa-steam"></i><span>Open profile</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- spacer so it feels natural to scroll -->
+      <div style="height: 220px;"></div>
+    </div>
+  </div>
+
+  <!-- Dock fixed -->
   <div class="socialBar glass shine" id="socialBar">
     <a class="social telegram" href="https://t.me/s1deed" target="_blank"><i class="fa-brands fa-telegram"></i><span>Telegram</span></a>
     <a class="social tiktok" href="https://www.tiktok.com/@s1deeed?_r=1&_t=ZS-92QwHlSQe4j" target="_blank"><i class="fa-brands fa-tiktok"></i><span>TikTok</span></a>
@@ -681,7 +600,6 @@
   </div>
 
   <script>
-    // shine on tap
     function sweepOnce(el){
       if(!el) return;
       el.classList.remove("sweepOnce");
@@ -690,7 +608,6 @@
       setTimeout(()=> el.classList.remove("sweepOnce"), 1100);
     }
 
-    // liquid motion
     function setMotion(clientX, clientY){
       const x = (clientX / window.innerWidth - 0.5) * 18;
       const y = (clientY / window.innerHeight - 0.5) * 18;
@@ -703,40 +620,8 @@
       setMotion(e.touches[0].clientX, e.touches[0].clientY);
     }, {passive:true});
 
-    // avatar tilt
-    const avatarCard = document.getElementById("avatarCard");
-    function setTiltFromPoint(x, y){
-      const rect = avatarCard.getBoundingClientRect();
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top + rect.height / 2;
-      const dx = (x - cx) / rect.width;
-      const dy = (y - cy) / rect.height;
-      const max = 8;
-      const tiltY = dx * max;
-      const tiltX = -dy * max;
-      document.documentElement.style.setProperty("--tiltX", tiltX.toFixed(2) + "deg");
-      document.documentElement.style.setProperty("--tiltY", tiltY.toFixed(2) + "deg");
-      document.documentElement.style.setProperty("--tiltZ", "6px");
-    }
-    function resetTilt(){
-      document.documentElement.style.setProperty("--tiltX", "0deg");
-      document.documentElement.style.setProperty("--tiltY", "0deg");
-      document.documentElement.style.setProperty("--tiltZ", "0px");
-    }
-    if (avatarCard){
-      avatarCard.addEventListener("mousemove", (e)=> setTiltFromPoint(e.clientX, e.clientY));
-      avatarCard.addEventListener("mouseleave", resetTilt);
-      avatarCard.addEventListener("touchstart", ()=> { sweepOnce(avatarCard); }, {passive:true});
-      avatarCard.addEventListener("touchmove", (e)=>{
-        if(!e.touches || !e.touches[0]) return;
-        setTiltFromPoint(e.touches[0].clientX, e.touches[0].clientY);
-      }, {passive:true});
-      avatarCard.addEventListener("touchend", resetTilt, {passive:true});
-    }
-
-    // tap animation on socials
-    const socials = document.querySelectorAll(".social");
-    socials.forEach(a=>{
+    // Tap anim socials
+    document.querySelectorAll(".social").forEach(a=>{
       a.addEventListener("pointerdown", ()=>{
         a.classList.add("tap");
         if (navigator.vibrate) navigator.vibrate(12);
@@ -750,7 +635,7 @@
     const spotifyCard = document.getElementById("spotifyCard");
     if (spotifyCard) spotifyCard.addEventListener("touchstart", ()=> sweepOnce(spotifyCard), {passive:true});
 
-    // ===== Spotify Now Playing + dynamic theme + dynamic background =====
+    // ===== Spotify =====
     const cover = document.getElementById("cover");
     const titleEl = document.getElementById("title");
     const artistEl = document.getElementById("artist");
@@ -802,11 +687,7 @@
     }
 
     function setBackground(urlOrNull){
-      if(urlOrNull){
-        document.documentElement.style.setProperty("--bg", `url("${urlOrNull}")`);
-      } else {
-        document.documentElement.style.setProperty("--bg", DEFAULT_BG);
-      }
+      document.documentElement.style.setProperty("--bg", urlOrNull ? `url("${urlOrNull}")` : DEFAULT_BG);
     }
 
     async function animateSwap(el, newText){
@@ -840,7 +721,6 @@
         stopProgress();
         return;
       }
-
       progressWrap.style.display = "flex";
       progressState = { startTs: Date.now(), progressMs, durationMs };
 
@@ -925,24 +805,51 @@
       }
     }
 
-    // ===== Steam Now Playing =====
-    const steamPersona = document.getElementById("steamPersona");
-    const steamDot = document.getElementById("steamDot");
-    const steamStatusText = document.getElementById("steamStatusText");
-    const steamGameTitle = document.getElementById("steamGameTitle");
-    const steamGameSub = document.getElementById("steamGameSub");
-    const steamOpen = document.getElementById("steamOpen");
+    // ===== Steam =====
+    const D = {
+      persona: document.getElementById("steamPersonaD"),
+      dot: document.getElementById("steamDotD"),
+      status: document.getElementById("steamStatusTextD"),
+      gTitle: document.getElementById("steamGameTitleD"),
+      gSub: document.getElementById("steamGameSubD"),
+      open: document.getElementById("steamOpenD"),
+    };
+    const M = {
+      persona: document.getElementById("steamPersonaM"),
+      dot: document.getElementById("steamDotM"),
+      status: document.getElementById("steamStatusTextM"),
+      gTitle: document.getElementById("steamGameTitleM"),
+      gSub: document.getElementById("steamGameSubM"),
+      open: document.getElementById("steamOpenM"),
+    };
 
-    function setSteamDot(mode){
-      steamDot.className = "sDot " + mode;
+    function setDot(el, mode){
+      if(!el) return;
+      el.className = "sDot " + mode;
     }
-
-    function mapSteamDot(status, inGame){
+    function mapDot(status, inGame){
       if (inGame) return "online";
       if (status === "Online" || status === "Play" || status === "Trade") return "online";
       if (status === "Away" || status === "Snooze") return "away";
       if (status === "Busy") return "busy";
       return "offline";
+    }
+    function applySteamUI(target, d){
+      if(!target.persona) return;
+      target.persona.textContent = d.personaName || "Steam";
+      target.open.href = d.profileUrl || target.open.href;
+
+      const dot = mapDot(d.status, d.isInGame);
+      setDot(target.dot, dot);
+
+      target.status.textContent = d.isInGame ? "Playing now" : (d.status || "—");
+      if (d.isInGame && d.gameName){
+        target.gTitle.textContent = d.gameName;
+        target.gSub.textContent = "Currently in-game";
+      } else {
+        target.gTitle.textContent = "Not in-game";
+        target.gSub.textContent = "No active game";
+      }
     }
 
     async function getSteam(){
@@ -950,39 +857,37 @@
         const r = await fetch("/api/steam", { cache:"no-store" });
         const d = await r.json();
         if(!d || !d.ok){
-          steamPersona.textContent = "Steam";
-          steamStatusText.textContent = "Unavailable";
-          setSteamDot("offline");
-          steamGameTitle.textContent = "—";
-          steamGameSub.textContent = "API not ready";
+          applySteamUI(D, { personaName:"Steam", profileUrl:D.open?.href, status:"Unavailable", isInGame:false, gameName:"" });
+          applySteamUI(M, { personaName:"Steam", profileUrl:M.open?.href, status:"Unavailable", isInGame:false, gameName:"" });
           return;
         }
-
-        steamPersona.textContent = d.personaName || "Steam";
-        steamOpen.href = d.profileUrl || steamOpen.href;
-
-        const dot = mapSteamDot(d.status, d.isInGame);
-        setSteamDot(dot);
-
-        steamStatusText.textContent = d.isInGame ? "Playing now" : (d.status || "—");
-
-        if (d.isInGame && d.gameName){
-          steamGameTitle.textContent = d.gameName;
-          steamGameSub.textContent = "Currently in-game";
-        } else {
-          steamGameTitle.textContent = "Not in-game";
-          steamGameSub.textContent = "No active game";
-        }
+        applySteamUI(D, d);
+        applySteamUI(M, d);
       }catch(e){
-        steamPersona.textContent = "Steam";
-        steamStatusText.textContent = "Error";
-        setSteamDot("offline");
-        steamGameTitle.textContent = "—";
-        steamGameSub.textContent = "Try later";
+        applySteamUI(D, { personaName:"Steam", profileUrl:D.open?.href, status:"Error", isInGame:false, gameName:"" });
+        applySteamUI(M, { personaName:"Steam", profileUrl:M.open?.href, status:"Error", isInGame:false, gameName:"" });
       }
     }
 
-    // initial load + intervals
+    // ===== Mobile collapse on scroll =====
+    const scrollArea = document.getElementById("scrollArea");
+    function clamp01(x){ return Math.max(0, Math.min(1, x)); }
+    function setCollapse(val){
+      document.documentElement.style.setProperty("--collapse", val.toFixed(3));
+    }
+
+    function onScroll(){
+      // 0..1 over first 180px
+      const y = scrollArea.scrollTop || 0;
+      const t = clamp01(y / 180);
+      setCollapse(t);
+    }
+    if (scrollArea){
+      scrollArea.addEventListener("scroll", onScroll, { passive:true });
+      onScroll();
+    }
+
+    // init
     getNowPlaying();
     getSteam();
     setInterval(getNowPlaying, 10000);
