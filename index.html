@@ -20,12 +20,10 @@
     :root{
       --accent: 155 81 255;
       --accent2: 80 220 255;
-
       --border: rgba(255,255,255,.16);
       --text: rgba(255,255,255,.92);
       --muted: rgba(255,255,255,.70);
       --shadow: 0 22px 70px rgba(0,0,0,.45);
-
       --mx: 0px;
       --my: 0px;
     }
@@ -331,7 +329,7 @@
       display:flex;
       align-items:center;
       gap:8px;
-      margin: 2px 0 6px;
+      margin: 0 0 6px 0;
     }
 
     .steamCard.compact{ padding:12px; gap:10px; }
@@ -371,7 +369,6 @@
       letter-spacing:.2px;
     }
 
-    /* ✅ NEW: ровная "подложка" под группой блоков */
     .stack{
       border-radius:28px;
       padding:12px;
@@ -383,7 +380,6 @@
       overflow:hidden;
     }
     .stack .steamCard{ background: transparent; box-shadow:none; border:0; backdrop-filter:none; -webkit-backdrop-filter:none; }
-    /* но внутренние элементы steamCard стеклянные уже сами, так что внешний фон только у stack */
 
     /* ===== Mobile pager ===== */
     .pager{ display:none; }
@@ -426,7 +422,6 @@
         bottom: calc(86px + env(safe-area-inset-bottom));
         overflow:hidden;
         padding: 0 14px;
-
         touch-action: none;
       }
 
@@ -498,7 +493,13 @@
         backdrop-filter: blur(14px);
         -webkit-backdrop-filter: blur(14px);
       }
-      .dot{ width:7px;height:7px;border-radius:99px; background: rgba(255,255,255,.32); opacity:.35; transition:.25s ease; }
+      .dot{
+        width:7px;height:7px;border-radius:99px;
+        background: rgba(255,255,255,.32);
+        opacity:.35;
+        transition:.25s ease;
+        cursor: pointer;
+      }
       .dot.active{ opacity:.95; background: rgba(255,255,255,.88); transform: scale(1.18); }
     }
 
@@ -582,7 +583,6 @@
           <div class="inner scrollable">
             <div class="pTitle"><i class="fa-brands fa-steam"></i><span>Steam</span></div>
 
-            <!-- ✅ ровная подложка под блоками -->
             <div class="stack">
               <div class="steamCard glass shine">
                 <div class="steamTop">
@@ -615,7 +615,7 @@
               </div>
 
               <div class="steamCard compact glass shine">
-                <div class="pTitle" style="margin:0 0 6px;"><i class="fa-solid fa-clock-rotate-left"></i><span>Recently played</span></div>
+                <div class="pTitle"><i class="fa-solid fa-clock-rotate-left"></i><span>Recently played</span></div>
                 <div class="rgList" id="recentList"></div>
               </div>
             </div>
@@ -628,7 +628,6 @@
         <section class="mPage inactive" data-index="2">
           <div class="inner scrollable">
             <div class="pTitle"><i class="fa-solid fa-square"></i><span>Test page A</span></div>
-
             <div class="stack">
               <div class="phGrid">
                 <div class="ph">Block 1</div>
@@ -637,7 +636,6 @@
                 <div class="ph">Block 4</div>
               </div>
             </div>
-
             <div style="height: 18px;"></div>
           </div>
         </section>
@@ -646,7 +644,6 @@
         <section class="mPage inactive" data-index="3">
           <div class="inner scrollable">
             <div class="pTitle"><i class="fa-solid fa-square"></i><span>Test page B</span></div>
-
             <div class="stack">
               <div class="phGrid">
                 <div class="ph">Empty</div>
@@ -655,7 +652,6 @@
                 <div class="ph">Empty</div>
               </div>
             </div>
-
             <div style="height: 18px;"></div>
           </div>
         </section>
@@ -676,6 +672,7 @@
   </div>
 
   <script>
+    // === Утилиты ===
     function setMotion(clientX, clientY){
       const x = (clientX / window.innerWidth - 0.5) * 18;
       const y = (clientY / window.innerHeight - 0.5) * 18;
@@ -696,6 +693,7 @@
       setTimeout(()=> el.classList.remove("sweepOnce"), 1100);
     }
 
+    // === Фон с кроссфейдом ===
     const bgA = document.getElementById("bgA");
     const bgB = document.getElementById("bgB");
     let bgActive = "A";
@@ -720,6 +718,7 @@
     }
     function setDefaultBackground(){ setBackgroundCrossfade("avatar.jpg"); }
 
+    // === Spotify ===
     const spotifyCard = document.getElementById("spotifyCard");
     const cover = document.getElementById("cover");
     const titleEl = document.getElementById("title");
@@ -797,6 +796,7 @@
       }
     }
 
+    // === Steam ===
     const M = {
       persona: document.getElementById("steamPersonaM"),
       dot: document.getElementById("steamDotM"),
@@ -807,7 +807,12 @@
     };
     const recentList = document.getElementById("recentList");
 
-    function setDot(el, mode){ if(!el) return; el.className = "sDot " + mode; }
+    function setDot(el, mode){
+      if(!el) return;
+      el.classList.remove('online','away','busy','offline');
+      el.classList.add(mode);
+    }
+
     function mapDot(status, inGame){
       if (inGame) return "online";
       if (status === "Online" || status === "Play" || status === "Trade") return "online";
@@ -815,15 +820,18 @@
       if (status === "Busy") return "busy";
       return "offline";
     }
+
     function minsToHours(min){
       const h = min / 60;
       return (h >= 100 ? Math.round(h) : Math.round(h*10)/10) + "h";
     }
+
     function escapeHtml(str){
       return String(str).replace(/[&<>"']/g, s => ({
         "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
       }[s]));
     }
+
     function renderRecentInto(container, recent){
       if(!container) return;
       if(!Array.isArray(recent) || recent.length === 0){
@@ -855,6 +863,7 @@
       }).join("");
     }
 
+    // === Таймер сессии Steam ===
     let currentGameId = null;
     let sessionStart = null;
     let sessionTicker = null;
@@ -865,23 +874,29 @@
       const r = s%60;
       return `${m}:${String(r).padStart(2,"0")}`;
     }
+
+    function updateSessionDisplay(totalMin){
+      if (!sessionStart || !M.gSub) return;
+      const dur = Date.now() - sessionStart;
+      const total = (typeof totalMin === "number" && totalMin > 0) ? ` • Total: ${minsToHours(totalMin)}` : "";
+      M.gSub.textContent = `Session: ${fmtSession(dur)}${total}`;
+    }
+
     function stopSession(){
       currentGameId = null;
       sessionStart = null;
       if(sessionTicker) clearInterval(sessionTicker);
       sessionTicker = null;
     }
-    function startSession(gameId){
+
+    function startSession(gameId, totalMin){
       currentGameId = gameId;
       sessionStart = Date.now();
       if(sessionTicker) clearInterval(sessionTicker);
-      sessionTicker = setInterval(()=>{}, 1000);
-    }
-    function getSessionText(totalMinutes){
-      if(!sessionStart) return "Session: 0:00";
-      const dur = Date.now() - sessionStart;
-      const total = (typeof totalMinutes === "number" && totalMinutes > 0) ? ` • Total: ${minsToHours(totalMinutes)}` : "";
-      return `Session: ${fmtSession(dur)}${total}`;
+      // сразу обновим
+      updateSessionDisplay(totalMin);
+      // и запустим интервал
+      sessionTicker = setInterval(() => updateSessionDisplay(totalMin), 1000);
     }
 
     function applySteam(d, sessionText){
@@ -911,29 +926,27 @@
           return;
         }
 
+        // Ищем totalMin для текущей игры (если есть)
         let totalMin = null;
         if (d.gameId && Array.isArray(d.recent)){
           const match = d.recent.find(g => g.appid === d.gameId);
           if (match) totalMin = match.playtime_forever_min;
         }
 
+        // Управление сессией
         if (d.isInGame && d.gameId){
-          if (currentGameId !== d.gameId) startSession(d.gameId);
-        } else stopSession();
-
-        const sessionText = d.isInGame ? getSessionText(totalMin) : "Session: —";
-        applySteam(d, sessionText);
-
-        if (d.isInGame && sessionStart){
-          if(sessionTicker) clearInterval(sessionTicker);
-          sessionTicker = setInterval(()=>{
-            const txt = getSessionText(totalMin);
-            if (M.gSub) M.gSub.textContent = txt;
-          }, 1000);
+          if (currentGameId !== d.gameId) {
+            startSession(d.gameId, totalMin);
+          } else {
+            // игра та же — просто обновим дисплей с актуальным totalMin
+            updateSessionDisplay(totalMin);
+          }
         } else {
-          if(sessionTicker) clearInterval(sessionTicker);
-          sessionTicker = null;
+          stopSession();
         }
+
+        const sessionText = d.isInGame ? getSessionTextFallback(totalMin) : "Session: —";
+        applySteam(d, sessionText);
 
         renderRecentInto(recentList, d.recent || []);
       }catch(e){
@@ -943,6 +956,15 @@
       }
     }
 
+    // fallback, если вдруг сессия не стартанула, но isInGame true
+    function getSessionTextFallback(totalMin){
+      if (!sessionStart) return "Session: 0:00";
+      const dur = Date.now() - sessionStart;
+      const total = (typeof totalMin === "number" && totalMin > 0) ? ` • Total: ${minsToHours(totalMin)}` : "";
+      return `Session: ${fmtSession(dur)}${total}`;
+    }
+
+    // === Mobile Pager ===
     const pager = document.getElementById("pager");
     const track = document.getElementById("track");
     const pages = Array.from(document.querySelectorAll(".mPage"));
@@ -951,6 +973,7 @@
 
     let index = 0;
     let height = 1;
+    let lock = false; // блокировка свайпа во время анимации
 
     function buildDots(){
       if(!dotsWrap) return;
@@ -959,11 +982,16 @@
         const d = document.createElement("div");
         d.className = "dot" + (i===0 ? " active" : "");
         d.dataset.dot = String(i);
+        d.addEventListener("click", (e) => {
+          e.stopPropagation();
+          if (!lock) setActive(i);
+        });
         dotsWrap.appendChild(d);
       });
     }
     buildDots();
-    const dots = () => Array.from(document.querySelectorAll(".dot"));
+
+    function dots() { return Array.from(document.querySelectorAll(".dot")); }
 
     function isMobile(){ return window.matchMedia("(max-width: 620px)").matches; }
 
@@ -984,6 +1012,8 @@
     }
 
     function setActive(i){
+      if (lock) return;
+      lock = true;
       index = Math.max(0, Math.min(pages.length-1, i));
       height = pager ? pager.clientHeight : window.innerHeight;
 
@@ -998,15 +1028,11 @@
 
       setDockVisible(index === 0);
 
-      pages.forEach(pg=>{
-        const inner = pg.querySelector(".inner");
-        if(!inner) return;
-        inner.style.opacity = "";
-        inner.style.transform = "";
-      });
-
+      // сброс скролла при переключении
       const activeInner = pages[index]?.querySelector(".inner.scrollable");
       if(activeInner) activeInner.scrollTop = 0;
+
+      setTimeout(() => { lock = false; }, 380);
     }
 
     function resize(){
@@ -1016,7 +1042,8 @@
     }
     window.addEventListener("resize", resize);
 
-    let startY = 0, dragging = false, lastDy = 0, lock = false, startT = 0;
+    // === Обработка свайпов ===
+    let startY = 0, dragging = false, lastDy = 0, startT = 0;
     const THRESH = 56;
     const VEL_TRIG = 0.38;
 
@@ -1091,9 +1118,7 @@
       if(lastDy <= -THRESH || vel <= -VEL_TRIG) next = index + 1;
       else if(lastDy >= THRESH || vel >= VEL_TRIG) next = index - 1;
 
-      lock = true;
       setActive(next);
-      setTimeout(()=>{ lock = false; }, 380);
     }
 
     if (pager){
@@ -1102,6 +1127,7 @@
       pager.addEventListener("touchend", onUp, {passive:true});
     }
 
+    // === Инициализация ===
     setDefaultBackground();
     getNowPlaying();
     getSteam();
