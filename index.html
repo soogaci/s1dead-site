@@ -20,16 +20,10 @@
 
       --mx: 0px;
       --my: 0px;
-
-      --tiltX: 0deg;
-      --tiltY: 0deg;
-      --tiltZ: 0px;
     }
 
     *{ box-sizing:border-box; margin:0; padding:0; }
     html,body{ height:100%; }
-
-    /* убираем “резиновый” оверскролл глобально (частично) */
     html{ overscroll-behavior: none; }
     body{
       font-family:-apple-system,BlinkMacSystemFont,"Inter",system-ui,sans-serif;
@@ -133,7 +127,7 @@
       top:14px;
       left:50%;
       transform:translateX(-50%);
-      width:min(1060px,92vw); /* БЫЛО 96vw -> стало уже */
+      width:min(1060px,92vw);
       padding:14px 16px;
       border-radius:22px;
       display:flex;
@@ -219,7 +213,7 @@
       left:50%;
       transform:translateX(-50%);
       bottom: calc(14px + env(safe-area-inset-bottom));
-      width:min(1060px,92vw); /* БЫЛО 96vw -> стало уже */
+      width:min(1060px,92vw);
       padding:12px 14px;
       border-radius:28px;
       z-index:10;
@@ -257,7 +251,7 @@
     .steam i{ color:#66C0F4; }
     .spotifyI i{ color:#1DB954; }
 
-    /* ===== Desktop layout (оставляем как было) ===== */
+    /* ===== Desktop layout ===== */
     .layout{
       position:relative;
       height:100vh;
@@ -283,14 +277,19 @@
       gap:10px;
       text-align:center;
     }
+
+    .rightCol{
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+      align-items:stretch;
+    }
+
     .avatarCard{
       width:min(360px,86vw);
       border-radius:26px;
       overflow:hidden;
       position:relative;
-      transform-style: preserve-3d;
-      will-change: transform;
-      transform: perspective(900px) rotateX(var(--tiltX)) rotateY(var(--tiltY)) translateZ(var(--tiltZ));
       transition: transform .12s ease;
     }
     .avatarCard::before{
@@ -308,7 +307,6 @@
     .avatarImg{ width:100%; display:block; object-fit:cover; transform: scale(1.01); }
     .user{ font-size:44px; font-weight:900; letter-spacing:.3px; text-shadow: 0 12px 45px rgba(0,0,0,.6); }
 
-    /* красивый welcome (общий стиль) */
     .welcome{
       margin-top:2px;
       display:inline-flex;
@@ -336,7 +334,6 @@
       display:flex;
       flex-direction:column;
       gap:10px;
-      align-self:flex-start;
     }
     .steamTop{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
     .steamBrand{ display:flex; align-items:center; gap:10px; min-width:0; }
@@ -387,7 +384,7 @@
     .steamBtn i{ color:#66C0F4; }
     .steamBtn:hover{ transform: translateY(-1px); background:rgba(255,255,255,.10); }
 
-    /* Recent games page cards */
+    /* Recent games cards */
     .rgList{ display:flex; flex-direction:column; gap:10px; }
     .rgItem{
       padding:12px;
@@ -421,8 +418,18 @@
       box-shadow: 0 12px 26px rgba(0,0,0,.28);
       flex:0 0 auto;
     }
+    .pTitle{
+      font-size:12px;
+      color: rgba(255,255,255,.70);
+      letter-spacing:.2px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin-bottom: 2px;
+    }
+    .pTitle i{ opacity:.9; }
 
-    /* ===== Page dots (mobile) ===== */
+    /* ===== Mobile paging + dots ===== */
     .pageDots{
       position:fixed;
       right:10px;
@@ -451,33 +458,31 @@
       transform: scale(1.15);
     }
 
-    /* ===== Mobile: paging scroll area ===== */
     .scrollPages{ display:none; }
+    .pageInner{ will-change: transform, opacity, filter; }
 
     @media (max-width: 620px){
-      /* spotify mobile: уже по ширине */
+      /* Spotify: шире по бокам, но тоньше по высоте */
       .spotify{
         top: calc(12px + env(safe-area-inset-top));
-        width: calc(100vw - 44px); /* было -24 -> стало уже */
-        padding:12px;
+        width: calc(100vw - 28px);     /* шире */
+        padding:10px 12px;            /* ниже по высоте */
         border-radius:20px;
       }
-      .spotCover{ width:46px; height:46px; border-radius:14px; }
-      .spotTitle,.spotArtist{ max-width:190px; }
+      .spotCover{ width:44px; height:44px; border-radius:14px; } /* чуть меньше */
       .spotTitle{ font-size:13px; }
       .spotArtist{ font-size:12px; }
-      .eq{ width:30px; height:16px; }
+      .eq{ width:28px; height:14px; }
       .eq span{ width:3.5px; }
-      .spotBtn{ padding:9px 10px; border-radius:14px; }
-      .progressTrack{ width: min(330px, 56vw); }
-      .progressTime{ min-width: 70px; }
+      .spotBtn{ padding:8px 10px; border-radius:14px; }
+      .progressWrap{ display:none !important; } /* на телефоне тонкий вид */
 
-      /* dock mobile: уже по ширине */
+      /* Dock: чуть шире по бокам, но ниже по высоте */
       .socialBar{
-        width: calc(100vw - 44px); /* было -24 -> стало уже */
+        width: calc(100vw - 40px); /* dock уже, чем spotify, но шире чем раньше */
         border-radius:24px;
-        padding:10px;
-        gap:14px;
+        padding:8px 10px;          /* ниже по высоте */
+        gap:12px;
         justify-content:flex-start;
         overflow-x:auto;
         overflow-y:hidden;
@@ -487,30 +492,30 @@
         scroll-snap-type: x proximity;
       }
       .socialBar::-webkit-scrollbar{ height:0px; }
-      .social{ min-width:66px; padding:8px 8px 6px; border-radius:16px; scroll-snap-align:start; }
-      .social i{ font-size:26px; }
+      .social{
+        min-width:64px;
+        padding:6px 8px 6px;
+        border-radius:16px;
+        scroll-snap-align:start;
+      }
+      .social i{ font-size:24px; }
       .social span{ font-size:11px; }
 
-      /* disable desktop layout */
       .layout{ display:none; }
-
-      /* show dots */
       .pageDots{ display:flex; }
 
-      /* pages container between spotify and dock */
       .scrollPages{
         display:block;
         position:fixed;
         left:0; right:0;
-        top: calc(92px + env(safe-area-inset-top));
-        bottom: calc(96px + env(safe-area-inset-bottom));
+        top: calc(84px + env(safe-area-inset-top));      /* чуть выше, т.к. spotify тоньше */
+        bottom: calc(86px + env(safe-area-inset-bottom));/* чуть выше, т.к. dock ниже */
         padding: 0 14px;
         overflow-y:auto;
         -webkit-overflow-scrolling: touch;
-
         scroll-snap-type: y mandatory;
         scroll-snap-stop: always;
-        overscroll-behavior-y: contain; /* + */
+        overscroll-behavior-y: contain;
       }
       .scrollPages::-webkit-scrollbar{ width:0px; }
 
@@ -528,28 +533,14 @@
         display:flex;
         flex-direction:column;
         gap:14px;
-      }
-
-      /* page1: чуть ниже (как ты просил ранее) */
-      .page.profile .pageInner{
         transform: translateY(1vh);
       }
 
-      /* ==== УМЕНЬШАЕМ АВА + ЮЗ + WELCOME НА 10% ==== */
-      .avatarCard{ width: min(216px, 58vw); border-radius:22px; margin: 0 auto; } /* было 240/64 -> -10% */
-      .user{ font-size:28.8px; } /* было 32 -> -10% */
-      .welcome{ font-size:12px; padding:7px 11px; } /* -10% */
+      /* profile sizes mobile */
+      .avatarCard{ width: min(216px, 58vw); border-radius:22px; margin: 0 auto; }
+      .user{ font-size:28.8px; }
+      .welcome{ font-size:12px; padding:7px 11px; }
       .steamCard{ width:100%; }
-
-      .pTitle{
-        font-size:12px;
-        color: rgba(255,255,255,.70);
-        letter-spacing:.2px;
-        display:flex;
-        align-items:center;
-        gap:8px;
-      }
-      .pTitle i{ opacity:.9; }
     }
   </style>
 </head>
@@ -596,100 +587,46 @@
   <div class="layout">
     <div class="profileRow">
       <div class="center">
-        <div class="avatarCard glass shine" id="avatarCard">
+        <div class="avatarCard glass shine">
           <img class="avatarImg" src="avatar.jpg" alt="avatar">
         </div>
         <div class="user">@s1deed</div>
         <div class="welcome"><i class="fa-solid fa-sparkles"></i> welcome to my bio</div>
       </div>
 
-      <div class="steamCard glass shine" id="steamCardDesktop">
-        <div class="steamTop">
-          <div class="steamBrand">
-            <div class="steamLogo"><i class="fa-brands fa-steam"></i></div>
-            <div class="steamTitleWrap">
-              <div class="steamLabel">Steam</div>
-              <div class="steamPersona" id="steamPersonaD">Loading…</div>
-            </div>
-          </div>
-          <div class="steamStatus">
-            <span class="sDot offline" id="steamDotD"></span>
-            <span id="steamStatusTextD">…</span>
-          </div>
-        </div>
-
-        <div class="steamGame">
-          <i class="fa-solid fa-gamepad"></i>
-          <div class="steamGameText">
-            <div class="steamGameTitle" id="steamGameTitleD">—</div>
-            <div class="steamGameSub" id="steamGameSubD">Checking activity…</div>
-          </div>
-        </div>
-
-        <a class="steamBtn" id="steamOpenD" href="https://steamcommunity.com/profiles/76561199064708359/" target="_blank">
-          <i class="fa-brands fa-steam"></i><span>Open profile</span>
-        </a>
-      </div>
-    </div>
-  </div>
-
-  <!-- Mobile: pages -->
-  <div class="scrollPages" id="scrollPages">
-    <!-- Page 1: Profile -->
-    <section class="page profile" data-index="0">
-      <div class="pageInner">
-        <div class="center">
-          <div class="avatarCard glass shine" id="avatarCardM">
-            <img class="avatarImg" src="avatar.jpg" alt="avatar">
-          </div>
-          <div class="user">@s1deed</div>
-          <div class="welcome"><i class="fa-solid fa-sparkles"></i> welcome to my bio</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Page 2: Steam activity -->
-    <section class="page" data-index="1">
-      <div class="pageInner">
-        <div class="pTitle"><i class="fa-brands fa-steam"></i><span>Steam activity</span></div>
-
-        <div class="steamCard glass shine" id="steamCardMobile">
+      <!-- RIGHT COLUMN: Steam + Recent games (PC too) -->
+      <div class="rightCol">
+        <div class="steamCard glass shine" id="steamCardDesktop">
           <div class="steamTop">
             <div class="steamBrand">
               <div class="steamLogo"><i class="fa-brands fa-steam"></i></div>
               <div class="steamTitleWrap">
                 <div class="steamLabel">Steam</div>
-                <div class="steamPersona" id="steamPersonaM">Loading…</div>
+                <div class="steamPersona" id="steamPersonaD">Loading…</div>
               </div>
             </div>
             <div class="steamStatus">
-              <span class="sDot offline" id="steamDotM"></span>
-              <span id="steamStatusTextM">…</span>
+              <span class="sDot offline" id="steamDotD"></span>
+              <span id="steamStatusTextD">…</span>
             </div>
           </div>
 
           <div class="steamGame">
             <i class="fa-solid fa-gamepad"></i>
             <div class="steamGameText">
-              <div class="steamGameTitle" id="steamGameTitleM">—</div>
-              <div class="steamGameSub" id="steamGameSubM">Session: 0:00</div>
+              <div class="steamGameTitle" id="steamGameTitleD">—</div>
+              <div class="steamGameSub" id="steamGameSubD">Checking activity…</div>
             </div>
           </div>
 
-          <a class="steamBtn" id="steamOpenM" href="https://steamcommunity.com/profiles/76561199064708359/" target="_blank">
+          <a class="steamBtn" id="steamOpenD" href="https://steamcommunity.com/profiles/76561199064708359/" target="_blank">
             <i class="fa-brands fa-steam"></i><span>Open profile</span>
           </a>
         </div>
-      </div>
-    </section>
-
-    <!-- Page 3: Recent games -->
-    <section class="page" data-index="2">
-      <div class="pageInner">
-        <div class="pTitle"><i class="fa-solid fa-clock-rotate-left"></i><span>Recently played</span></div>
 
         <div class="steamCard glass shine">
-          <div class="rgList" id="recentList">
+          <div class="pTitle"><i class="fa-solid fa-clock-rotate-left"></i><span>Recently played</span></div>
+          <div class="rgList" id="recentListD">
             <div class="rgItem">
               <div class="rgLeft">
                 <div class="rgName">Loading…</div>
@@ -700,7 +637,64 @@
           </div>
         </div>
       </div>
-    </section>
+    </div>
+  </div>
+
+  <!-- Mobile: pages -->
+  <div class="scrollPages" id="scrollPages">
+    <section class="page" data-index="0"><div class="pageInner">
+      <div class="center">
+        <div class="avatarCard glass shine"><img class="avatarImg" src="avatar.jpg" alt="avatar"></div>
+        <div class="user">@s1deed</div>
+        <div class="welcome"><i class="fa-solid fa-sparkles"></i> welcome to my bio</div>
+      </div>
+    </div></section>
+
+    <section class="page" data-index="1"><div class="pageInner">
+      <div class="pTitle"><i class="fa-brands fa-steam"></i><span>Steam activity</span></div>
+      <div class="steamCard glass shine" id="steamCardMobile">
+        <div class="steamTop">
+          <div class="steamBrand">
+            <div class="steamLogo"><i class="fa-brands fa-steam"></i></div>
+            <div class="steamTitleWrap">
+              <div class="steamLabel">Steam</div>
+              <div class="steamPersona" id="steamPersonaM">Loading…</div>
+            </div>
+          </div>
+          <div class="steamStatus">
+            <span class="sDot offline" id="steamDotM"></span>
+            <span id="steamStatusTextM">…</span>
+          </div>
+        </div>
+
+        <div class="steamGame">
+          <i class="fa-solid fa-gamepad"></i>
+          <div class="steamGameText">
+            <div class="steamGameTitle" id="steamGameTitleM">—</div>
+            <div class="steamGameSub" id="steamGameSubM">Session: 0:00</div>
+          </div>
+        </div>
+
+        <a class="steamBtn" id="steamOpenM" href="https://steamcommunity.com/profiles/76561199064708359/" target="_blank">
+          <i class="fa-brands fa-steam"></i><span>Open profile</span>
+        </a>
+      </div>
+    </div></section>
+
+    <section class="page" data-index="2"><div class="pageInner">
+      <div class="pTitle"><i class="fa-solid fa-clock-rotate-left"></i><span>Recently played</span></div>
+      <div class="steamCard glass shine">
+        <div class="rgList" id="recentList">
+          <div class="rgItem">
+            <div class="rgLeft">
+              <div class="rgName">Loading…</div>
+              <div class="rgMeta"><span>—</span></div>
+            </div>
+            <div style="width:92px;height:52px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10)"></div>
+          </div>
+        </div>
+      </div>
+    </div></section>
   </div>
 
   <!-- Page dots -->
@@ -721,7 +715,6 @@
   </div>
 
   <script>
-    /* ===== visuals helpers ===== */
     function sweepOnce(el){
       if(!el) return;
       el.classList.remove("sweepOnce");
@@ -742,7 +735,6 @@
       setMotion(e.touches[0].clientX, e.touches[0].clientY);
     }, {passive:true});
 
-    // Social tap
     document.querySelectorAll(".social").forEach(a=>{
       a.addEventListener("pointerdown", ()=>{
         a.classList.add("tap");
@@ -757,7 +749,7 @@
     const spotifyCard = document.getElementById("spotifyCard");
     if (spotifyCard) spotifyCard.addEventListener("touchstart", ()=> sweepOnce(spotifyCard), {passive:true});
 
-    /* ===== Spotify Now Playing ===== */
+    /* ===== Spotify ===== */
     const cover = document.getElementById("cover");
     const titleEl = document.getElementById("title");
     const artistEl = document.getElementById("artist");
@@ -877,6 +869,7 @@
         liveDot.style.boxShadow = "0 0 18px rgba(52,199,89,.55)";
         eq.classList.remove("paused");
 
+        // прогресс показываем на ПК, на мобилке скрыт CSS-ом
         startRealProgress(d.progressMs, d.durationMs);
 
         const key = `${d.title}__${d.artist}__${d.cover}`;
@@ -920,7 +913,7 @@
       }
     }
 
-    /* ===== Steam + Recent from /api/steam ===== */
+    /* ===== Steam + Recent ===== */
     const D = {
       persona: document.getElementById("steamPersonaD"),
       dot: document.getElementById("steamDotD"),
@@ -937,7 +930,9 @@
       gSub: document.getElementById("steamGameSubM"),
       open: document.getElementById("steamOpenM"),
     };
+
     const recentList = document.getElementById("recentList");
+    const recentListD = document.getElementById("recentListD");
 
     function setDot(el, mode){
       if(!el) return;
@@ -1008,10 +1003,11 @@
         "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
       }[s]));
     }
-    function renderRecent(recent){
-      if(!recentList) return;
+
+    function renderRecentInto(container, recent){
+      if(!container) return;
       if(!Array.isArray(recent) || recent.length === 0){
-        recentList.innerHTML = `
+        container.innerHTML = `
           <div class="rgItem">
             <div class="rgLeft">
               <div class="rgName">No recent games</div>
@@ -1021,7 +1017,7 @@
           </div>`;
         return;
       }
-      recentList.innerHTML = recent.map(g=>{
+      container.innerHTML = recent.map(g=>{
         const twoWeeks = g.playtime_2weeks_min ? minsToHours(g.playtime_2weeks_min) : "0h";
         const forever = g.playtime_forever_min ? minsToHours(g.playtime_forever_min) : "0h";
         return `
@@ -1047,7 +1043,8 @@
         if(!d || !d.ok){
           applySteamUI(D, { personaName:"Steam", profileUrl:D.open?.href, status:"Unavailable", isInGame:false, gameName:"", gameId:null }, "Session: —");
           applySteamUI(M, { personaName:"Steam", profileUrl:M.open?.href, status:"Unavailable", isInGame:false, gameName:"", gameId:null }, "Session: —");
-          renderRecent([]);
+          renderRecentInto(recentList, []);
+          renderRecentInto(recentListD, []);
           stopSession();
           return;
         }
@@ -1083,16 +1080,18 @@
           sessionTicker = null;
         }
 
-        renderRecent(d.recent || []);
+        renderRecentInto(recentList, d.recent || []);
+        renderRecentInto(recentListD, d.recent || []);
       } catch(e){
         applySteamUI(D, { personaName:"Steam", profileUrl:D.open?.href, status:"Error", isInGame:false, gameName:"", gameId:null }, "Session: —");
         applySteamUI(M, { personaName:"Steam", profileUrl:M.open?.href, status:"Error", isInGame:false, gameName:"", gameId:null }, "Session: —");
-        renderRecent([]);
+        renderRecentInto(recentList, []);
+        renderRecentInto(recentListD, []);
         stopSession();
       }
     }
 
-    /* ===== Mobile paging + dots + NO overscroll at edges ===== */
+    /* ===== Mobile paging + dots + исчезание предыдущей страницы ===== */
     const pages = document.getElementById("scrollPages");
     const dots = Array.from(document.querySelectorAll(".dot"));
     const PAGE_COUNT = 3;
@@ -1100,14 +1099,13 @@
     function setActiveDot(idx){
       dots.forEach(d => d.classList.toggle("active", Number(d.dataset.dot) === idx));
     }
-    function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
+    function clamp(v,a,b){ return Math.max(a, Math.min(b,v)); }
     function pageHeight(){ return pages ? (pages.clientHeight || 1) : 1; }
     function maxTop(){ return (PAGE_COUNT - 1) * pageHeight(); }
     function currentIndex(){
       if(!pages) return 0;
       return clamp(Math.round(pages.scrollTop / pageHeight()), 0, PAGE_COUNT - 1);
     }
-
     function snapTo(idx, smooth=true){
       if(!pages) return;
       const i = clamp(idx, 0, PAGE_COUNT - 1);
@@ -1116,22 +1114,44 @@
       setActiveDot(i);
     }
 
+    // Page fade/blur/scale (responsive like music apps)
+    function updatePageFX(){
+      if(!pages) return;
+      const h = pageHeight();
+      const st = pages.scrollTop;
+      const pageEls = pages.querySelectorAll(".page");
+      pageEls.forEach((p, i)=>{
+        const inner = p.querySelector(".pageInner");
+        if(!inner) return;
+        const target = i * h;
+        const dist = (st - target) / h; // -1..1 around this page
+        const a = Math.min(1, Math.abs(dist));
+
+        const opacity = 1 - Math.min(0.88, a * 1.05);
+        const scale   = 1 - Math.min(0.06, a * 0.06);
+        const blur    = Math.min(8, a * 8);
+
+        inner.style.opacity = opacity.toFixed(3);
+        inner.style.transform = `translateY(1vh) scale(${scale.toFixed(3)})`;
+        inner.style.filter = `blur(${blur.toFixed(2)}px)`;
+      });
+    }
+
     if (pages){
-      // clamp on scroll (чтобы не “ползло”)
       pages.addEventListener("scroll", ()=>{
+        // clamp edges
         const st = pages.scrollTop;
         if (st < 0) pages.scrollTop = 0;
         if (st > maxTop()) pages.scrollTop = maxTop();
         setActiveDot(currentIndex());
+        updatePageFX();
       }, { passive:true });
 
-      // dots click
       dots.forEach(d=>{
         d.addEventListener("click", ()=> snapTo(Number(d.dataset.dot), true));
       });
 
-      // HARD edge lock for iOS rubber-band:
-      // prevent further pull when already at edges
+      // hard edge lock for iOS rubber-band
       let y0 = 0, lastY = 0;
       pages.addEventListener("touchstart", (e)=>{
         if(!e.touches || !e.touches[0]) return;
@@ -1141,36 +1161,32 @@
       pages.addEventListener("touchmove", (e)=>{
         if(!e.touches || !e.touches[0]) return;
         lastY = e.touches[0].clientY;
-        const delta = lastY - y0; // + вниз, - вверх
+        const delta = lastY - y0;
         const st = pages.scrollTop;
-
-        // верхняя граница: тянем вниз на первой странице -> стоп
-        if (st <= 0 && delta > 0){
-          e.preventDefault();
-        }
-        // нижняя граница: тянем вверх на последней -> стоп
-        if (st >= maxTop() && delta < 0){
-          e.preventDefault();
-        }
+        if (st <= 0 && delta > 0) e.preventDefault();
+        if (st >= maxTop() && delta < 0) e.preventDefault();
       }, { passive:false });
 
-      // “железный” свайп: один свайп = одна страница, мягко
+      // one swipe = one page
       pages.addEventListener("touchend", ()=>{
-        const delta = lastY - y0; // + вниз
+        const delta = lastY - y0;
         const idx = currentIndex();
         if (Math.abs(delta) > 60){
           if (delta < 0) snapTo(idx + 1, true);
           else snapTo(idx - 1, true);
-        } else {
-          snapTo(idx, true);
-        }
+        } else snapTo(idx, true);
       }, { passive:true });
 
-      // при ресайзе (ориентация) — переснап
-      window.addEventListener("resize", ()=> snapTo(currentIndex(), false), { passive:true });
+      window.addEventListener("resize", ()=>{
+        snapTo(currentIndex(), false);
+        updatePageFX();
+      }, { passive:true });
+
+      // initial fx
+      requestAnimationFrame(updatePageFX);
     }
 
-    /* init */
+    // init
     getNowPlaying();
     getSteam();
     setInterval(getNowPlaying, 10000);
