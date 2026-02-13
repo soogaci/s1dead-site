@@ -29,10 +29,10 @@
       --mx: 0px;
       --my: 0px;
 
-      /* ✅ Реальная высота экрана для Safari (JS будет обновлять) */
+      /* ✅ Реальная высота экрана для Safari */
       --appH: 100vh;
 
-      /* ✅ Отступы пейджера (JS будет выставлять) */
+      /* ✅ Отступы пейджера */
       --pagerTop: 96px;
       --pagerBottom: 96px;
     }
@@ -372,19 +372,6 @@
       flex:0 0 auto;
     }
 
-    /* Placeholders */
-    .phGrid{ display:grid; grid-template-columns: repeat(2, 1fr); gap:12px; }
-    .ph{
-      height:120px;
-      border-radius:22px;
-      background: rgba(255,255,255,.06);
-      border:1px dashed rgba(255,255,255,.18);
-      display:flex; align-items:center; justify-content:center;
-      color:rgba(255,255,255,.65);
-      font-weight:800;
-      letter-spacing:.2px;
-    }
-
     /* ===== Mobile pager ===== */
     .pager{ display:none; }
     .pageDots{ display:none; }
@@ -422,14 +409,10 @@
         position:fixed;
         left:0; right:0;
         z-index:20;
-
-        /* ✅ вместо фиксированных 84/86 — реальные отступы */
         top: calc(var(--pagerTop) + env(safe-area-inset-top));
         bottom: calc(var(--pagerBottom) + env(safe-area-inset-bottom));
-
         overflow:hidden;
         padding: 0 14px;
-
         touch-action: none;
       }
 
@@ -452,10 +435,7 @@
       .inner{
         width:100%;
         max-width:520px;
-
-        /* ✅ центрируем контент нормально */
         margin: 0 auto;
-
         display:flex;
         flex-direction:column;
         gap:14px;
@@ -469,10 +449,7 @@
         height:100%;
         overflow-y:auto;
         -webkit-overflow-scrolling: touch;
-
-        /* ✅ чуть больше воздуха снизу чтобы не резало карточки */
         padding-bottom: 32px;
-
         overscroll-behavior: contain;
       }
       .inner.scrollable::-webkit-scrollbar{ width:0px; }
@@ -492,10 +469,9 @@
       .user{ font-size:28.8px; }
       .welcome{ font-size:12px; padding:7px 11px; }
 
-      /* ✅ Steam заголовки не липнут к краю */
       .pTitle{ padding-left: 2px; margin: 6px 0 8px; }
 
-      /* ✅ ВОТ ТВОЙ ОТСУП: между Steam карточкой и Recently played */
+      /* ✅ чуть больше отступ между Steam и Recently played */
       .steamCard.compact{ margin-top: 12px; }
 
       .pageDots{
@@ -636,38 +612,6 @@
             <div style="height: 18px;"></div>
           </div>
         </section>
-
-        <!-- Page 2 (Test A) -->
-        <section class="mPage inactive" data-index="2">
-          <div class="inner scrollable">
-            <div class="pTitle"><i class="fa-solid fa-square"></i><span>Test page A</span></div>
-            <div class="steamCard glass shine">
-              <div class="phGrid">
-                <div class="ph">Block 1</div>
-                <div class="ph">Block 2</div>
-                <div class="ph">Block 3</div>
-                <div class="ph">Block 4</div>
-              </div>
-            </div>
-            <div style="height: 18px;"></div>
-          </div>
-        </section>
-
-        <!-- Page 3 (Test B) -->
-        <section class="mPage inactive" data-index="3">
-          <div class="inner scrollable">
-            <div class="pTitle"><i class="fa-solid fa-square"></i><span>Test page B</span></div>
-            <div class="steamCard glass shine">
-              <div class="phGrid">
-                <div class="ph">Empty</div>
-                <div class="ph">Empty</div>
-                <div class="ph">Empty</div>
-                <div class="ph">Empty</div>
-              </div>
-            </div>
-            <div style="height: 18px;"></div>
-          </div>
-        </section>
       </div>
     </div>
 
@@ -685,9 +629,7 @@
   </div>
 
   <script>
-    /* ===========================
-       ✅ SAFARI iOS FIX: real viewport height
-       =========================== */
+    /* ✅ SAFARI iOS FIX: real viewport height */
     function applyAppHeight(){
       const vv = window.visualViewport;
       const h = vv ? vv.height : window.innerHeight;
@@ -701,7 +643,6 @@
       window.visualViewport.addEventListener("scroll", applyAppHeight, {passive:true});
     }
 
-    /* ✅ выставляем реальные top/bottom для pager чтобы не было “огромных рамок” */
     function applyPagerInsets(){
       const spotify = document.getElementById("spotifyCard");
       const dock = document.getElementById("socialBar");
@@ -709,10 +650,7 @@
       const spotH = spotify ? spotify.getBoundingClientRect().height : 72;
       const dockH = dock ? dock.getBoundingClientRect().height : 78;
 
-      // верх: высота споти + небольшой воздух
       const top = Math.round(spotH + 18);
-
-      // низ: если док видим — от него, если скрыт — минимально
       const dockVisible = dock && !dock.classList.contains("dockHidden");
       const bottom = dockVisible ? Math.round(dockH + 16) : 18;
 
@@ -1024,7 +962,7 @@
         dock.classList.remove("dockShown");
         dock.classList.add("dockHidden");
       }
-      applyPagerInsets(); // ✅ пересчёт нижнего отступа
+      applyPagerInsets();
     }
 
     function translateFor(i, extraDy=0){
